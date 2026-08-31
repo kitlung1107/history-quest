@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-Hant-HK">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="robots" content="noindex" /><title>History Quest GitHub 授權</title></head>
+  <body style="font-family:system-ui,sans-serif;background:#172A3A;color:#F6E7C1;display:grid;place-items:center;min-height:100vh;margin:0">
+    <main style="max-width:540px;padding:32px;border:4px solid #F6E7C1;box-shadow:8px 8px 0 #D94F4F"><strong>History Quest GitHub 授權</strong><p id="status">正在準備安全登入…</p></main>
+    <script>
+      // 部署 OAuth App 後會由建置流程填入公開 Client ID 與私人 GAS 代理 URL；Client Secret 絕不放在網站。
+      const client_config = { github_client_id: "Ov23libfz1ZtudChT9iD", apps_script_url: "https://script.google.com/macros/s/AKfycbyITPZjoTaI6mFZrYzCkkJbKOAlUrVvcLcHFhRXzw8X9QfcGYsRCjW4VpdcT7Rh5FD0/exec", pkce_client_endpoint: "https://kitlung1107.github.io/history-quest/cms/client.html" };
+      const status = document.getElementById("status");
+      const params = new URLSearchParams(location.search);
+      const random = () => Array.from(crypto.getRandomValues(new Uint32Array(28)), value => ("0" + value.toString(16)).slice(-2)).join("");
+      const base64url = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+      async function begin(){
+        if(client_config.github_client_id.startsWith("__")){ status.textContent="OAuth 尚未完成設定，請通知網站管理員。"; return; }
+        if(params.get("code") && params.get("state") === localStorage.getItem("pkce_state")){
+          const body = new URLSearchParams({grant_type:"authorization_code",code:params.get("code"),state:params.get("state"),client_id:client_config.github_client_id,redirect_uri:client_config.pkce_client_endpoint,code_verifier:localStorage.getItem("pkce_code_verifier")||""});
+          localStorage.removeItem("pkce_state"); localStorage.removeItem("pkce_code_verifier");
+          const response = await fetch(client_config.apps_script_url,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body});
+          const json = await response.json();
+          const message = json.access_token ? `authorization:github:success:{"token":"${json.access_token}","provider":"github"}` : `authorization:github:error:${JSON.stringify(json)}`;
+          const receive = event => { window.opener?.postMessage(message,event.origin); window.removeEventListener("message",receive); };
+          window.addEventListener("message",receive); window.opener?.postMessage("authorizing:github","*"); status.textContent=json.access_token?"授權成功，正在返回編輯室…":"授權失敗，請關閉視窗後再試。"; return;
+        }
+        if(params.get("provider") === "github"){
+          const verifier=random(); const challenge=base64url(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(verifier))); const state=random();
+          localStorage.setItem("pkce_code_verifier",verifier); localStorage.setItem("pkce_state",state);
+          const target=new URL(client_config.apps_script_url); target.search=new URLSearchParams({response_type:"code",client_id:client_config.github_client_id,scope:"repo",redirect_uri:client_config.pkce_client_endpoint,code_challenge:challenge,code_challenge_method:"S256",state}).toString(); location.href=target.toString();
+        }
+      }
+      begin().catch(() => { status.textContent="授權連線失敗，請關閉視窗後再試。"; });
+    </script>
+  </body>
+</html>

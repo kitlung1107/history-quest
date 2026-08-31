@@ -1,0 +1,22 @@
+{
+  "task_id": "S3_HK_EarlyDevelopment_Reading",
+  "grade": 3,
+  "topic": "香港史",
+  "type": "article",
+  "label": "學習任務",
+  "title": "香港開埠與早期發展",
+  "description": "由一幅海港圖開始，追蹤香港如何由沿岸聚落發展成轉口港。",
+  "duration": 12,
+  "difficulty": 3,
+  "image": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/UKcrbrknsGwZLUyU.png",
+  "accent": "teal",
+  "article": "## 號外：維多利亞港的城市轉變\n\n十九世紀中葉，香港的港口位置、天然水深和鄰近華南市場，逐漸令它成為區域航運與轉口貿易的重要節點。開埠後，碼頭、貨倉、道路和公共設施陸續興建，人口與商業活動亦快速增加。\n\n不過，城市發展並非只有「繁榮」一面。華洋分治、公共衞生、住屋擠迫和勞工生活，都是理解早期香港社會不可忽略的線索。閱讀史料時，我們要問：**由誰記錄、為誰而寫、又遺漏了哪些人的經驗？**\n\n> 歷史偵探提示：比較政府報告、報章廣告與普通市民回憶，往往會看見完全不同的香港。",
+  "videoUrl": "",
+  "gameUrl": "",
+  "question": {
+    "prompt": "以下哪一項最能解釋香港早期轉口貿易的發展？",
+    "options": ["天然深水港與鄰近華南市場", "本地盛產煤礦", "完全沒有區域競爭", "所有居民都從事航運"],
+    "answer": 0,
+    "explanation": "天然港口條件與地理位置，是香港發展航運及轉口貿易的重要因素。"
+  }
+}

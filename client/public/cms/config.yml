@@ -1,0 +1,58 @@
+backend:
+  name: github
+  repo: kitlung1107/history-quest
+  branch: main
+  base_url: https://kitlung1107.github.io
+  auth_endpoint: /history-quest/cms/client.html
+  use_graphql: true
+
+site_url: https://kitlung1107.github.io/history-quest/
+display_url: https://kitlung1107.github.io/history-quest/
+logo_url: https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/fQwdjGMwUojWUNVd.png
+locale: zh_Hant
+publish_mode: simple
+media_folder: client/public/uploads
+public_folder: /history-quest/uploads
+
+collections:
+  - name: tasks
+    label: 歷史任務
+    label_singular: 歷史任務
+    folder: client/src/content/tasks
+    create: true
+    delete: true
+    extension: json
+    format: json
+    slug: "{{fields.task_id}}"
+    summary: "中{{grade}}｜{{title}}｜{{task_id}}"
+    sortable_fields: [grade, topic, title, task_id]
+    view_filters:
+      - label: 中一
+        field: grade
+        pattern: "1"
+      - label: 中三
+        field: grade
+        pattern: "3"
+    fields:
+      - { label: "task_id（不可重複）", name: task_id, widget: string, hint: "例如 S3_HK_Battle1941_Quiz；成績會用此值自動建立試算表分頁。", pattern: ["^[A-Za-z0-9_-]{3,80}$", "只可使用英文字母、數字、底線及連字號"] }
+      - { label: 年級, name: grade, widget: select, options: [{ label: 中一, value: 1 }, { label: 中二, value: 2 }, { label: 中三, value: 3 }, { label: 中四, value: 4 }, { label: 中五, value: 5 }, { label: 中六, value: 6 }], value_type: int }
+      - { label: 課題, name: topic, widget: string, hint: "例如：香港史、古代文明、世界大戰" }
+      - { label: 任務類型, name: type, widget: select, options: [{ label: 文章閱讀, value: article }, { label: 互動遊戲, value: game }, { label: 小測驗, value: quiz }] }
+      - { label: 漫畫標籤, name: label, widget: string, default: 學習任務 }
+      - { label: 標題, name: title, widget: string }
+      - { label: 卡片簡介, name: description, widget: text }
+      - { label: 建議時間（分鐘）, name: duration, widget: number, min: 1, max: 180, value_type: int }
+      - { label: 難度（1–5 星）, name: difficulty, widget: number, min: 1, max: 5, value_type: int }
+      - { label: 功能色, name: accent, widget: select, options: [{ label: 青綠（閱讀／成功）, value: teal }, { label: 朱紅（挑戰／戰爭）, value: red }, { label: 芥末黃（考古／入門）, value: gold }] }
+      - { label: 封面圖片, name: image, widget: image, allow_multiple: false, choose_url: true }
+      - { label: YouTube／Google Drive 影片連結, name: videoUrl, widget: string, required: false, hint: "支援 YouTube watch／youtu.be，以及 Google Drive file/d/.../view。" }
+      - { label: HTML5／iframe 遊戲連結, name: gameUrl, widget: string, required: false, hint: "必須使用 HTTPS；請確認遊戲來源允許 iframe。" }
+      - { label: 文章內容, name: article, widget: markdown, minimal: false }
+      - label: 完成快問
+        name: question
+        widget: object
+        fields:
+          - { label: 題目, name: prompt, widget: string }
+          - { label: 選項, name: options, widget: list, min: 2, max: 6, field: { label: 選項文字, name: option, widget: string } }
+          - { label: 正確答案序號（第一項填 0）, name: answer, widget: number, min: 0, max: 5, value_type: int }
+          - { label: 答案解說, name: explanation, widget: text }

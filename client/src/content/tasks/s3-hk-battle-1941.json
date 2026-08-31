@@ -1,0 +1,22 @@
+{
+  "task_id": "S3_HK_Battle1941_Quiz",
+  "grade": 3,
+  "topic": "香港史",
+  "type": "quiz",
+  "label": "歷史挑戰",
+  "title": "香港保衞戰 1941",
+  "description": "從地圖、守軍部署與時間線，理解香港保衞戰的關鍵時刻。",
+  "duration": 20,
+  "difficulty": 4,
+  "image": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/dGmZCgNJcIGuefbW.png",
+  "accent": "red",
+  "article": "## 戰地快訊：十八日的防衞戰\n\n1941 年 12 月 8 日，日軍進攻香港。守軍先後在新界、九龍及香港島作戰，醉酒灣防線、城門碉堡、黃泥涌峽等地都成為重要戰場。香港最終在 12 月 25 日投降，後世稱這一天為「黑色聖誕」。\n\n研究戰爭史時，除了軍事部署，也應留意平民、醫護人員、少數族裔士兵及義勇軍的經歷。這些材料提醒我們：戰爭不是一串日期，而是無數人的選擇與代價。",
+  "videoUrl": "",
+  "gameUrl": "",
+  "question": {
+    "prompt": "香港保衞戰爆發於哪一天？",
+    "options": ["1939 年 9 月 1 日", "1941 年 12 月 8 日", "1941 年 12 月 25 日", "1945 年 8 月 15 日"],
+    "answer": 1,
+    "explanation": "日軍於 1941 年 12 月 8 日進攻香港；12 月 25 日則是香港投降之日。"
+  }
+}

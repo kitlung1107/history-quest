@@ -206,6 +206,8 @@ function vitePluginStorageProxy(): Plugin {
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 
 export default defineConfig({
+  // GitHub Pages 使用儲存庫子路徑；本機與 Manus 預覽維持根路徑。
+  base: process.env.GITHUB_ACTIONS ? "/history-quest/" : "/",
   plugins,
   resolve: {
     alias: {

@@ -1,0 +1,22 @@
+{
+  "task_id": "S1_AncientCivilisations_EgyptQuiz",
+  "grade": 1,
+  "topic": "古代文明",
+  "type": "game",
+  "label": "像素考古隊",
+  "title": "尼羅河文明解碼",
+  "description": "化身考古隊員，從河流、文字與建築找出古埃及文明的線索。",
+  "duration": 10,
+  "difficulty": 2,
+  "image": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/rqkulCuDciZdHjhL.png",
+  "accent": "gold",
+  "article": "## 考古現場：尼羅河的禮物\n\n尼羅河定期氾濫，為河谷帶來肥沃泥土，也影響古埃及人的農業、曆法和聚落分布。金字塔、象形文字與木乃伊固然著名，但要理解文明，我們還需要研究普通人的居所、工具、糧食與信仰。",
+  "videoUrl": "",
+  "gameUrl": "",
+  "question": {
+    "prompt": "尼羅河定期氾濫對古埃及最直接的幫助是甚麼？",
+    "options": ["帶來肥沃泥土", "製造煤炭", "阻止所有外敵", "令沙漠完全消失"],
+    "answer": 0,
+    "explanation": "氾濫帶來的泥土有利農耕，是古埃及聚落與文明發展的重要條件。"
+  }
+}
