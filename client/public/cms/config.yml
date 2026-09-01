@@ -1,10 +1,8 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
 backend:
   name: github
   repo: kitlung1107/history-quest
   branch: main
-  base_url: https://kitlung1107.github.io
-  auth_endpoint: /history-quest/cms/client.html
-  use_graphql: true
 
 site_url: https://kitlung1107.github.io/history-quest/
 display_url: https://kitlung1107.github.io/history-quest/
@@ -30,13 +28,31 @@ collections:
       - label: 中一
         field: grade
         pattern: "1"
+      - label: 中二
+        field: grade
+        pattern: "2"
       - label: 中三
         field: grade
         pattern: "3"
     fields:
       - { label: "task_id（不可重複）", name: task_id, widget: string, hint: "例如 S3_HK_Battle1941_Quiz；成績會用此值自動建立試算表分頁。", pattern: ["^[A-Za-z0-9_-]{3,80}$", "只可使用英文字母、數字、底線及連字號"] }
       - { label: 年級, name: grade, widget: select, options: [{ label: 中一, value: 1 }, { label: 中二, value: 2 }, { label: 中三, value: 3 }, { label: 中四, value: 4 }, { label: 中五, value: 5 }, { label: 中六, value: 6 }], value_type: int }
-      - { label: 課題, name: topic, widget: string, hint: "例如：香港史、古代文明、世界大戰" }
+      - label: 課題
+        name: topic
+        widget: select
+        options:
+          - 人類的需要—古與今
+          - 歐洲文明的發展
+          - 伊斯蘭文明的興起與中古時代歐亞的文化交流
+          - 早期香港地區的歷史、文化與傳承
+          - 近代歐洲的興起
+          - 歐洲國家的殖民擴張
+          - 美國的成立及發展
+          - 香港直至19世紀末的成長與發展
+          - 兩次世界大戰
+          - 冷戰及後冷戰時代
+          - 20世紀以來的國際合作
+          - 20世紀香港的成長與蛻變
       - { label: 任務類型, name: type, widget: select, options: [{ label: 文章閱讀, value: article }, { label: 互動遊戲, value: game }, { label: 小測驗, value: quiz }] }
       - { label: 漫畫標籤, name: label, widget: string, default: 學習任務 }
       - { label: 標題, name: title, widget: string }

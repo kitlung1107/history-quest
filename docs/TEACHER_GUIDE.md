@@ -7,13 +7,12 @@
 | 主試算表 | [歷史互動探索館｜學生成績主試算表](https://docs.google.com/spreadsheets/d/19FUB6aC_zmRdXz-VY9n3ZHY7NTOzwJIq0lh-Ucfhs-8/edit) |
 | 成績 API | `https://script.google.com/macros/s/AKfycbymowbPxS3_LxAcfOP546HahoNKV1S-8Uwatj0-0Uw3Rz4oYMVMK0VeJAiG17BCzmWG/exec` |
 | 成績 Apps Script | [程式專案](https://script.google.com/u/1/home/projects/1jEmaJmCGJ4gFx8ueWWc_mN3IUODpuDQOBBe-5IYJo0ccUjHlNciCGW9k/edit) |
-| CMS OAuth 代理 | [程式專案](https://script.google.com/u/1/home/projects/1gy0LY_BffZ3g3_jx7nE8Pt1K0aH2LRrlQSon5AK36Bx3eC1OJ3c8d0ER/edit)；[Web App](https://script.google.com/macros/s/AKfycbyITPZjoTaI6mFZrYzCkkJbKOAlUrVvcLcHFhRXzw8X9QfcGYsRCjW4VpdcT7Rh5FD0/exec) |
 
 當學生完成文章、遊戲或小測，網站會立即把資料加入本機同步佇列，再背景 POST 至成績 API。GAS 收到新 `task_id` 時會自動建立同名分頁及表頭；相同 `attempt_id` 不會重複寫入。離線或網絡異常時，資料會保留在該部裝置，恢復連線後自動重試。
 
 ## 新增或修改內容
 
-登入網站 `/cms/` 後，選擇「歷史任務」。`task_id` 只可使用英文字母、數字、底線及連字號，而且發佈後不應隨意更改，否則成績會分流至新的試算表分頁。完成編輯並發佈後，Decap CMS 會 Commit 至 `main`，GitHub Actions 隨即重新建置 GitHub Pages。
+登入網站 `/cms/` 後，選擇 **Sign in with Token**，再使用只限於 `history-quest` 儲存庫的 GitHub fine-grained personal access token 登入。選擇「歷史任務」後即可新增或修改內容。`task_id` 只可使用英文字母、數字、底線及連字號，而且發佈後不應隨意更改，否則成績會分流至新的試算表分頁。完成編輯並發佈後，Sveltia CMS 會 Commit 至 `main`，GitHub Actions 隨即重新建置 GitHub Pages。詳細安全設定見 [內容管理登入方式](./CMS_ACCESS.md)。
 
 ## 影片與互動遊戲
 
