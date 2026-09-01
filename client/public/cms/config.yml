@@ -60,7 +60,7 @@ collections:
       - { label: 建議時間（分鐘）, name: duration, widget: number, min: 1, max: 180, value_type: int }
       - { label: 難度（1–5 星）, name: difficulty, widget: number, min: 1, max: 5, value_type: int }
       - { label: 功能色, name: accent, widget: select, options: [{ label: 青綠（閱讀／成功）, value: teal }, { label: 朱紅（挑戰／戰爭）, value: red }, { label: 芥末黃（考古／入門）, value: gold }] }
-      - { label: 封面圖片, name: image, widget: image, allow_multiple: false, choose_url: true }
+      - { label: 封面圖片, name: image, widget: image, multiple: false, choose_url: true }
       - { label: YouTube／Google Drive 影片連結, name: videoUrl, widget: string, required: false, hint: "支援 YouTube watch／youtu.be，以及 Google Drive file/d/.../view。" }
       - { label: HTML5／iframe 遊戲連結, name: gameUrl, widget: string, required: false, hint: "必須使用 HTTPS；請確認遊戲來源允許 iframe。" }
       - { label: 文章內容, name: article, widget: markdown, minimal: false }
