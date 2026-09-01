@@ -70,7 +70,7 @@ export default function Home() {
           </section>
         </div>
       </main>
-      <nav className="mobile-bottom-nav md:hidden"><button onClick={() => setActiveGrade(null)}><Sparkles />探索</button><button onClick={() => visibleTasks[0] && setSelectedTask(visibleTasks[0])}><Gamepad2 />挑戰</button><a href="/admin"><Trophy />教師</a></nav>
+      <nav className="mobile-bottom-nav md:hidden"><button onClick={() => setActiveGrade(null)}><Sparkles />探索</button><button onClick={() => visibleTasks[0] && setSelectedTask(visibleTasks[0])}><Gamepad2 />挑戰</button><a href={`${import.meta.env.BASE_URL}admin`}><Trophy />教師</a></nav>
     </div>}
     <TaskModal task={selectedTask} open={Boolean(selectedTask)} onOpenChange={(open) => !open && setSelectedTask(null)} />
   </div>;
