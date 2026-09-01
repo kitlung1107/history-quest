@@ -37,7 +37,7 @@ export default function Home() {
 
         <div className="p-4 md:p-5 lg:p-7">
           <section aria-label="歷史主題" className="topic-strip grid gap-3 sm:grid-cols-3">
-            {topicCards.map((topic) => <button key={topic.title} className={`topic-card topic-${topic.accent}`} onClick={() => setActiveGrade(topic.title === "古代文明" ? 1 : 3)}><span className="topic-pixel-icon">{topic.icon}</span><span><strong>{topic.title}</strong><small>{topic.caption}</small></span><ChevronRight className="ml-auto h-5 w-5" /></button>)}
+            {topicCards.map((topic) => <button key={topic.grade} className={`topic-card topic-${topic.accent}`} onClick={() => setActiveGrade(topic.grade)}><span className="topic-pixel-icon">{topic.icon}</span><span><strong>{topic.title}</strong><small>{topic.caption}</small></span><ChevronRight className="ml-auto h-5 w-5" /></button>)}
           </section>
 
           <div className="section-rule my-5"><span>{activeGrade ? `中${["一", "二", "三", "四", "五", "六"][activeGrade - 1]}號外` : "今日精選"}</span></div>
