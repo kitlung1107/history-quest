@@ -53,7 +53,7 @@ export default function Home() {
                   <p className="mt-3 text-sm leading-6 text-ink/75">{task.description}</p>
                   <div className="mt-auto pt-5">
                     <div className="mb-4 flex items-end justify-between border-t-2 border-dotted border-ink/45 pt-3 text-xs font-bold text-ink"><span className="flex items-center gap-1"><Clock3 className="h-4 w-4" />{task.duration} 分鐘</span><span>難度 <b className="text-gold">{"★".repeat(task.difficulty)}{"☆".repeat(5-task.difficulty)}</b></span></div>
-                    {taskProgress && <div className="mb-3"><div className="mb-1 flex justify-between text-xs font-black"><span>學習進度</span><span>{taskProgress.progress}%</span></div><div className="progress-track"><span style={{ width: `${taskProgress.progress}%` }} /></div></div>}
+                    {taskProgress && <div className="mb-3"><div className="mb-1 flex justify-between text-xs font-black"><span>{task.gameUrl ? "網站快問進度" : "學習進度"}</span><span>{taskProgress.progress}%</span></div><div className="progress-track"><span style={{ width: `${taskProgress.progress}%` }} /></div></div>}
                     <button onClick={() => setSelectedTask(task)} className={`pixel-button w-full ${task.accent === "red" ? "pixel-button-red" : task.accent === "gold" ? "pixel-button-gold" : "pixel-button-teal"}`}><Gamepad2 className="h-5 w-5" />{taskProgress ? "再次探索" : "開始挑戰"}<ChevronRight className="ml-auto h-5 w-5" /></button>
                   </div>
                 </div>

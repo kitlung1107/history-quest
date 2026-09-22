@@ -8,7 +8,7 @@
 | 成績 API | `https://script.google.com/macros/s/AKfycbymowbPxS3_LxAcfOP546HahoNKV1S-8Uwatj0-0Uw3Rz4oYMVMK0VeJAiG17BCzmWG/exec` |
 | 成績 Apps Script | [程式專案](https://script.google.com/u/1/home/projects/1jEmaJmCGJ4gFx8ueWWc_mN3IUODpuDQOBBe-5IYJo0ccUjHlNciCGW9k/edit) |
 
-當學生完成文章、遊戲或小測，網站會立即把資料加入本機同步佇列，再背景 POST 至成績 API。GAS 收到新 `task_id` 時會自動建立同名分頁及表頭；相同 `attempt_id` 不會重複寫入。離線或網絡異常時，資料會保留在該部裝置，恢復連線後自動重試。
+當學生回答任務內的網站快問，網站會立即把快問成績加入本機同步佇列，再背景 POST 至成績 API。此紀錄不代表完成嵌入遊戲，也不包含遊戲內成績。GAS 收到新 `task_id` 時會自動建立同名分頁及表頭；相同 `attempt_id` 不會重複寫入。離線或網絡異常時，資料會保留在該部裝置，恢復連線後自動重試。
 
 ## 新增或修改內容
 
@@ -17,6 +17,8 @@
 ## 影片與互動遊戲
 
 YouTube 連結會轉換為 `youtube-nocookie.com` 嵌入網址；Google Drive 檔案連結會轉為預覽模式。HTML5／iframe 遊戲必須使用 HTTPS，而且來源網站需允許被 iframe 嵌入。遊戲 iframe 會套用 sandbox 權限限制，以減少第三方內容風險。
+
+中五「冷戰世界」的《冷戰・地下檔案》保持獨立部署，更新及成績範圍見 [冷戰遊戲嵌入維護](./COLD_WAR_GAME.md)。
 
 ## 教師後台
 

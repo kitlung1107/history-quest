@@ -1,0 +1,21 @@
+{
+  "task_id": "S5_ColdWar_Maze",
+  "grade": 5,
+  "topic": "冷戰世界",
+  "type": "game",
+  "label": "冷戰解密",
+  "title": "冷戰・地下檔案",
+  "description": "走進間諜迷宮，透過冷戰題目解鎖通道，收集三份文件並尋找出口。",
+  "duration": 20,
+  "difficulty": 4,
+  "image": "https://kitlung1107.github.io/ColdWarMaze/apple-touch-icon.png",
+  "accent": "teal",
+  "article": "## 任務簡報\n\n選擇「全部冷戰內容」或指定主題，再進入迷宮。收集三份文件，運用冷戰知識解鎖通道，最後找到出口。\n\n操作方法：使用方向鍵、WASD 或畫面上的觸控方向鍵移動；按 E、空白鍵或「調查」與附近物件互動。手機及平板建議橫向遊玩，亦可用下方按鈕獨立開啟。\n\n遊戲完成後，可回到本頁回答一題網站快問，整理你對冷戰的理解。網站快問會記錄任務進度；遊戲內的答題表現不會同步至教師後台。",
+  "gameUrl": "https://kitlung1107.github.io/ColdWarMaze/",
+  "question": {
+    "prompt": "「冷戰」一詞主要形容哪種國際關係？",
+    "options": ["美蘇在意識形態、軍備及外交等方面長期對抗", "各國全面停止軍備競賽", "美蘇一直直接進行全面戰爭", "所有國家加入同一軍事同盟"],
+    "answer": 0,
+    "explanation": "冷戰期間，美蘇兩大陣營在意識形態、軍備與外交等方面競爭，亦出現地區衝突，但未爆發美蘇之間的直接全面戰爭。"
+  }
+}

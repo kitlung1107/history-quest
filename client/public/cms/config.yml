@@ -34,6 +34,15 @@ collections:
       - label: 中三
         field: grade
         pattern: "3"
+      - label: 中四
+        field: grade
+        pattern: "4"
+      - label: 中五
+        field: grade
+        pattern: "5"
+      - label: 中六
+        field: grade
+        pattern: "6"
     fields:
       - { label: "task_id（不可重複）", name: task_id, widget: string, hint: "例如 S3_HK_Battle1941_Quiz；成績會用此值自動建立試算表分頁。", pattern: ["^[A-Za-z0-9_-]{3,80}$", "只可使用英文字母、數字、底線及連字號"] }
       - { label: 年級, name: grade, widget: select, options: [{ label: 中一, value: 1 }, { label: 中二, value: 2 }, { label: 中三, value: 3 }, { label: 中四, value: 4 }, { label: 中五, value: 5 }, { label: 中六, value: 6 }], value_type: int }
@@ -53,6 +62,15 @@ collections:
           - 冷戰及後冷戰時代
           - 20世紀以來的國際合作
           - 20世紀香港的成長與蛻變
+          - 二十世紀國際衝突
+          - 香港現代化
+          - 改革與革命
+          - 中國近現代史
+          - 冷戰世界
+          - 東亞發展
+          - 公開試研習
+          - 史料分析
+          - 歷史論證
       - { label: 任務類型, name: type, widget: select, options: [{ label: 文章閱讀, value: article }, { label: 互動遊戲, value: game }, { label: 小測驗, value: quiz }] }
       - { label: 漫畫標籤, name: label, widget: string, default: 學習任務 }
       - { label: 標題, name: title, widget: string }
