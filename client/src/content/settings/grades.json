@@ -1,0 +1,34 @@
+{
+  "grades": [
+    {
+      "grade": 1,
+      "title": "中一",
+      "visible": true
+    },
+    {
+      "grade": 2,
+      "title": "中二",
+      "visible": true
+    },
+    {
+      "grade": 3,
+      "title": "中三",
+      "visible": true
+    },
+    {
+      "grade": 4,
+      "title": "中四",
+      "visible": true
+    },
+    {
+      "grade": 5,
+      "title": "中五",
+      "visible": true
+    },
+    {
+      "grade": 6,
+      "title": "中六",
+      "visible": true
+    }
+  ]
+}

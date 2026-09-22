@@ -15,8 +15,17 @@
   "gameUrl": "",
   "question": {
     "prompt": "尼羅河定期氾濫對古埃及最直接的幫助是甚麼？",
-    "options": ["帶來肥沃泥土", "製造煤炭", "阻止所有外敵", "令沙漠完全消失"],
+    "options": [
+      "帶來肥沃泥土",
+      "製造煤炭",
+      "阻止所有外敵",
+      "令沙漠完全消失"
+    ],
     "answer": 0,
     "explanation": "氾濫帶來的泥土有利農耕，是古埃及聚落與文明發展的重要條件。"
-  }
+  },
+  "topicId": "s1-topic-1",
+  "visible": true,
+  "featured": true,
+  "order": 1
 }

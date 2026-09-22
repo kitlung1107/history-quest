@@ -13,6 +13,156 @@ media_folder: client/public/uploads
 public_folder: /history-quest/uploads
 
 collections:
+  - name: settings
+    label: 網站與首頁設定
+    files:
+      - name: site
+        label: 網站與首頁區塊
+        file: client/src/content/settings/site.json
+        fields:
+          - { label: 網站名稱, name: title, widget: string }
+          - { label: 副標題, name: subtitle, widget: string }
+          - { label: 英文名稱, name: englishTitle, widget: string }
+          - { label: 網站標誌, name: logo, widget: image, choose_url: true }
+          - { label: 首頁大圖, name: hero, widget: image, choose_url: true }
+          - {
+              label: 大圖文字描述,
+              name: heroAlt,
+              widget: string,
+              hint: "供讀屏工具使用，簡單描述圖片內容。",
+            }
+          - { label: 學生報到區標題, name: studentHeading, widget: string }
+          - { label: 首頁精選標題, name: featuredHeading, widget: string }
+          - { label: 全部任務標題, name: allHeading, widget: string }
+          - { label: 沒有任務時的提示, name: emptyMessage, widget: text }
+          - {
+              label: 顯示主題卡片,
+              name: showTopicCards,
+              widget: boolean,
+              default: true,
+            }
+          - label: 首頁主題卡片
+            name: topicCards
+            widget: list
+            required: false
+            max: 6
+            summary: "{{fields.title}}"
+            hint: "拖動調整次序；卡片連到所選年級。年級隱藏後，對應卡片亦會隱藏。"
+            fields:
+              - { label: 卡片標題, name: title, widget: string }
+              - { label: 簡介, name: caption, widget: string }
+              - {
+                  label: 圖示文字,
+                  name: icon,
+                  widget: string,
+                  hint: "建議一個符號或 emoji。",
+                }
+              - {
+                  label: 連結年級,
+                  name: grade,
+                  widget: select,
+                  options: [1, 2, 3, 4, 5, 6],
+                }
+              - {
+                  label: 色彩,
+                  name: accent,
+                  widget: select,
+                  options: [teal, red, gold],
+                  default: gold,
+                }
+              - {
+                  label: 顯示此卡片,
+                  name: visible,
+                  widget: boolean,
+                  default: true,
+                }
+          - {
+              label: 顯示每日一問區塊,
+              name: showDaily,
+              widget: boolean,
+              default: true,
+            }
+          - { label: 每日一問標題, name: dailyLabel, widget: string }
+          - {
+              label: 每日一問內容,
+              name: dailyText,
+              widget: text,
+              hint: "首頁提示文字，不會自動每日輪換，也不會收集答案。",
+            }
+          - {
+              label: 顯示學生積分及完成數,
+              name: showStats,
+              widget: boolean,
+              default: true,
+            }
+          - { label: 鼓勵文字, name: encouragement, widget: string }
+      - name: grades
+        label: 年級顯示及排序
+        file: client/src/content/settings/grades.json
+        fields:
+          - label: 年級
+            name: grades
+            widget: list
+            allow_add: false
+            min: 6
+            max: 6
+            summary: "{{fields.title}}"
+            hint: "拖動調整選單次序；關閉年級會一併隱藏其課題、任務及首頁卡片。"
+            fields:
+              - { label: 年級編號, name: grade, widget: hidden }
+              - { label: 顯示名稱, name: title, widget: string }
+              - {
+                  label: 顯示此年級,
+                  name: visible,
+                  widget: boolean,
+                  default: true,
+                }
+  - name: topics
+    label: 年級與課題
+    label_singular: 課題
+    folder: client/src/content/topics
+    create: true
+    delete: false
+    extension: json
+    format: json
+    slug: "{{fields.id}}"
+    identifier_field: title
+    summary: "中{{grade}}｜{{title}}"
+    sortable_fields: [grade, order, title]
+    fields:
+      - {
+          label: 課題識別碼,
+          name: id,
+          widget: string,
+          pattern:
+            [
+              "^[A-Za-z0-9_-]{3,80}$",
+              "請使用 3 至 80 個英文字母、數字、底線或連字號",
+            ],
+          hint: "例如 cold-war。建立後請勿更改；改名只需修改下方課題名稱，避免任務失去連結。",
+        }
+      - { label: 課題名稱, name: title, widget: string }
+      - {
+          label: 所屬年級,
+          name: grade,
+          widget: select,
+          options: [1, 2, 3, 4, 5, 6],
+        }
+      - {
+          label: 顯示次序,
+          name: order,
+          widget: number,
+          value_type: int,
+          min: 0,
+          default: 100,
+        }
+      - {
+          label: 公開顯示,
+          name: visible,
+          widget: boolean,
+          default: true,
+          hint: "關閉會同時隱藏此課題的任務。使用隱藏保留舊教材。",
+        }
   - name: tasks
     label: 歷史任務
     label_singular: 歷史任務
@@ -22,71 +172,133 @@ collections:
     extension: json
     format: json
     slug: "{{fields.task_id}}"
-    summary: "中{{grade}}｜{{title}}｜{{task_id}}"
-    sortable_fields: [grade, topic, title, task_id]
+    summary: "{{title}}｜{{task_id}}"
+    sortable_fields: [order, title, task_id]
     view_filters:
-      - label: 中一
-        field: grade
-        pattern: "1"
-      - label: 中二
-        field: grade
-        pattern: "2"
-      - label: 中三
-        field: grade
-        pattern: "3"
-      - label: 中四
-        field: grade
-        pattern: "4"
-      - label: 中五
-        field: grade
-        pattern: "5"
-      - label: 中六
-        field: grade
-        pattern: "6"
+      - { label: 首頁精選, field: featured, pattern: "true" }
+      - { label: 隱藏任務, field: visible, pattern: "false" }
     fields:
-      - { label: "task_id（不可重複）", name: task_id, widget: string, hint: "例如 S3_HK_Battle1941_Quiz；成績會用此值自動建立試算表分頁。", pattern: ["^[A-Za-z0-9_-]{3,80}$", "只可使用英文字母、數字、底線及連字號"] }
-      - { label: 年級, name: grade, widget: select, options: [{ label: 中一, value: 1 }, { label: 中二, value: 2 }, { label: 中三, value: 3 }, { label: 中四, value: 4 }, { label: 中五, value: 5 }, { label: 中六, value: 6 }], value_type: int }
-      - label: 課題
-        name: topic
-        widget: select
-        options:
-          - 人類的需要—古與今
-          - 歐洲文明的發展
-          - 伊斯蘭文明的興起與中古時代歐亞的文化交流
-          - 早期香港地區的歷史、文化與傳承
-          - 近代歐洲的興起
-          - 歐洲國家的殖民擴張
-          - 美國的成立及發展
-          - 香港直至19世紀末的成長與發展
-          - 兩次世界大戰
-          - 冷戰及後冷戰時代
-          - 20世紀以來的國際合作
-          - 20世紀香港的成長與蛻變
-          - 二十世紀國際衝突
-          - 香港現代化
-          - 改革與革命
-          - 中國近現代史
-          - 冷戰世界
-          - 東亞發展
-          - 公開試研習
-          - 史料分析
-          - 歷史論證
-      - { label: 任務類型, name: type, widget: select, options: [{ label: 文章閱讀, value: article }, { label: 互動遊戲, value: game }, { label: 小測驗, value: quiz }] }
+      - {
+          label: "task_id（不可重複）",
+          name: task_id,
+          widget: string,
+          hint: "例如 S3_HK_Battle1941_Quiz；成績會用此值自動建立試算表分頁。",
+          pattern:
+            ["^[A-Za-z0-9_-]{3,80}$", "只可使用英文字母、數字、底線及連字號"],
+        }
+      - label: 所屬課題
+        name: topicId
+        widget: relation
+        collection: topics
+        value_field: id
+        display_fields: ["中{{grade}}｜{{title}}"]
+        search_fields: [title, id]
+        hint: "任務年級由所屬課題決定；先到「年級與課題」建立課題。"
+      - {
+          label: 公開顯示,
+          name: visible,
+          widget: boolean,
+          default: false,
+          hint: "關閉後從學生頁面隱藏；這不是私人存取權限，公開儲存庫仍可讀到內容。",
+        }
+      - {
+          label: 首頁精選,
+          name: featured,
+          widget: boolean,
+          default: false,
+          hint: "開啟後會出現在首頁精選；仍須同時公開任務、課題及年級。",
+        }
+      - {
+          label: 顯示次序,
+          name: order,
+          widget: number,
+          value_type: int,
+          min: 0,
+          default: 100,
+          hint: "數字越小越前；相同數字按標題排列。",
+        }
+      - {
+          label: 任務類型,
+          name: type,
+          widget: select,
+          options:
+            [
+              { label: 文章閱讀, value: article },
+              { label: 互動遊戲, value: game },
+              { label: 小測驗, value: quiz },
+            ],
+        }
       - { label: 漫畫標籤, name: label, widget: string, default: 學習任務 }
       - { label: 標題, name: title, widget: string }
       - { label: 卡片簡介, name: description, widget: text }
-      - { label: 建議時間（分鐘）, name: duration, widget: number, min: 1, max: 180, value_type: int }
-      - { label: 難度（1–5 星）, name: difficulty, widget: number, min: 1, max: 5, value_type: int }
-      - { label: 功能色, name: accent, widget: select, options: [{ label: 青綠（閱讀／成功）, value: teal }, { label: 朱紅（挑戰／戰爭）, value: red }, { label: 芥末黃（考古／入門）, value: gold }] }
-      - { label: 封面圖片, name: image, widget: image, multiple: false, choose_url: true }
-      - { label: YouTube／Google Drive 影片連結, name: videoUrl, widget: string, required: false, hint: "支援 YouTube watch／youtu.be，以及 Google Drive file/d/.../view。" }
-      - { label: HTML5／iframe 遊戲連結, name: gameUrl, widget: string, required: false, hint: "必須使用 HTTPS；請確認遊戲來源允許 iframe。" }
+      - {
+          label: 建議時間（分鐘）,
+          name: duration,
+          widget: number,
+          min: 1,
+          max: 180,
+          value_type: int,
+        }
+      - {
+          label: 難度（1–5 星）,
+          name: difficulty,
+          widget: number,
+          min: 1,
+          max: 5,
+          value_type: int,
+        }
+      - {
+          label: 功能色,
+          name: accent,
+          widget: select,
+          options:
+            [
+              { label: 青綠（閱讀／成功）, value: teal },
+              { label: 朱紅（挑戰／戰爭）, value: red },
+              { label: 芥末黃（考古／入門）, value: gold },
+            ],
+        }
+      - {
+          label: 封面圖片,
+          name: image,
+          widget: image,
+          multiple: false,
+          choose_url: true,
+        }
+      - {
+          label: YouTube／Google Drive 影片連結,
+          name: videoUrl,
+          widget: string,
+          required: false,
+          hint: "支援 YouTube watch／youtu.be，以及 Google Drive file/d/.../view。",
+        }
+      - {
+          label: HTML5／iframe 遊戲連結,
+          name: gameUrl,
+          widget: string,
+          required: false,
+          hint: "必須使用 HTTPS；請確認遊戲來源允許 iframe。",
+        }
       - { label: 文章內容, name: article, widget: markdown, minimal: false }
       - label: 完成快問
         name: question
         widget: object
         fields:
           - { label: 題目, name: prompt, widget: string }
-          - { label: 選項, name: options, widget: list, min: 2, max: 6, field: { label: 選項文字, name: option, widget: string } }
-          - { label: 正確答案序號（第一項填 0）, name: answer, widget: number, min: 0, max: 5, value_type: int }
+          - {
+              label: 選項,
+              name: options,
+              widget: list,
+              min: 2,
+              max: 6,
+              field: { label: 選項文字, name: option, widget: string },
+            }
+          - {
+              label: 正確答案序號（第一項填 0）,
+              name: answer,
+              widget: number,
+              min: 0,
+              max: 5,
+              value_type: int,
+            }
           - { label: 答案解說, name: explanation, widget: text }
