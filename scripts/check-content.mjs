@@ -11,6 +11,7 @@ const text = z.string().trim().min(1);
 const id = z.string().regex(/^[A-Za-z0-9_-]{3,80}$/);
 const grade = z.number().int().min(1).max(6);
 const order = z.number().int().min(0);
+const imagePosition = z.object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100) }).nullish();
 const media = z
   .string()
   .refine(
@@ -46,6 +47,7 @@ export function validateContent() {
       englishTitle: text,
       logo: media,
       hero: media,
+      heroPosition: imagePosition,
       heroAlt: text,
       studentHeading: text,
       featuredHeading: text,
@@ -76,6 +78,7 @@ export function validateContent() {
     .array(
       z.object({
         task_id: id,
+        imagePosition,
         topicId: id,
         title: text,
         order,

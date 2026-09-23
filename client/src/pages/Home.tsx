@@ -5,6 +5,7 @@ import {
   mediaUrl,
 } from "@/lib/siteSettings";
 import { filterTasks } from "@/lib/contentModel";
+import { imagePosition } from "@/lib/imagePosition";
 /**
  * 設計提醒：首頁必須忠實呈現方案 A 的漫畫報紙分鏡、三格主題、雙任務卡與底部每日探索帶。
  */
@@ -93,6 +94,7 @@ export default function Home() {
               <img
                 src={mediaUrl(settings.hero)}
                 alt={settings.heroAlt}
+                style={{ objectPosition: imagePosition(settings.heroPosition) }}
                 className="absolute inset-0 -z-10 h-full w-full object-cover"
               />
               <div className="absolute inset-0 -z-10 bg-paper/20" />
@@ -149,7 +151,7 @@ export default function Home() {
                         className={`mission-card mission-${task.accent}`}
                       >
                         <div className="mission-image">
-                          <img src={mediaUrl(task.image)} alt="" />
+                          <img src={mediaUrl(task.image)} alt="" style={{ objectPosition: imagePosition(task.imagePosition) }} />
                           <span className="comic-kicker">
                             <Newspaper className="h-4 w-4" />
                             {task.label}

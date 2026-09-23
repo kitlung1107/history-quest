@@ -3,6 +3,7 @@ import { mediaUrl } from "@/lib/siteSettings";
  * 設計提醒：閱讀體驗是一張可展開的報紙漫畫內頁；答題後即自動存檔，沒有提交成績按鈕。
  */
 import { useEffect, useState } from "react";
+import { imagePosition } from "@/lib/imagePosition";
 import {
   CheckCircle2,
   Clock3,
@@ -85,6 +86,7 @@ export default function TaskModal({
         <div className={`task-masthead task-${task.accent}`}>
           <img
             src={mediaUrl(task.image)}
+            style={{ objectPosition: imagePosition(task.imagePosition) }}
             alt=""
             className="absolute inset-0 h-full w-full object-cover opacity-35 mix-blend-multiply"
           />

@@ -25,6 +25,7 @@ collections:
           - { label: 英文名稱, name: englishTitle, widget: string }
           - { label: 網站標誌, name: logo, widget: image, choose_url: true }
           - { label: 首頁大圖, name: hero, widget: image, choose_url: true }
+          - { label: 大圖取景調整, name: heroPosition, widget: image-position, source: hero, required: false }
           - {
               label: 大圖文字描述,
               name: heroAlt,
@@ -265,6 +266,7 @@ collections:
           multiple: false,
           choose_url: true,
         }
+      - { label: 封面取景調整, name: imagePosition, widget: image-position, source: image, required: false }
       - {
           label: YouTube／Google Drive 影片連結,
           name: videoUrl,

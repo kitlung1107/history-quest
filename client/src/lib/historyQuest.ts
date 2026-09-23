@@ -1,5 +1,6 @@
 import { SITE_SETTINGS, PUBLIC_TOPICS, GRADES } from "./siteSettings";
 import { publicTasks } from "./contentModel";
+import type { ImagePosition } from "./imagePosition";
 /**
  * 設計提醒：資料命名與微文案都服務於「可操作的香港歷史漫畫報紙」，避免一般 LMS 的冷冰冰術語。
  */
@@ -53,6 +54,7 @@ export type HistoryTask = {
   duration: number;
   difficulty: number;
   image: string;
+  imagePosition?: ImagePosition;
   accent: "teal" | "red" | "gold";
   article: string;
   videoUrl?: string;
