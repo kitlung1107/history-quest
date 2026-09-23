@@ -1,17 +1,11 @@
+import TaskQuiz from "./TaskQuiz";
 import { mediaUrl } from "@/lib/siteSettings";
 /**
- * 設計提醒：閱讀體驗是一張可展開的報紙漫畫內頁；答題後即自動存檔，沒有提交成績按鈕。
+ * 閱讀體驗是一張可展開的報紙漫畫內頁；測驗完成後一次提交全部答案。
  */
 import { useEffect, useState } from "react";
 import { imagePosition } from "@/lib/imagePosition";
-import {
-  CheckCircle2,
-  Clock3,
-  ExternalLink,
-  Gamepad2,
-  Sparkles,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle2, Clock3, ExternalLink, Gamepad2 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import {
   Dialog,
@@ -49,21 +43,19 @@ export default function TaskModal({
   task,
   open,
   onOpenChange,
+  preview = false,
 }: {
+  preview?: boolean;
   task: HistoryTask | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
   const [started, setStarted] = useState(false);
-  const [answer, setAnswer] = useState<number | null>(null);
-  const [saved, setSaved] = useState(false);
-  const { completeTask, progress } = useScoreSync();
+  const { progress } = useScoreSync();
 
   useEffect(() => {
     if (!open) {
       setStarted(false);
-      setAnswer(null);
-      setSaved(false);
     }
   }, [open]);
 
@@ -71,14 +63,6 @@ export default function TaskModal({
   const completed = progress[task.id]?.progress === 100;
   const videoEmbed = toEmbedUrl(task.videoUrl);
   const gameEmbed = toEmbedUrl(task.gameUrl);
-
-  async function chooseAnswer(index: number) {
-    if (answer !== null) return;
-    setAnswer(index);
-    const score = index === task!.question.answer ? 100 : 60;
-    await completeTask(task!, score);
-    setSaved(true);
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -130,7 +114,7 @@ export default function TaskModal({
               <p className="mx-auto mt-3 max-w-xl text-ink/70">
                 {gameEmbed
                   ? "進入互動遊戲探索，再完成網站快問。網站只記錄快問成績及任務進度，遊戲內表現不會傳送至教師後台。"
-                  : "閱讀資料後完成一題快問。選擇答案的一刻，系統會自動記錄進度，不需要另外提交。"}
+                  : "閱讀資料後完成測驗，再提交全部答案。短答題由老師批改。"}
               </p>
               <button
                 className={`pixel-button mt-7 ${task.accent === "red" ? "pixel-button-red" : task.accent === "gold" ? "pixel-button-gold" : "pixel-button-teal"}`}
@@ -190,61 +174,13 @@ export default function TaskModal({
                   </p>
                 </section>
               )}
-              <section
-                className="quiz-panel mt-9"
-                aria-labelledby="quick-question"
-              >
-                <p className="comic-kicker inline-flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  {gameEmbed ? "網站快問（非遊戲成績）" : "讀畢快問"}
-                </p>
-                <h3
-                  id="quick-question"
-                  className="display-title mt-4 text-2xl text-ink"
-                >
-                  {task.question.prompt}
-                </h3>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {task.question.options.map((option, index) => {
-                    const isCorrect =
-                      answer !== null && index === task.question.answer;
-                    const isWrong =
-                      answer === index && index !== task.question.answer;
-                    return (
-                      <button
-                        key={option}
-                        disabled={answer !== null}
-                        onClick={() => void chooseAnswer(index)}
-                        className={`answer-tile ${isCorrect ? "answer-correct" : ""} ${isWrong ? "answer-wrong" : ""}`}
-                      >
-                        <span>{String.fromCharCode(65 + index)}</span>
-                        {option}
-                        {isCorrect && (
-                          <CheckCircle2 className="ml-auto h-5 w-5" />
-                        )}
-                        {isWrong && <XCircle className="ml-auto h-5 w-5" />}
-                      </button>
-                    );
-                  })}
-                </div>
-                {answer !== null && (
-                  <div
-                    className={`result-strip mt-5 ${answer === task.question.answer ? "bg-teal/15" : "bg-gold/20"}`}
-                  >
-                    <strong>
-                      {answer === task.question.answer
-                        ? "答對了！"
-                        : "差一點！"}
-                    </strong>{" "}
-                    {task.question.explanation}
-                    {saved && (
-                      <span className="mt-2 block font-black text-teal">
-                        ✓ 成績已進入自動儲存程序
-                      </span>
-                    )}
-                  </div>
-                )}
-              </section>
+              <TaskQuiz
+                key={task.id}
+                task={task}
+                preview={
+                  preview || new URLSearchParams(location.search).has("preview")
+                }
+              />
             </div>
           )}
         </div>

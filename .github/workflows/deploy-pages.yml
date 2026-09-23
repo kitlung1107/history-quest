@@ -36,6 +36,11 @@ jobs:
       - name: Type check
         run: pnpm check
 
+      - name: Content and teaching tests
+        run: |
+          pnpm test:content
+          pnpm test:teaching
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

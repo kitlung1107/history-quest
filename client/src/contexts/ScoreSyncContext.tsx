@@ -1,12 +1,15 @@
-/**
- * 設計提醒：同步狀態像街機存檔提示一樣輕巧、清楚；錯誤不阻斷學生探索。
- */
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import {
-  GAS_WEB_APP_URL,
   HISTORY_TASKS,
-  PROGRESS_STORAGE_KEY,
   SYNC_QUEUE_KEY,
   loadProgress,
   loadStudent,
@@ -15,6 +18,14 @@ import {
   type HistoryTask,
   type TaskProgress,
 } from "@/lib/historyQuest";
+import {
+  getQuestions,
+  assessmentVersion,
+  markAnswers,
+  percentage,
+  type Answer,
+} from "@/lib/assessment";
+import { teachingApi } from "@/lib/teachingApi";
 
 type Submission = {
   class_name: string;
@@ -25,91 +36,129 @@ type Submission = {
   progress: number;
   attempt_id: string;
   client_time: string;
-  content_type: HistoryTask["type"];
+  content_type: string;
+  answers?: Answer[];
+  assessment_version?: string;
+  receipt?: string;
 };
-
-type SyncContextValue = {
-  progress: TaskProgress;
-  completeTask: (task: HistoryTask, score: number) => Promise<void>;
-  syncing: boolean;
+export type Receipt = {
+  attempt_id: string;
+  receipt: string;
+  task_title: string;
+  class_name: string;
+  student_no: string;
 };
-
-const ScoreSyncContext = createContext<SyncContextValue | null>(null);
-
-function readQueue(): Submission[] {
+const RECEIPTS_KEY = "historyQuest.receipts.v2";
+export function readReceipts(): Receipt[] {
   try {
-    return JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || "[]") as Submission[];
+    return JSON.parse(localStorage.getItem(RECEIPTS_KEY) || "[]");
   } catch {
     return [];
   }
 }
-
-function writeQueue(queue: Submission[]) {
+const readQueue = (): Submission[] => {
+  try {
+    return JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+};
+const writeQueue = (queue: Submission[]) =>
   localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue));
-}
-
-async function postSubmission(submission: Submission) {
-  const response = await fetch(GAS_WEB_APP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(submission),
-    redirect: "follow",
-  });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const result = (await response.json()) as { ok?: boolean; message?: string };
-  if (!result.ok) throw new Error(result.message || "SYNC_FAILED");
-}
+type SyncContextValue = {
+  progress: TaskProgress;
+  completeTask: (task: HistoryTask, answers: Answer[]) => Promise<void>;
+  syncing: boolean;
+  syncError: string;
+  retry: () => Promise<void>;
+};
+const ScoreSyncContext = createContext<SyncContextValue | null>(null);
 
 export function ScoreSyncProvider({ children }: { children: React.ReactNode }) {
   const [progress, setProgress] = useState<TaskProgress>(() => loadProgress());
   const [syncing, setSyncing] = useState(false);
-
-  const flushQueue = useCallback(async () => {
-    const queue = readQueue();
-    if (!queue.length || !navigator.onLine) return;
-    setSyncing(true);
-    const remaining: Submission[] = [];
-    for (const submission of queue) {
+  const [syncError, setSyncError] = useState("");
+  const active = useRef<Promise<void> | null>(null);
+  const flushQueue = useCallback((): Promise<void> => {
+    if (active.current) return active.current;
+    if (
+      location.pathname.endsWith("/preview") ||
+      new URLSearchParams(location.search).has("preview")
+    )
+      return Promise.resolve();
+    if (!readQueue().length || !navigator.onLine) return Promise.resolve();
+    const run = async () => {
+      setSyncing(true);
+      setSyncError("");
       try {
-        await postSubmission(submission);
-        setProgress((current) => {
-          const next = {
-            ...current,
-            [submission.task_id]: {
-              score: submission.score,
-              progress: submission.progress,
-              syncedAt: new Date().toISOString(),
-            },
-          };
-          saveProgress(next);
-          return next;
-        });
-      } catch {
-        remaining.push(submission);
+        for (const submission of readQueue()) {
+          await teachingApi({
+            action: submission.answers ? "submit" : "legacy_submit",
+            ...submission,
+          });
+          writeQueue(
+            readQueue().filter(
+              item => item.attempt_id !== submission.attempt_id
+            )
+          );
+          const student = loadStudent();
+          if (
+            student?.className === submission.class_name &&
+            student.studentNo === submission.student_no
+          ) {
+            setProgress(current => {
+              if (
+                current[submission.task_id]?.attemptId &&
+                current[submission.task_id].attemptId !== submission.attempt_id
+              )
+                return current;
+              const next = {
+                ...current,
+                [submission.task_id]: {
+                  ...(current[submission.task_id] || {
+                    score: submission.score,
+                    progress: 100,
+                  }),
+                  syncedAt: new Date().toISOString(),
+                },
+              };
+              saveProgress(next);
+              return next;
+            });
+          }
+        }
+      } catch (error) {
+        setSyncError(
+          error instanceof Error
+            ? error.message
+            : "未能同步；答案已保留，請稍後重試。"
+        );
+      } finally {
+        setSyncing(false);
+        active.current = null;
       }
-    }
-    writeQueue(remaining);
-    setSyncing(false);
-    if (remaining.length === 0) {
-      toast.success("成績已自動儲存", { className: "pixel-toast pixel-toast-success" });
-    }
+    };
+    active.current = run();
+    return active.current;
   }, []);
-
   useEffect(() => {
     const retry = () => void flushQueue();
     window.addEventListener("online", retry);
-    const timer = window.setInterval(retry, 30_000);
-    void flushQueue();
+    const timer = window.setInterval(retry, 30000);
+    retry();
     return () => {
       window.removeEventListener("online", retry);
       window.clearInterval(timer);
     };
   }, [flushQueue]);
-
   const completeTask = useCallback(
-    async (task: HistoryTask, score: number) => {
+    async (task: HistoryTask, answers: Answer[]) => {
       const student = loadStudent();
-      if (!student) return;
+      if (!student) throw new Error("請先完成學生報到。");
+      const questions = getQuestions(task);
+      const score = percentage(markAnswers(questions, answers)) ?? 0;
+      const attempt = makeAttemptId(task.id, student.studentNo);
+      const receipt = crypto.randomUUID() + crypto.randomUUID();
       const submission: Submission = {
         class_name: student.className,
         student_name: student.name,
@@ -117,36 +166,56 @@ export function ScoreSyncProvider({ children }: { children: React.ReactNode }) {
         task_id: task.id,
         score,
         progress: 100,
-        attempt_id: makeAttemptId(task.id, student.studentNo),
+        attempt_id: attempt,
         client_time: new Date().toISOString(),
         content_type: task.type,
+        answers,
+        assessment_version: assessmentVersion(questions),
+        receipt,
       };
-      const nextProgress = { ...progress, [task.id]: { score, progress: 100 } };
-      setProgress(nextProgress);
-      localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(nextProgress));
       writeQueue([...readQueue(), submission]);
-      try {
-        await flushQueue();
-      } catch {
-        toast.warning("儲存失敗，將於網路恢復後重試", { className: "pixel-toast pixel-toast-warning" });
-      }
-      if (!navigator.onLine || readQueue().length > 0) {
-        toast.warning("儲存失敗，將於網路恢復後重試", { className: "pixel-toast pixel-toast-warning" });
-      }
+      localStorage.setItem(
+        RECEIPTS_KEY,
+        JSON.stringify([
+          ...readReceipts(),
+          {
+            attempt_id: attempt,
+            receipt,
+            task_title: task.title,
+            class_name: student.className,
+            student_no: student.studentNo,
+          },
+        ])
+      );
+      setProgress(current => {
+        const next = {
+          ...current,
+          [task.id]: { score, progress: 100, attemptId: attempt },
+        };
+        saveProgress(next);
+        return next;
+      });
+      toast.success("答案已保存在本機，正在傳送給老師。");
+      await flushQueue();
     },
-    [flushQueue, progress],
+    [flushQueue]
   );
-
-  const value = useMemo(() => ({ progress, completeTask, syncing }), [completeTask, progress, syncing]);
-  return <ScoreSyncContext.Provider value={value}>{children}</ScoreSyncContext.Provider>;
+  const value = useMemo(
+    () => ({ progress, completeTask, syncing, syncError, retry: flushQueue }),
+    [progress, completeTask, syncing, syncError, flushQueue]
+  );
+  return (
+    <ScoreSyncContext.Provider value={value}>
+      {children}
+    </ScoreSyncContext.Provider>
+  );
 }
-
 export function useScoreSync() {
   const value = useContext(ScoreSyncContext);
-  if (!value) throw new Error("useScoreSync must be used inside ScoreSyncProvider");
+  if (!value) throw new Error("Missing ScoreSyncProvider");
   return value;
 }
-
 export function completedTaskCount(progress: TaskProgress) {
-  return HISTORY_TASKS.filter((task) => progress[task.id]?.progress === 100).length;
+  return HISTORY_TASKS.filter(task => progress[task.id]?.progress === 100)
+    .length;
 }

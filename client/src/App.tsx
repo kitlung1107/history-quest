@@ -1,3 +1,5 @@
+import MySubmissions from "@/pages/MySubmissions";
+import ContentPreview from "@/pages/ContentPreview";
 /**
  * 設計提醒：所有路由共用方案 A「香港歷史漫畫報紙」語言；首頁與教師後台必須有清楚返回路徑。
  */
@@ -16,8 +18,12 @@ import { SITE_SETTINGS, mediaUrl } from "./lib/siteSettings";
 function Routes() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/">
+        <Home />
+      </Route>
       <Route path="/admin" component={Admin} />
+      <Route path="/submissions" component={MySubmissions} />
+      <Route path="/preview" component={ContentPreview} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

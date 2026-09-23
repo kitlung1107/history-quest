@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>未發佈教材預覽示範</title>
+  </head>
+  <body style="margin: 0; background: #f6e7c1; font-family: sans-serif">
+    <div style="padding: 16px; display: flex; flex-wrap: wrap; gap: 12px">
+      <strong>本機示範：不會儲存或傳送成績</strong>
+      <label>草稿標題 <input id="title" value="多題測驗示範" /></label>
+      <label
+        >預覽內容
+        <select id="kind">
+          <option value="tasks">多題任務</option>
+          <option value="site">網站首頁</option>
+        </select></label
+      >
+      <label
+        >寬度
+        <select id="width">
+          <option value="100%">桌面</option>
+          <option value="390px">手機</option>
+        </select></label
+      >
+    </div>
+    <iframe
+      title="學生畫面草稿預覽"
+      style="width: 100%; max-width: 100%; height: 85vh; border: 0"
+    ></iframe>
+    <script type="module">
+      import site from "./src/content/settings/site.json";
+      import original from "./src/content/tasks/s1-ancient-egypt.json";
+      // Vite serves this development harness; it is not an entry in the production build.
+      if (!import.meta.env.DEV) throw new Error("僅供本機預覽");
+      const frame = document.querySelector("iframe");
+      const token = crypto.randomUUID();
+      const task = {
+        ...original,
+        task_id: "preview-only",
+        gameUrl: "",
+        videoUrl: "",
+        questions: [
+          {
+            id: "q1",
+            type: "choice",
+            prompt: "哪條河流孕育古埃及文明？",
+            points: 10,
+            options: ["尼羅河", "黃河"],
+            answer: 0,
+            explanation: "尼羅河提供水源與肥沃土壤。",
+          },
+          {
+            id: "q2",
+            type: "short",
+            prompt: "說明河流如何影響文明發展。",
+            points: 20,
+            explanation: "可從農業、交通與聚落分析。",
+          },
+        ],
+      };
+      function send() {
+        const kind = document.querySelector("#kind").value;
+        frame.contentWindow.postMessage(
+          {
+            type: "hq-preview",
+            token,
+            kind,
+            data: {
+              ...(kind === "site" ? site : task),
+              title: document.querySelector("#title").value,
+            },
+          },
+          location.origin
+        );
+      }
+      window.addEventListener("message", event => {
+        if (
+          event.origin === location.origin &&
+          event.source === frame.contentWindow &&
+          event.data?.type === "hq-preview-ready"
+        )
+          send();
+      });
+      frame.src = `${import.meta.env.BASE_URL}preview#${token}`;
+      document.querySelector("#title").addEventListener("input", send);
+      document.querySelector("#kind").addEventListener("change", send);
+      document.querySelector("#width").addEventListener("change", event => {
+        frame.style.width = event.target.value;
+      });
+    </script>
+  </body>
+</html>

@@ -1,3 +1,9 @@
+import TeachingWorkspace, {
+  type TeachingData,
+} from "@/components/TeachingWorkspace";
+import { teachingApi, serviceReady } from "@/lib/teachingApi";
+import { demoTeaching } from "@/lib/demoTeaching";
+import type { SubmissionRow } from "@/lib/assessment";
 /**
  * 設計提醒：教師後台仍是一份歷史編輯室報紙，不變成普通企業儀表板；數據保護由 GAS PIN 真正執行。
  */
@@ -32,6 +38,7 @@ type AdminRow = {
   score: string;
   progress: string;
   attempt_id: string;
+  status?: string;
 };
 type TaskData = { task_id: string; count: number; rows: AdminRow[] };
 type AdminData = {
@@ -41,15 +48,44 @@ type AdminData = {
   message?: string;
 };
 
+function chartPayload(rows: SubmissionRow[]): AdminData {
+  return {
+    ok: true,
+    generated_at: new Date().toISOString(),
+    tasks: Array.from(new Set(rows.map(r => r.task_id))).map(task_id => ({
+      task_id,
+      count: rows.filter(r => r.task_id === task_id).length,
+      rows: rows
+        .filter(r => r.task_id === task_id)
+        .map(r => ({
+          ...r,
+          score: String(r.score ?? ""),
+          progress: String(r.progress),
+        })),
+    })),
+  };
+}
 export default function Admin() {
+  const demo =
+    import.meta.env.DEV &&
+    new URLSearchParams(location.search).get("preview") === "teacher";
+  const [teaching, setTeaching] = useState<TeachingData | null>(() =>
+    demo ? demoTeaching() : null
+  );
+  const [legacy, setLegacy] = useState(false);
   const [pin, setPin] = useState("");
-  const [data, setData] = useState<AdminData | null>(null);
+  const [data, setData] = useState<AdminData | null>(() =>
+    demo ? chartPayload(demoTeaching().rows) : null
+  );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [activeTask, setActiveTask] = useState("");
 
   async function loadDashboard(event?: React.FormEvent) {
     event?.preventDefault();
+    if (demo) {
+      setTeaching(demoTeaching());
+      return;
+    }
     if (!/^\d{6,12}$/.test(pin)) {
       setError("請輸入 6 至 12 位數字教師 PIN。");
       return;
@@ -57,16 +93,42 @@ export default function Admin() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
-        `${GAS_WEB_APP_URL}?action=admin&pin=${encodeURIComponent(pin)}&_=${Date.now()}`,
-        { cache: "no-store" }
-      );
-      const result = (await response.json()) as AdminData;
-      if (!result.ok) throw new Error(result.message || "PIN 不正確");
+      let upgraded = false;
+      try {
+        await serviceReady();
+        upgraded = true;
+      } catch {
+        /* Legacy service is read-only here. */
+      }
+      let result: AdminData;
+      if (upgraded) {
+        const loaded = await teachingApi<TeachingData>({
+          action: "admin",
+          pin,
+        });
+        setTeaching(loaded);
+        setLegacy(false);
+        result = chartPayload(loaded.rows);
+      } else {
+        const response = await fetch(
+          `${GAS_WEB_APP_URL}?action=admin&pin=${encodeURIComponent(pin)}&_=${Date.now()}`,
+          { cache: "no-store" }
+        );
+        result = await response.json();
+        if (!result.ok) throw new Error(result.message || "PIN 不正確");
+        setLegacy(true);
+        setTeaching({
+          rows: result.tasks.flatMap(t =>
+            t.rows.map(r => ({ ...r, status: "legacy" as const }))
+          ),
+          roster: [],
+          roster_revision: 0,
+        });
+      }
       setData(result);
-      setActiveTask(current => current || result.tasks[0]?.task_id || "");
     } catch (reason) {
       setData(null);
+      setTeaching(null);
       setError(
         reason instanceof Error
           ? reason.message
@@ -82,16 +144,17 @@ export default function Admin() {
       (data?.tasks || []).map(task => ({
         name: task.task_id.replace(/_/g, " ").slice(0, 22),
         完成人次: task.count,
-        平均分: task.rows.length
+        平均分: task.rows.some(row => row.status !== "pending")
           ? Math.round(
-              task.rows.reduce((sum, row) => sum + Number(row.score || 0), 0) /
-                task.rows.length
+              task.rows
+                .filter(row => row.status !== "pending")
+                .reduce((sum, row) => sum + Number(row.score || 0), 0) /
+                task.rows.filter(row => row.status !== "pending").length
             )
           : 0,
       })),
     [data]
   );
-  const selected = data?.tasks.find(task => task.task_id === activeTask);
   const totalRows = data?.tasks.reduce((sum, task) => sum + task.count, 0) || 0;
   const uniqueStudents = new Set(
     data?.tasks.flatMap(task =>
@@ -244,47 +307,25 @@ export default function Admin() {
               </ResponsiveContainer>
             </div>
           </section>
-          <section className="admin-panel mt-5">
-            <div className="flex flex-wrap gap-2 border-b-3 border-ink p-4">
-              {data.tasks.map(task => (
-                <button
-                  key={task.task_id}
-                  className={`task-tab ${activeTask === task.task_id ? "active" : ""}`}
-                  onClick={() => setActiveTask(task.task_id)}
-                >
-                  {task.task_id} <b>{task.count}</b>
-                </button>
-              ))}
-            </div>
-            <div className="overflow-x-auto">
-              <table className="score-table">
-                <thead>
-                  <tr>
-                    <th>時間</th>
-                    <th>班別</th>
-                    <th>姓名</th>
-                    <th>學號</th>
-                    <th>分數</th>
-                    <th>進度</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selected?.rows.map(row => (
-                    <tr key={row.attempt_id}>
-                      <td>{row.timestamp}</td>
-                      <td>{row.class_name}</td>
-                      <td>{row.student_name}</td>
-                      <td>{row.student_no}</td>
-                      <td>
-                        <b>{row.score}</b>
-                      </td>
-                      <td>{row.progress}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          {teaching && (
+            <TeachingWorkspace
+              pin={pin}
+              initial={teaching}
+              demo={demo}
+              legacy={legacy}
+              onDataChange={updated => setData(chartPayload(updated.rows))}
+            />
+          )}
+          <button
+            className="pixel-button pixel-button-paper mt-4"
+            onClick={() => {
+              setData(null);
+              setTeaching(null);
+              setPin("");
+            }}
+          >
+            登出成績後台
+          </button>
         </main>
       )}
     </div>

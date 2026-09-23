@@ -1,5 +1,6 @@
 import {
-  SITE_SETTINGS as settings,
+  SITE_SETTINGS as defaults,
+  GRADES,
   PUBLIC_TOPICS,
   gradeTitle,
   mediaUrl,
@@ -27,19 +28,28 @@ import TaskModal from "@/components/TaskModal";
 import { useScoreSync, completedTaskCount } from "@/contexts/ScoreSyncContext";
 import {
   HISTORY_TASKS,
-  topicCards,
   type HistoryTask,
   type StudentProfile,
 } from "@/lib/historyQuest";
 
-export default function Home() {
-  const [student, setStudent] = useState<StudentProfile | null>(null);
+export default function Home({
+  previewSettings,
+}: { previewSettings?: typeof defaults } = {}) {
+  const settings = previewSettings || defaults;
+  const topicCards = (settings.topicCards || []).filter(
+    card => card.visible && GRADES.some(grade => grade.grade === card.grade)
+  );
+  const [student, setStudent] = useState<StudentProfile | null>(
+    previewSettings
+      ? { className: "預覽", name: "學生畫面", studentNo: "" }
+      : null
+  );
   const [activeGrade, setActiveGrade] = useState<number | null>(null);
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   useEffect(() => {
     document.title = settings.title;
-  }, []);
+  }, [settings.title]);
   const changeGrade = (grade: number | null) => {
     setActiveGrade(grade);
     setActiveTopic(null);
@@ -70,10 +80,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-ink p-0 md:p-3">
-      <OnboardingGuard onReady={ready} />
+      {!previewSettings && <OnboardingGuard onReady={ready} />}
       {student && (
         <div className="site-frame mx-auto min-h-[calc(100vh-1.5rem)] max-w-[1540px] md:grid md:grid-cols-[292px_1fr]">
           <HistorySidebar
+            previewSettings={previewSettings}
             student={student}
             activeGrade={activeGrade}
             onGradeChange={changeGrade}
@@ -110,7 +121,11 @@ export default function Home() {
                 </p>
               </div>
               <div className="absolute right-4 top-4 rounded-sm border-2 border-ink bg-white/95 px-3 py-2 text-sm font-black shadow-[3px_3px_0_#172A3A]">
-                {syncing ? "正在自動存檔…" : "✓ 自動存檔已啟用"}
+                {previewSettings
+                  ? "預覽模式 · 不儲存成績"
+                  : syncing
+                    ? "正在自動存檔…"
+                    : "✓ 自動存檔已啟用"}
               </div>
             </header>
 
@@ -151,7 +166,13 @@ export default function Home() {
                         className={`mission-card mission-${task.accent}`}
                       >
                         <div className="mission-image">
-                          <img src={mediaUrl(task.image)} alt="" style={{ objectPosition: imagePosition(task.imagePosition) }} />
+                          <img
+                            src={mediaUrl(task.image)}
+                            alt=""
+                            style={{
+                              objectPosition: imagePosition(task.imagePosition),
+                            }}
+                          />
                           <span className="comic-kicker">
                             <Newspaper className="h-4 w-4" />
                             {task.label}
@@ -291,14 +312,17 @@ export default function Home() {
               <Gamepad2 />
               挑戰
             </button>
-            <a href={`${import.meta.env.BASE_URL}admin`}>
-              <Trophy />
-              教師
-            </a>
+            {!previewSettings && (
+              <a href={`${import.meta.env.BASE_URL}admin`}>
+                <Trophy />
+                教師
+              </a>
+            )}
           </nav>
         </div>
       )}
       <TaskModal
+        preview={Boolean(previewSettings)}
         task={selectedTask}
         open={Boolean(selectedTask)}
         onOpenChange={open => !open && setSelectedTask(null)}

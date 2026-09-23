@@ -11,7 +11,9 @@ const text = z.string().trim().min(1);
 const id = z.string().regex(/^[A-Za-z0-9_-]{3,80}$/);
 const grade = z.number().int().min(1).max(6);
 const order = z.number().int().min(0);
-const imagePosition = z.object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100) }).nullish();
+const imagePosition = z
+  .object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100) })
+  .nullish();
 const media = z
   .string()
   .refine(
@@ -76,32 +78,78 @@ export function validateContent() {
     .parse(read("settings/site.json"));
   const tasks = z
     .array(
-      z.object({
-        task_id: id,
-        imagePosition,
-        topicId: id,
-        title: text,
-        order,
-        visible: z.boolean(),
-        featured: z.boolean(),
-        question: z
-          .object({
-            prompt: text,
-            options: z.array(text).min(2).max(6),
-            answer: z.number().int().min(0),
-            explanation: text,
-          })
-          .refine(q => q.answer < q.options.length, "答案序號超出選項範圍"),
-      })
+      z
+        .object({
+          task_id: id,
+          imagePosition,
+          topicId: id,
+          title: text,
+          order,
+          visible: z.boolean(),
+          featured: z.boolean(),
+          question: z
+            .object({
+              prompt: text,
+              options: z.array(text).min(2).max(6),
+              answer: z.number().int().min(0),
+              explanation: text,
+            })
+            .refine(q => q.answer < q.options.length, "答案序號超出選項範圍")
+            .optional(),
+          questions: z
+            .array(
+              z
+                .object({
+                  id: z.string().regex(/^[A-Za-z0-9_-]{1,40}$/),
+                  type: z.enum(["choice", "short"]),
+                  prompt: text.max(2000),
+                  points: z.number().int().min(1).max(100),
+                  explanation: text.max(4000),
+                  options: z.array(text.max(1000)).optional(),
+                  answer: z.number().int().optional(),
+                })
+                .refine(
+                  q =>
+                    q.type === "short" ||
+                    (q.options?.length >= 2 &&
+                      q.options?.length <= 6 &&
+                      q.answer >= 0 &&
+                      q.answer < q.options.length),
+                  "選擇題須有 2 至 6 個選項及有效答案序號"
+                )
+            )
+            .min(1)
+            .max(30)
+            .optional(),
+        })
+        .refine(
+          t => Boolean(t.questions?.length || t.question),
+          "每個任務須至少一題"
+        )
     )
     .parse(entries("tasks"));
   unique(
     tasks.map(t => t.task_id),
     "任務識別碼"
   );
-  for (const task of tasks)
+  for (const task of tasks) {
+    if (task.questions)
+      unique(
+        task.questions.map(q => q.id),
+        "同一任務的題目識別碼"
+      );
     if (!topics.some(topic => topic.id === task.topicId))
       throw new Error(`任務「${task.title}」的課題不存在，請重新選擇課題。`);
+  }
+  const assets = z
+    .array(
+      z.object({ id, title: text, category: text, image: media, alt: text })
+    )
+    .parse(entries("assets"));
+  unique(
+    assets.map(a => a.id),
+    "素材識別碼"
+  );
   return {
     grades: grades.length,
     topics: topics.length,

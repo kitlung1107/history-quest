@@ -1,5 +1,5 @@
 import {
-  SITE_SETTINGS as settings,
+  SITE_SETTINGS as defaults,
   GRADES,
   PUBLIC_TOPICS,
   mediaUrl,
@@ -26,6 +26,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { type StudentProfile } from "@/lib/historyQuest";
 
 type SidebarProps = {
+  previewSettings?: typeof defaults;
   student: StudentProfile;
   activeGrade: number | null;
   activeTopic: string | null;
@@ -42,7 +43,9 @@ function SidebarBody({
   onTopicChange,
   showAll,
   onFeatured,
+  previewSettings,
 }: SidebarProps) {
+  const settings = previewSettings || defaults;
   return (
     <div className="flex h-full flex-col">
       <div className="sidebar-brand">
@@ -111,22 +114,27 @@ function SidebarBody({
         <Grid2X2 className="h-5 w-5" />
         全部
       </button>
-      <div className="mt-auto grid gap-2 pt-5">
-        <Link href="/admin" className="sidebar-utility">
-          <ShieldCheck className="h-4 w-4" />
-          教師後台
-        </Link>
-        <button
-          className="sidebar-utility"
-          onClick={() => {
-            localStorage.removeItem("historyQuest.student.v1");
-            window.location.reload();
-          }}
-        >
-          <UserRoundCog className="h-4 w-4" />
-          更改報到資料
-        </button>
-      </div>
+      {!previewSettings && (
+        <div className="mt-auto grid gap-2 pt-5">
+          <Link href="/submissions" className="sidebar-utility">
+            我的提交與評語
+          </Link>
+          <Link href="/admin" className="sidebar-utility">
+            <ShieldCheck className="h-4 w-4" />
+            教師後台
+          </Link>
+          <button
+            className="sidebar-utility"
+            onClick={() => {
+              localStorage.removeItem("historyQuest.student.v1");
+              window.location.reload();
+            }}
+          >
+            <UserRoundCog className="h-4 w-4" />
+            更改報到資料
+          </button>
+        </div>
+      )}
     </div>
   );
 }

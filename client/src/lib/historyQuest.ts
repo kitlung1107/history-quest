@@ -1,10 +1,12 @@
 import { SITE_SETTINGS, PUBLIC_TOPICS, GRADES } from "./siteSettings";
 import { publicTasks } from "./contentModel";
 import type { ImagePosition } from "./imagePosition";
+import type { Question } from "./assessment";
 /**
  * 設計提醒：資料命名與微文案都服務於「可操作的香港歷史漫畫報紙」，避免一般 LMS 的冷冰冰術語。
  */
 export const GAS_WEB_APP_URL =
+  import.meta.env.VITE_GAS_WEB_APP_URL ||
   "https://script.google.com/macros/s/AKfycbymowbPxS3_LxAcfOP546HahoNKV1S-8Uwatj0-0Uw3Rz4oYMVMK0VeJAiG17BCzmWG/exec";
 
 export const ASSETS = {
@@ -59,10 +61,13 @@ export type HistoryTask = {
   article: string;
   videoUrl?: string;
   gameUrl?: string;
-  question: QuizQuestion;
+  question?: QuizQuestion;
+  questions?: Question[];
 };
 
-type CmsTask = Omit<HistoryTask, "id" | "grade" | "topic"> & { task_id: string };
+type CmsTask = Omit<HistoryTask, "id" | "grade" | "topic"> & {
+  task_id: string;
+};
 
 const taskModules = import.meta.glob("../content/tasks/*.json", {
   eager: true,
@@ -77,7 +82,7 @@ export const HISTORY_TASKS: HistoryTask[] = publicTasks(
 
 export type TaskProgress = Record<
   string,
-  { score: number; progress: number; syncedAt?: string }
+  { score: number; progress: number; syncedAt?: string; attemptId?: string }
 >;
 
 export function loadStudent(): StudentProfile | null {

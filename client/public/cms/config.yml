@@ -15,17 +15,31 @@ public_folder: /history-quest/uploads
 collections:
   - name: settings
     label: 網站與首頁設定
+    editor: { preview: false }
     files:
       - name: site
         label: 網站與首頁區塊
         file: client/src/content/settings/site.json
         fields:
+          - {
+              label: 學生畫面預覽,
+              name: _preview,
+              widget: live-preview,
+              kind: site,
+              required: false,
+            }
           - { label: 網站名稱, name: title, widget: string }
           - { label: 副標題, name: subtitle, widget: string }
           - { label: 英文名稱, name: englishTitle, widget: string }
           - { label: 網站標誌, name: logo, widget: image, choose_url: true }
           - { label: 首頁大圖, name: hero, widget: image, choose_url: true }
-          - { label: 大圖取景調整, name: heroPosition, widget: image-position, source: hero, required: false }
+          - {
+              label: 大圖取景調整,
+              name: heroPosition,
+              widget: image-position,
+              source: hero,
+              required: false,
+            }
           - {
               label: 大圖文字描述,
               name: heroAlt,
@@ -165,6 +179,8 @@ collections:
           hint: "關閉會同時隱藏此課題的任務。使用隱藏保留舊教材。",
         }
   - name: tasks
+    duplicate: true
+    editor: { preview: false }
     label: 歷史任務
     label_singular: 歷史任務
     folder: client/src/content/tasks
@@ -180,10 +196,17 @@ collections:
       - { label: 隱藏任務, field: visible, pattern: "false" }
     fields:
       - {
+          label: 學生畫面預覽,
+          name: _preview,
+          widget: live-preview,
+          kind: tasks,
+          required: false,
+        }
+      - {
           label: "task_id（不可重複）",
           name: task_id,
           widget: string,
-          hint: "例如 S3_HK_Battle1941_Quiz；成績會用此值自動建立試算表分頁。",
+          hint: "例如 S3_HK_Battle1941_Quiz；成績以此識別任務。新增／複製首次儲存會加入獨立後綴並隱藏。",
           pattern:
             ["^[A-Za-z0-9_-]{3,80}$", "只可使用英文字母、數字、底線及連字號"],
         }
@@ -266,7 +289,13 @@ collections:
           multiple: false,
           choose_url: true,
         }
-      - { label: 封面取景調整, name: imagePosition, widget: image-position, source: image, required: false }
+      - {
+          label: 封面取景調整,
+          name: imagePosition,
+          widget: image-position,
+          source: image,
+          required: false,
+        }
       - {
           label: YouTube／Google Drive 影片連結,
           name: videoUrl,
@@ -282,25 +311,121 @@ collections:
           hint: "必須使用 HTTPS；請確認遊戲來源允許 iframe。",
         }
       - { label: 文章內容, name: article, widget: markdown, minimal: false }
-      - label: 完成快問
-        name: question
-        widget: object
-        fields:
-          - { label: 題目, name: prompt, widget: string }
-          - {
-              label: 選項,
-              name: options,
-              widget: list,
-              min: 2,
-              max: 6,
-              field: { label: 選項文字, name: option, widget: string },
-            }
-          - {
-              label: 正確答案序號（第一項填 0）,
-              name: answer,
-              widget: number,
-              min: 0,
-              max: 5,
-              value_type: int,
-            }
-          - { label: 答案解說, name: explanation, widget: text }
+      - label: 測驗題目
+        name: questions
+        widget: list
+        min: 1
+        max: 30
+        summary: "{{fields.prompt}}（{{fields.points}} 分）"
+        hint: "可混合選擇题及短答題；拖動調整題目次序。發佈後，請在教師成績後台同步題目設定。"
+        types:
+          - name: choice
+            label: 選擇題
+            widget: object
+            fields:
+              - {
+                  label: 題目識別碼,
+                  name: id,
+                  widget: string,
+                  pattern:
+                    [
+                      "^[A-Za-z0-9_-]{1,40}$",
+                      "只可使用英文字母、數字、底線或連字號",
+                    ],
+                  hint: "同一任務不可重複，例如 q1。",
+                }
+              - { label: 題目, name: prompt, widget: text }
+              - {
+                  label: 分數,
+                  name: points,
+                  widget: number,
+                  value_type: int,
+                  min: 1,
+                  max: 100,
+                  default: 10,
+                }
+              - {
+                  label: 選項,
+                  name: options,
+                  widget: list,
+                  min: 2,
+                  max: 6,
+                  field: { label: 選項, name: option, widget: string },
+                }
+              - {
+                  label: 正確答案序號（第一項填 0）,
+                  name: answer,
+                  widget: number,
+                  min: 0,
+                  max: 5,
+                  value_type: int,
+                  default: 0,
+                }
+              - { label: 答案解說, name: explanation, widget: text }
+          - name: short
+            label: 文字短答
+            widget: object
+            fields:
+              - {
+                  label: 題目識別碼,
+                  name: id,
+                  widget: string,
+                  pattern:
+                    [
+                      "^[A-Za-z0-9_-]{1,40}$",
+                      "只可使用英文字母、數字、底線或連字號",
+                    ],
+                }
+              - { label: 題目, name: prompt, widget: text }
+              - {
+                  label: 分數,
+                  name: points,
+                  widget: number,
+                  value_type: int,
+                  min: 1,
+                  max: 100,
+                  default: 10,
+                }
+              - {
+                  label: 答題提示及解說,
+                  name: explanation,
+                  widget: text,
+                  hint: "學生交卷後可見；請勿在公開教材內放私人批改資料。",
+                }
+  - name: assets
+    label: 圖片素材目錄
+    folder: client/src/content/assets
+    create: true
+    delete: true
+    extension: json
+    format: json
+    slug: "{{fields.id}}"
+    media_folder: /client/public/uploads/library
+    public_folder: /history-quest/uploads/library
+    summary: "{{category}}｜{{title}}"
+    sortable_fields: [category, title]
+    fields:
+      - {
+          label: 素材識別碼,
+          name: id,
+          widget: string,
+          pattern:
+            ["^[A-Za-z0-9_-]{3,80}$", "請使用英文字母、數字、底線或連字號"],
+        }
+      - { label: 名稱, name: title, widget: string }
+      - {
+          label: 分類,
+          name: category,
+          widget: string,
+          hint: "例如香港歷史、世界大戰、地圖。",
+        }
+      - { label: 圖片, name: image, widget: image, choose_url: true }
+      - { label: 圖片描述, name: alt, widget: string }
+      - { label: 來源及使用授權, name: credit, widget: text, required: false }
+      - {
+          label: 搜尋標籤,
+          name: tags,
+          widget: list,
+          required: false,
+          field: { label: 標籤, name: tag, widget: string },
+        }
