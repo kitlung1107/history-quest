@@ -1,7 +1,7 @@
 {
   "title": "歷史互動探索館",
   "subtitle": "香港中學歷史科互動學習平台",
-  "englishTitle": "History Quest",
+  "englishTitle": "History Discovery Center",
   "logo": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/fQwdjGMwUojWUNVd.png",
   "hero": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/AHoOEYFsvjjBELVv.png",
   "heroAlt": "香港歷史像素漫畫拼貼",
@@ -10,35 +10,35 @@
   "allHeading": "全部任務",
   "emptyMessage": "這個分類暫時沒有公開任務，請選擇其他課題或「全部」。",
   "showTopicCards": true,
-  "showDaily": true,
-  "showStats": true,
-  "dailyLabel": "每日一問",
-  "dailyText": "香港在 1984 年簽署的中英聯合聲明，確保香港哪方面的高度自治？",
-  "encouragement": "繼續探索，解鎖更多歷史成就！",
   "topicCards": [
     {
-      "grade": 1,
       "title": "中一主題",
-      "icon": "𓂀",
-      "accent": "gold",
       "caption": "古今文明、文化交流與早期香港",
+      "icon": "𓂀",
+      "grade": 1,
+      "accent": "gold",
       "visible": true
     },
     {
-      "grade": 2,
       "title": "中二主題",
-      "icon": "⛵",
-      "accent": "teal",
       "caption": "近代歐洲、美國與十九世紀香港",
+      "icon": "⛵",
+      "grade": 2,
+      "accent": "teal",
       "visible": true
     },
     {
-      "grade": 3,
       "title": "中三主題",
-      "icon": "✦",
-      "accent": "red",
       "caption": "世界大戰、冷戰、國際合作與香港",
+      "icon": "✦",
+      "grade": 3,
+      "accent": "red",
       "visible": true
     }
-  ]
+  ],
+  "showDaily": false,
+  "dailyLabel": "每日一問",
+  "dailyText": "香港在 1984 年簽署的中英聯合聲明，確保香港哪方面的高度自治？",
+  "showStats": true,
+  "encouragement": "繼續探索，解鎖更多歷史成就！"
 }
