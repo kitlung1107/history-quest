@@ -48,7 +48,7 @@ export default function TaskQuiz({
   return (
     <form className="quiz-panel mt-9" onSubmit={submit}>
       <p className="comic-kicker">
-        {preview ? "試答預覽 · 不會提交成績" : "讀畢測驗"}
+        {preview ? "試答預覽 · 不會提交成績" : "讀畢測驗 · 即時分數為練習參考，正式成績以教師核算為準"}
       </p>
       <p className="mt-2 text-sm">
         已填 {count} / {questions.length} 題 · 共{" "}

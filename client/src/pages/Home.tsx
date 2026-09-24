@@ -10,7 +10,7 @@ import { imagePosition } from "@/lib/imagePosition";
 /**
  * 設計提醒：首頁必須忠實呈現方案 A 的漫畫報紙分鏡、三格主題、雙任務卡與底部每日探索帶。
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Award,
   CalendarDays,
@@ -23,7 +23,7 @@ import {
   Trophy,
 } from "lucide-react";
 import HistorySidebar from "@/components/HistorySidebar";
-import OnboardingGuard from "@/components/OnboardingGuard";
+import { useOptionalStudentAccount } from "@/contexts/StudentAccount";
 import TaskModal from "@/components/TaskModal";
 import { useScoreSync, completedTaskCount } from "@/contexts/ScoreSyncContext";
 import {
@@ -40,11 +40,11 @@ export default function Home({
   const topicCards = (settings.topicCards || []).filter(
     card => card.visible && GRADES.some(grade => grade.grade === card.grade)
   );
-  const [student, setStudent] = useState<StudentProfile | null>(
+  const account = useOptionalStudentAccount();
+  const student: StudentProfile | null =
     previewSettings
       ? { className: "預覽", name: "學生畫面", studentNo: "" }
-      : null
-  );
+      : account?.profile || null;
   const [activeGrade, setActiveGrade] = useState<number | null>(null);
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -58,10 +58,6 @@ export default function Home({
   };
   const [selectedTask, setSelectedTask] = useState<HistoryTask | null>(null);
   const { progress, syncing } = useScoreSync();
-  const ready = useCallback(
-    (profile: StudentProfile) => setStudent(profile),
-    []
-  );
   const visibleTasks = useMemo(
     () =>
       filterTasks(
@@ -87,7 +83,6 @@ export default function Home({
 
   return (
     <div className="min-h-screen bg-ink p-0 md:p-3">
-      {!previewSettings && <OnboardingGuard onReady={ready} />}
       {student && (
         <div className="site-frame mx-auto min-h-[calc(100vh-1.5rem)] max-w-[1540px] md:grid md:grid-cols-[292px_1fr]">
           <HistorySidebar

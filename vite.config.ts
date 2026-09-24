@@ -203,7 +203,8 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
+// Do not record authenticated students' sessions or network payloads.
+const plugins = [react(), tailwindcss(), jsxLocPlugin()];
 
 export default defineConfig({
   // GitHub Pages 使用儲存庫子路徑；本機與 Manus 預覽維持根路徑。

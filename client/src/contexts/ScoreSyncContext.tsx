@@ -1,221 +1,45 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-  HISTORY_TASKS,
-  SYNC_QUEUE_KEY,
-  loadProgress,
-  loadStudent,
-  makeAttemptId,
-  saveProgress,
-  type HistoryTask,
-  type TaskProgress,
-} from "@/lib/historyQuest";
-import {
-  getQuestions,
-  assessmentVersion,
-  markAnswers,
-  percentage,
-  type Answer,
-} from "@/lib/assessment";
-import { teachingApi } from "@/lib/teachingApi";
-
-type Submission = {
-  class_name: string;
-  student_name: string;
-  student_no: string;
-  task_id: string;
-  score: number;
-  progress: number;
-  attempt_id: string;
-  client_time: string;
-  content_type: string;
-  answers?: Answer[];
-  assessment_version?: string;
-  receipt?: string;
-};
-export type Receipt = {
-  attempt_id: string;
-  receipt: string;
-  task_title: string;
-  class_name: string;
-  student_no: string;
-};
-const RECEIPTS_KEY = "historyQuest.receipts.v2";
-export function readReceipts(): Receipt[] {
-  try {
-    return JSON.parse(localStorage.getItem(RECEIPTS_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-const readQueue = (): Submission[] => {
-  try {
-    return JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || "[]");
-  } catch {
-    return [];
-  }
-};
-const writeQueue = (queue: Submission[]) =>
-  localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue));
-type SyncContextValue = {
-  progress: TaskProgress;
-  completeTask: (task: HistoryTask, answers: Answer[]) => Promise<void>;
-  syncing: boolean;
-  syncError: string;
-  retry: () => Promise<void>;
-};
-const ScoreSyncContext = createContext<SyncContextValue | null>(null);
-
-export function ScoreSyncProvider({ children }: { children: React.ReactNode }) {
-  const [progress, setProgress] = useState<TaskProgress>(() => loadProgress());
-  const [syncing, setSyncing] = useState(false);
-  const [syncError, setSyncError] = useState("");
-  const active = useRef<Promise<void> | null>(null);
-  const flushQueue = useCallback((): Promise<void> => {
-    if (active.current) return active.current;
-    if (
-      location.pathname.endsWith("/preview") ||
-      new URLSearchParams(location.search).has("preview")
-    )
-      return Promise.resolve();
-    if (!readQueue().length || !navigator.onLine) return Promise.resolve();
-    const run = async () => {
-      setSyncing(true);
-      setSyncError("");
-      try {
-        for (const submission of readQueue()) {
-          await teachingApi({
-            action: submission.answers ? "submit" : "legacy_submit",
-            ...submission,
-          });
-          writeQueue(
-            readQueue().filter(
-              item => item.attempt_id !== submission.attempt_id
-            )
-          );
-          const student = loadStudent();
-          if (
-            student?.className === submission.class_name &&
-            student.studentNo === submission.student_no
-          ) {
-            setProgress(current => {
-              if (
-                current[submission.task_id]?.attemptId &&
-                current[submission.task_id].attemptId !== submission.attempt_id
-              )
-                return current;
-              const next = {
-                ...current,
-                [submission.task_id]: {
-                  ...(current[submission.task_id] || {
-                    score: submission.score,
-                    progress: 100,
-                  }),
-                  syncedAt: new Date().toISOString(),
-                },
-              };
-              saveProgress(next);
-              return next;
-            });
-          }
-        }
-      } catch (error) {
-        setSyncError(
-          error instanceof Error
-            ? error.message
-            : "未能同步；答案已保留，請稍後重試。"
-        );
-      } finally {
-        setSyncing(false);
-        active.current = null;
+import { HISTORY_TASKS, type HistoryTask, type TaskProgress } from "@/lib/historyQuest";
+import { getQuestions, assessmentVersion, markAnswers, type Answer } from "@/lib/assessment";
+import { loadCloudProgress, submitCloud } from "@/lib/cloudStore";
+import { useOptionalStudentAccount } from "./StudentAccount";
+type Pending={id:string;taskId:string;version:string;answers:Answer[]};
+type Value={progress:TaskProgress;completeTask:(task:HistoryTask,answers:Answer[])=>Promise<void>;syncing:boolean;syncError:string;retry:()=>Promise<void>};
+const Context=createContext<Value|null>(null);
+export function ScoreSyncProvider({children}:{children:React.ReactNode}) {
+  const account=useOptionalStudentAccount();
+  const sid=account?.studentId;
+  const key=`hdc.pending.${sid || "preview"}`;
+  const read=():Pending[]=>{try{return JSON.parse(sessionStorage.getItem(key)||"[]");}catch{return [];}};
+  const [progress,setProgress]=useState<TaskProgress>({});
+  const [syncing,setSyncing]=useState(false);
+  const [syncError,setError]=useState("");
+  const active=useRef(false);
+  const retry=useCallback(async()=>{
+    if(!sid || active.current) return;
+    active.current=true; setSyncing(true); setError("");
+    try {
+      for(const pending of read()) {
+        await submitCloud(sid,pending.id,pending.taskId,pending.version,pending.answers);
+        sessionStorage.setItem(key,JSON.stringify(read().filter(p=>p.id!==pending.id)));
       }
-    };
-    active.current = run();
-    return active.current;
-  }, []);
-  useEffect(() => {
-    const retry = () => void flushQueue();
-    window.addEventListener("online", retry);
-    const timer = window.setInterval(retry, 30000);
-    retry();
-    return () => {
-      window.removeEventListener("online", retry);
-      window.clearInterval(timer);
-    };
-  }, [flushQueue]);
-  const completeTask = useCallback(
-    async (task: HistoryTask, answers: Answer[]) => {
-      const student = loadStudent();
-      if (!student) throw new Error("請先完成學生報到。");
-      const questions = getQuestions(task);
-      const score = percentage(markAnswers(questions, answers)) ?? 0;
-      const attempt = makeAttemptId(task.id, student.studentNo);
-      const receipt = crypto.randomUUID() + crypto.randomUUID();
-      const submission: Submission = {
-        class_name: student.className,
-        student_name: student.name,
-        student_no: student.studentNo,
-        task_id: task.id,
-        score,
-        progress: 100,
-        attempt_id: attempt,
-        client_time: new Date().toISOString(),
-        content_type: task.type,
-        answers,
-        assessment_version: assessmentVersion(questions),
-        receipt,
-      };
-      writeQueue([...readQueue(), submission]);
-      localStorage.setItem(
-        RECEIPTS_KEY,
-        JSON.stringify([
-          ...readReceipts(),
-          {
-            attempt_id: attempt,
-            receipt,
-            task_title: task.title,
-            class_name: student.className,
-            student_no: student.studentNo,
-          },
-        ])
-      );
-      setProgress(current => {
-        const next = {
-          ...current,
-          [task.id]: { score, progress: 100, attemptId: attempt },
-        };
-        saveProgress(next);
-        return next;
-      });
-      toast.success("答案已保存在本機，正在傳送給老師。");
-      await flushQueue();
-    },
-    [flushQueue]
-  );
-  const value = useMemo(
-    () => ({ progress, completeTask, syncing, syncError, retry: flushQueue }),
-    [progress, completeTask, syncing, syncError, flushQueue]
-  );
-  return (
-    <ScoreSyncContext.Provider value={value}>
-      {children}
-    </ScoreSyncContext.Provider>
-  );
+      setProgress(await loadCloudProgress(sid));
+    } catch(e) {setError(e instanceof Error?e.message:"未能同步，請重試。");}
+    finally{active.current=false;setSyncing(false);}
+  },[sid,key]);
+  useEffect(()=>{setProgress({});void retry();const online=()=>void retry();window.addEventListener("online",online);return()=>window.removeEventListener("online",online);},[retry]);
+  async function completeTask(task:HistoryTask,answers:Answer[]) {
+    if(!sid) throw new Error("請先登入。");
+    markAnswers(getQuestions(task),answers);
+    const duplicate=read().find(p=>p.taskId===task.id);
+    const pending=duplicate || {id:crypto.randomUUID(),taskId:task.id,version:assessmentVersion(getQuestions(task)),answers};
+    if(!duplicate) sessionStorage.setItem(key,JSON.stringify([...read(),pending]));
+    await retry();
+    if(read().some(p=>p.id===pending.id)) throw new Error("答案尚未傳送；請保持此分頁開啟，按重試同步。");
+    toast.success("答案已存入 Firestore，正式成績待教師確認。");
+  }
+  return <Context.Provider value={{progress,completeTask,syncing,syncError,retry}}>{children}</Context.Provider>;
 }
-export function useScoreSync() {
-  const value = useContext(ScoreSyncContext);
-  if (!value) throw new Error("Missing ScoreSyncProvider");
-  return value;
-}
-export function completedTaskCount(progress: TaskProgress) {
-  return HISTORY_TASKS.filter(task => progress[task.id]?.progress === 100)
-    .length;
-}
+export function useScoreSync(){const value=useContext(Context);if(!value)throw new Error("Missing ScoreSyncProvider");return value;}
+export function completedTaskCount(progress:TaskProgress){return HISTORY_TASKS.filter(t=>progress[t.id]?.progress===100).length;}

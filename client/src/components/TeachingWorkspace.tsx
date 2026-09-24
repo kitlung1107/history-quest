@@ -205,7 +205,7 @@ export default function TeachingWorkspace({
         </button>
       </div>
       <p className="mt-3 text-sm text-ink/70">
-        新增或改題後，等網站發佈完成並重新整理此頁，再按「同步題目設定」。計分由成績服務核對。
+        新增或改題後，先同步題目設定。選擇題由教師按「核算已載入的選擇題」核算，正式成績存入 Firestore。
       </p>
       <div className="my-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <label>
@@ -359,7 +359,7 @@ export default function TeachingWorkspace({
                       >
                         {row.answers?.length
                           ? "查閱／批改"
-                          : "舊紀錄無逐題答案"}
+                          : "待核算選擇題"}
                       </button>
                     </td>
                   </tr>
@@ -429,9 +429,9 @@ export default function TeachingWorkspace({
             班級名單（{data.roster.length} 人）
           </h2>
           <p className="my-2 text-sm">
-            名單保存在成績試算表，不會寫入公開教材。匯入會按班別與學號新增或更新姓名，不會刪除其他學生。
+            名單來自已核實的學生帳戶。請在下方「學生帳戶名單」匯入含 email 的 CSV，班別、學號和姓名會一起更新。
           </p>
-          <button
+          {demo && <><button
             className="pixel-button pixel-button-paper"
             onClick={() =>
               downloadCsv("班級名單範本.csv", [
@@ -538,6 +538,7 @@ export default function TeachingWorkspace({
               </button>
             </div>
           )}
+          </>}
           <div className="my-4 max-h-64 overflow-auto">
             <table className="score-table">
               <thead>

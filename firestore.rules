@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function teacher() {
+      return signed() && request.auth.token.email == 'kitlung1107@gmail.com';
+    }
+    function owns(sid) {
+      return signed() && (exists(/databases/$(database)/documents/access/$(request.auth.token.email))
+          && get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId == sid
+          && get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.enabled == true);
+    }
+    function profileOK(d) {
+      return d.keys().hasOnly(['className', 'studentNo', 'name', 'nickname', 'avatar', 'configured'])
+        && d.configured is bool
+        && d.className is string && d.className.matches('[1-6][A-E]')
+        && d.studentNo is string && d.studentNo.matches('[A-Z0-9-]{1,12}')
+        && d.name is string && d.name.size() >= 2 && d.name.size() <= 50
+        && d.nickname is string && d.nickname.size() >= 1 && d.nickname.size() <= 20
+        && d.avatar in ['explorer', 'scholar', 'archaeologist', 'navigator'];
+    }
+    match /access/{email} {
+      allow get: if teacher() || (signed() && request.auth.token.email == email);
+      allow list: if teacher();
+      allow create, update: if teacher() && request.resource.data.keys().hasOnly(['studentId', 'enabled'])
+        && request.resource.data.studentId is string && request.resource.data.enabled is bool;
+      allow delete: if teacher();
+    }
+    match /profiles/{sid} {
+      allow read: if teacher() || owns(sid);
+      allow create: if teacher() && profileOK(request.resource.data);
+      allow update: if profileOK(request.resource.data) && (teacher() || (owns(sid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nickname', 'avatar', 'configured'])));
+    }
+    match /submissions/{attempt} {
+      allow get: if teacher() || (resource == null && signed()) || owns(resource.data.studentId);
+      allow list: if teacher() || owns(resource.data.studentId);
+      allow create: if owns(request.resource.data.studentId)
+        && request.resource.data.keys().hasOnly(['studentId', 'taskId', 'version', 'answers', 'createdAt'])
+        && request.resource.data.taskId is string && request.resource.data.taskId.size() <= 150
+        && request.resource.data.version is string && request.resource.data.version.size() <= 40
+        && request.resource.data.answers is list && request.resource.data.answers.size() <= 30
+        && request.resource.data.createdAt == request.time
+        && exists(/databases/$(database)/documents/profiles/$(request.resource.data.studentId));
+      // Original answers and ownership remain immutable, including after marking.
+      allow update: if teacher() && request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['grade']);
+    }
+    match /progress/{sid}/tasks/{taskId} {
+      allow read: if teacher() || owns(sid);
+      allow create, update: if teacher() || (owns(sid)
+        && request.resource.data.keys().hasOnly(['score', 'progress', 'attemptId', 'syncedAt'])
+        && request.resource.data.score == 0 && request.resource.data.progress == 100
+        && request.resource.data.syncedAt == request.time
+        && !exists(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId))
+        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data.studentId == sid
+        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data.taskId == taskId);
+    }
+    match /catalogue/{task} { allow read, write: if teacher(); }
+    match /roster/{student} { allow read, write: if teacher(); }
+    match /metadata/{key} { allow read, write: if teacher(); }
+  }
+}

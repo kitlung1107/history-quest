@@ -1,0 +1,11 @@
+{
+  "indexes": [{
+    "collectionGroup": "submissions",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {"fieldPath": "studentId", "order": "ASCENDING"},
+      {"fieldPath": "createdAt", "order": "DESCENDING"}
+    ]
+  }],
+  "fieldOverrides": [{"collectionGroup":"submissions","fieldPath":"answers","indexes":[]}]
+}

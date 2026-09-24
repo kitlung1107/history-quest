@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/accordion";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { type StudentProfile } from "@/lib/historyQuest";
+import { googleLogout } from "@/lib/firebase";
+import { AVATARS, useOptionalStudentAccount } from "@/contexts/StudentAccount";
 
 type SidebarProps = {
   previewSettings?: typeof defaults;
@@ -46,6 +48,7 @@ function SidebarBody({
   previewSettings,
 }: SidebarProps) {
   const settings = previewSettings || defaults;
+  const account = useOptionalStudentAccount();
   return (
     <div className="flex h-full flex-col">
       <div className="sidebar-brand">
@@ -56,6 +59,7 @@ function SidebarBody({
         />
         <div>
           <p className="pixel-label">{settings.studentHeading}</p>
+          {account?.profile && <p className="mt-2 text-lg">{AVATARS[account.profile.avatar]} {account.profile.nickname}</p>}
           <p className="mt-1 text-sm text-paper/70">
             {student.className} · {student.name} · {student.studentNo}
           </p>
@@ -119,6 +123,7 @@ function SidebarBody({
           <Link href="/submissions" className="sidebar-utility">
             我的提交與評語
           </Link>
+          <Link href="/profile" className="sidebar-utility">我的角色</Link>
           <Link href="/admin" className="sidebar-utility">
             <ShieldCheck className="h-4 w-4" />
             教師後台
@@ -126,12 +131,11 @@ function SidebarBody({
           <button
             className="sidebar-utility"
             onClick={() => {
-              localStorage.removeItem("historyQuest.student.v1");
-              window.location.reload();
+              void googleLogout();
             }}
           >
             <UserRoundCog className="h-4 w-4" />
-            更改報到資料
+            登出 Google 帳戶
           </button>
         </div>
       )}

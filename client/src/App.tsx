@@ -15,16 +15,26 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { ScoreSyncProvider } from "./contexts/ScoreSyncContext";
 import { useEffect } from "react";
 import { SITE_SETTINGS, mediaUrl } from "./lib/siteSettings";
+import { AccountGate, ProfileForm, useOptionalStudentAccount } from "./contexts/StudentAccount";
+
+function SessionContent({ children }: { children: React.ReactNode }) {
+  const account = useOptionalStudentAccount();
+  return <ScoreSyncProvider key={account?.studentId || "preview"}>{children}</ScoreSyncProvider>;
+}
+function StudentArea({ children, teacherPage = false }: { children: React.ReactNode; teacherPage?: boolean }) {
+  return <AccountGate teacherPage={teacherPage}><SessionContent>{children}</SessionContent></AccountGate>;
+}
 
 function Routes() {
   return (
     <Switch>
       <Route path="/">
-        <Home />
+        <StudentArea><Home /></StudentArea>
       </Route>
-      <Route path="/admin" component={Admin} />
-      <Route path="/submissions" component={MySubmissions} />
-      <Route path="/preview" component={ContentPreview} />
+      <Route path="/admin"><StudentArea teacherPage><Admin /></StudentArea></Route>
+      <Route path="/submissions"><StudentArea><MySubmissions /></StudentArea></Route>
+      <Route path="/profile"><StudentArea><ProfileForm onDone={() => { window.location.href = import.meta.env.BASE_URL; }} /></StudentArea></Route>
+      <Route path="/preview"><ScoreSyncProvider><ContentPreview /></ScoreSyncProvider></Route>
       <Route path="/library" component={ContentLibrary} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
@@ -47,12 +57,10 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <ScoreSyncProvider>
             <Router base={base === "/" ? undefined : base}>
               <Routes />
             </Router>
             <Toaster position="top-right" richColors closeButton />
-          </ScoreSyncProvider>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
