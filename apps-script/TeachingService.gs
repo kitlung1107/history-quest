@@ -1,16 +1,43 @@
 /** History Quest teaching API v2. Configure Script Properties before deployment.
  * HQ_SPREADSHEET_ID: existing private score spreadsheet
  * HQ_PIN_SHA256: SHA-256 hex digest of the teacher PIN (never commit the PIN)
+ * HQ_PIN_SALT: optional salt for a migrated PIN; existing PIN remains unchanged.
  * New data uses HQ_ prefixed sheets. Existing task sheets are read, never rewritten.
  */
 function doGet(e) {
-  if (e && e.parameter && e.parameter.action === "capabilities")
-    return hqJson({ ok: true, api_version: 2 });
-  return hqJson({
-    ok: false,
-    api_version: 2,
-    message: "請使用新版網站登入成績後台。",
-  });
+  try {
+    var params = (e && e.parameter) || {};
+    if (params.action === "admin") {
+      hqAuth(params.pin || "");
+      var groups = {};
+      hqAdmin().rows.forEach(function (row) {
+        if (params.task_id && params.task_id !== row.task_id) return;
+        if (!Object.prototype.hasOwnProperty.call(groups, row.task_id))
+          Object.defineProperty(groups, row.task_id, {
+            value: [],
+            enumerable: true,
+          });
+        groups[row.task_id].push(row);
+      });
+      return hqJson({
+        ok: true,
+        api_version: 2,
+        generated_at: new Date().toISOString(),
+        tasks: Object.keys(groups).map(function (id) {
+          return { task_id: id, count: groups[id].length, rows: groups[id] };
+        }),
+      });
+    }
+    return hqJson({
+      ok: true,
+      api_version: 2,
+      version: "2.1.0",
+      service: "History Quest Teaching API",
+      legacy_compatible: true,
+    });
+  } catch (error) {
+    return hqJson({ ok: false, api_version: 2, message: error.message });
+  }
 }
 function doPost(e) {
   var lock;
@@ -18,8 +45,19 @@ function doPost(e) {
     var text = e && e.postData && e.postData.contents;
     if (!text || text.length > 1000000) throw new Error("請求內容過大或空白。");
     var body = JSON.parse(text);
-    if (body.api_version !== 2)
+    var legacy = body.api_version === undefined && body.action === undefined;
+    if (body.api_version !== 2 && !legacy)
       throw new Error("網站版本已更新，請重新整理後再提交。");
+    if (legacy) {
+      if (
+        !Number.isFinite(Number(body.progress)) ||
+        Number(body.progress) < 0 ||
+        Number(body.progress) > 100
+      )
+        throw new Error("進度格式不正確。");
+      body.action = "legacy_submit";
+      body.score = Number(body.score);
+    }
     var action = body.action;
     if (["admin", "catalogue", "roster", "grade"].indexOf(action) !== -1)
       hqAuth(body.pin);
@@ -28,6 +66,18 @@ function doPost(e) {
     lock = LockService.getScriptLock();
     if (!lock.tryLock(20000)) throw new Error("系統忙碌，請稍後重試。");
     var result;
+    if (
+      legacy &&
+      hqAdmin().rows.some(function (row) {
+        return row.attempt_id === body.attempt_id;
+      })
+    )
+      return hqJson({
+        ok: true,
+        api_version: 2,
+        attempt_id: body.attempt_id,
+        duplicate: true,
+      });
     if (action === "admin") result = hqAdmin();
     if (action === "catalogue") result = hqCatalogue(body.tasks);
     if (action === "roster") result = hqRoster(body);
@@ -63,8 +113,9 @@ function hqHash(text) {
     .join("");
 }
 function hqAuth(pin) {
-  var expected =
-    PropertiesService.getScriptProperties().getProperty("HQ_PIN_SHA256");
+  var properties = PropertiesService.getScriptProperties();
+  var expected = properties.getProperty("HQ_PIN_SHA256");
+  var salt = properties.getProperty("HQ_PIN_SALT") || "";
   if (!expected || !/^[a-f0-9]{64}$/i.test(expected))
     throw new Error("教師驗證尚未設定。");
   var cache = CacheService.getScriptCache(),
@@ -73,7 +124,7 @@ function hqAuth(pin) {
     throw new Error("此 PIN 嘗試次數過多，請稍後再試。");
   if (
     !/^\d{6,12}$/.test(String(pin)) ||
-    hqHash(pin) !== expected.toLowerCase()
+    hqHash(salt + String(pin)) !== expected.toLowerCase()
   ) {
     cache.put(key, String(Number(cache.get(key) || 0) + 1), 300);
     throw new Error("教師 PIN 不正確。");
@@ -332,6 +383,13 @@ function hqSubmit(body) {
       throw new Error("舊成績格式不正確。");
     record.status = "legacy";
     record.score = body.score;
+    record.progress = body.progress == null ? 100 : Number(body.progress);
+    if (
+      !Number.isFinite(record.progress) ||
+      record.progress < 0 ||
+      record.progress > 100
+    )
+      throw new Error("進度格式不正確。");
     record.answers = [];
   } else {
     if (

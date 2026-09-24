@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { z } from "zod";
+import "./build-content-index.mjs";
 const content = new URL("../client/src/content/", import.meta.url);
 const read = p => JSON.parse(fs.readFileSync(new URL(p, content), "utf8"));
 const entries = folder =>

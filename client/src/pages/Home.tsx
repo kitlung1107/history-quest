@@ -34,7 +34,8 @@ import {
 
 export default function Home({
   previewSettings,
-}: { previewSettings?: typeof defaults } = {}) {
+  previewTasks,
+}: { previewSettings?: typeof defaults; previewTasks?: HistoryTask[] } = {}) {
   const settings = previewSettings || defaults;
   const topicCards = (settings.topicCards || []).filter(
     card => card.visible && GRADES.some(grade => grade.grade === card.grade)
@@ -62,8 +63,14 @@ export default function Home({
     []
   );
   const visibleTasks = useMemo(
-    () => filterTasks(HISTORY_TASKS, activeGrade, activeTopic, showAll),
-    [activeGrade, activeTopic, showAll]
+    () =>
+      filterTasks(
+        previewTasks || HISTORY_TASKS,
+        activeGrade,
+        activeTopic,
+        showAll
+      ),
+    [activeGrade, activeTopic, showAll, previewTasks]
   );
   const sectionTitle = activeTopic
     ? PUBLIC_TOPICS.find(topic => topic.id === activeTopic)?.title

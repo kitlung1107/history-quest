@@ -11,6 +11,9 @@ locale: zh_Hant
 publish_mode: simple
 media_folder: client/public/uploads
 public_folder: /history-quest/uploads
+media_libraries:
+  all:
+    max_file_size: 5242880
 
 collections:
   - name: settings
@@ -21,6 +24,13 @@ collections:
         label: 網站與首頁區塊
         file: client/src/content/settings/site.json
         fields:
+          - {
+              label: 編輯檢查與備份,
+              name: _tools,
+              widget: editor-tools,
+              kind: site,
+              required: false,
+            }
           - {
               label: 學生畫面預覽,
               name: _preview,
@@ -144,6 +154,9 @@ collections:
     identifier_field: title
     summary: "中{{grade}}｜{{title}}"
     sortable_fields: [grade, order, title]
+    reorder: true
+    view_groups:
+      - { label: 按年級, field: grade }
     fields:
       - {
           label: 課題識別碼,
@@ -187,14 +200,29 @@ collections:
     create: true
     delete: true
     extension: json
-    format: json
+    format: hq-task-json
     slug: "{{fields.task_id}}"
     summary: "{{title}}｜{{task_id}}"
-    sortable_fields: [order, title, task_id]
+    thumbnail: cover.image
+    sortable_fields: [publishing.order, title, task_id, topicId]
     view_filters:
-      - { label: 首頁精選, field: featured, pattern: "true" }
-      - { label: 隱藏任務, field: visible, pattern: "false" }
+      - { label: 首頁精選, field: publishing.featured, pattern: "true" }
+      - { label: 未公開, field: publishing.visible, pattern: "false" }
+      - { label: 已公開, field: publishing.visible, pattern: "true" }
+      - { label: 文章, field: basics.type, pattern: article }
+      - { label: 遊戲, field: basics.type, pattern: game }
+      - { label: 測驗, field: basics.type, pattern: quiz }
+    view_groups:
+      - { label: 按課題, field: topicId }
+      - { label: 按公開狀態, field: publishing.visible }
     fields:
+      - {
+          label: 編輯檢查與備份,
+          name: _tools,
+          widget: editor-tools,
+          kind: tasks,
+          required: false,
+        }
       - {
           label: 學生畫面預覽,
           name: _preview,
@@ -210,6 +238,7 @@ collections:
           pattern:
             ["^[A-Za-z0-9_-]{3,80}$", "只可使用英文字母、數字、底線及連字號"],
         }
+      - { label: 標題, name: title, widget: string }
       - label: 所屬課題
         name: topicId
         widget: relation
@@ -218,180 +247,204 @@ collections:
         display_fields: ["中{{grade}}｜{{title}}"]
         search_fields: [title, id]
         hint: "任務年級由所屬課題決定；先到「年級與課題」建立課題。"
-      - {
-          label: 公開顯示,
-          name: visible,
-          widget: boolean,
-          default: false,
-          hint: "關閉後從學生頁面隱藏；這不是私人存取權限，公開儲存庫仍可讀到內容。",
-        }
-      - {
-          label: 首頁精選,
-          name: featured,
-          widget: boolean,
-          default: false,
-          hint: "開啟後會出現在首頁精選；仍須同時公開任務、課題及年級。",
-        }
-      - {
-          label: 顯示次序,
-          name: order,
-          widget: number,
-          value_type: int,
-          min: 0,
-          default: 100,
-          hint: "數字越小越前；相同數字按標題排列。",
-        }
-      - {
-          label: 任務類型,
-          name: type,
-          widget: select,
-          options:
-            [
-              { label: 文章閱讀, value: article },
-              { label: 互動遊戲, value: game },
-              { label: 小測驗, value: quiz },
-            ],
-        }
-      - { label: 漫畫標籤, name: label, widget: string, default: 學習任務 }
-      - { label: 標題, name: title, widget: string }
-      - { label: 卡片簡介, name: description, widget: text }
-      - {
-          label: 建議時間（分鐘）,
-          name: duration,
-          widget: number,
-          min: 1,
-          max: 180,
-          value_type: int,
-        }
-      - {
-          label: 難度（1–5 星）,
-          name: difficulty,
-          widget: number,
-          min: 1,
-          max: 5,
-          value_type: int,
-        }
-      - {
-          label: 功能色,
-          name: accent,
-          widget: select,
-          options:
-            [
-              { label: 青綠（閱讀／成功）, value: teal },
-              { label: 朱紅（挑戰／戰爭）, value: red },
-              { label: 芥末黃（考古／入門）, value: gold },
-            ],
-        }
-      - {
-          label: 封面圖片,
-          name: image,
-          widget: image,
-          multiple: false,
-          choose_url: true,
-        }
-      - {
-          label: 封面取景調整,
-          name: imagePosition,
-          widget: image-position,
-          source: image,
-          required: false,
-        }
-      - {
-          label: YouTube／Google Drive 影片連結,
-          name: videoUrl,
-          widget: string,
-          required: false,
-          hint: "支援 YouTube watch／youtu.be，以及 Google Drive file/d/.../view。",
-        }
-      - {
-          label: HTML5／iframe 遊戲連結,
-          name: gameUrl,
-          widget: string,
-          required: false,
-          hint: "必須使用 HTTPS；請確認遊戲來源允許 iframe。",
-        }
-      - { label: 文章內容, name: article, widget: markdown, minimal: false }
-      - label: 測驗題目
-        name: questions
-        widget: list
-        min: 1
-        max: 30
-        summary: "{{fields.prompt}}（{{fields.points}} 分）"
-        hint: "可混合選擇题及短答題；拖動調整題目次序。發佈後，請在教師成績後台同步題目設定。"
-        types:
-          - name: choice
-            label: 選擇題
-            widget: object
-            fields:
-              - {
-                  label: 題目識別碼,
-                  name: id,
-                  widget: string,
-                  pattern:
-                    [
-                      "^[A-Za-z0-9_-]{1,40}$",
-                      "只可使用英文字母、數字、底線或連字號",
-                    ],
-                  hint: "同一任務不可重複，例如 q1。",
-                }
-              - { label: 題目, name: prompt, widget: text }
-              - {
-                  label: 分數,
-                  name: points,
-                  widget: number,
-                  value_type: int,
-                  min: 1,
-                  max: 100,
-                  default: 10,
-                }
-              - {
-                  label: 選項,
-                  name: options,
-                  widget: list,
-                  min: 2,
-                  max: 6,
-                  field: { label: 選項, name: option, widget: string },
-                }
-              - {
-                  label: 正確答案序號（第一項填 0）,
-                  name: answer,
-                  widget: number,
-                  min: 0,
-                  max: 5,
-                  value_type: int,
-                  default: 0,
-                }
-              - { label: 答案解說, name: explanation, widget: text }
-          - name: short
-            label: 文字短答
-            widget: object
-            fields:
-              - {
-                  label: 題目識別碼,
-                  name: id,
-                  widget: string,
-                  pattern:
-                    [
-                      "^[A-Za-z0-9_-]{1,40}$",
-                      "只可使用英文字母、數字、底線或連字號",
-                    ],
-                }
-              - { label: 題目, name: prompt, widget: text }
-              - {
-                  label: 分數,
-                  name: points,
-                  widget: number,
-                  value_type: int,
-                  min: 1,
-                  max: 100,
-                  default: 10,
-                }
-              - {
-                  label: 答題提示及解說,
-                  name: explanation,
-                  widget: text,
-                  hint: "學生交卷後可見；請勿在公開教材內放私人批改資料。",
-                }
+      - name: basics
+        label: 基本資料
+        widget: object
+        collapsed: true
+        fields:
+          - { label: 卡片簡介, name: description, widget: text }
+          - {
+              label: 任務類型,
+              name: type,
+              widget: select,
+              options:
+                [
+                  { label: 文章閱讀, value: article },
+                  { label: 互動遊戲, value: game },
+                  { label: 小測驗, value: quiz },
+                ],
+            }
+          - { label: 漫畫標籤, name: label, widget: string, default: 學習任務 }
+          - {
+              label: 建議時間（分鐘）,
+              name: duration,
+              widget: number,
+              min: 1,
+              max: 180,
+              value_type: int,
+            }
+          - {
+              label: 難度（1–5 星）,
+              name: difficulty,
+              widget: number,
+              min: 1,
+              max: 5,
+              value_type: int,
+            }
+          - {
+              label: 功能色,
+              name: accent,
+              widget: select,
+              options:
+                [
+                  { label: 青綠（閱讀／成功）, value: teal },
+                  { label: 朱紅（挑戰／戰爭）, value: red },
+                  { label: 芥末黃（考古／入門）, value: gold },
+                ],
+            }
+      - name: cover
+        label: 封面與取景
+        widget: object
+        collapsed: true
+        fields:
+          - {
+              label: 封面圖片,
+              name: image,
+              widget: image,
+              multiple: false,
+              choose_url: true,
+            }
+          - {
+              label: 封面取景調整,
+              name: imagePosition,
+              widget: image-position,
+              source: cover.image,
+              required: false,
+            }
+      - name: content
+        label: 教材內容
+        widget: object
+        collapsed: true
+        fields:
+          - { label: 文章內容, name: article, widget: markdown, minimal: false }
+          - {
+              label: YouTube／Google Drive 影片連結,
+              name: videoUrl,
+              widget: string,
+              required: false,
+              hint: "支援 YouTube watch／youtu.be，以及 Google Drive file/d/.../view。",
+            }
+          - {
+              label: HTML5／iframe 遊戲連結,
+              name: gameUrl,
+              widget: string,
+              required: false,
+              hint: "必須使用 HTTPS；請確認遊戲來源允許 iframe。",
+            }
+      - name: assessment
+        label: 測驗題目
+        widget: object
+        collapsed: true
+        fields:
+          - label: 測驗題目
+            name: questions
+            widget: list
+            min: 1
+            max: 30
+            summary: "{{fields.prompt}}（{{fields.points}} 分）"
+            hint: "可混合選擇题及短答題；拖動調整題目次序。發佈後，請在教師成績後台同步題目設定。"
+            types:
+              - name: choice
+                label: 選擇題
+                widget: object
+                fields:
+                  - {
+                      label: 題目識別碼,
+                      name: id,
+                      widget: string,
+                      pattern:
+                        [
+                          "^[A-Za-z0-9_-]{1,40}$",
+                          "只可使用英文字母、數字、底線或連字號",
+                        ],
+                      hint: "同一任務不可重複，例如 q1。",
+                    }
+                  - { label: 題目, name: prompt, widget: text }
+                  - {
+                      label: 分數,
+                      name: points,
+                      widget: number,
+                      value_type: int,
+                      min: 1,
+                      max: 100,
+                      default: 10,
+                    }
+                  - {
+                      label: 選項,
+                      name: options,
+                      widget: list,
+                      min: 2,
+                      max: 6,
+                      field: { label: 選項, name: option, widget: string },
+                    }
+                  - {
+                      label: 正確答案序號（第一項填 0）,
+                      name: answer,
+                      widget: number,
+                      min: 0,
+                      max: 5,
+                      value_type: int,
+                      default: 0,
+                    }
+                  - { label: 答案解說, name: explanation, widget: text }
+              - name: short
+                label: 文字短答
+                widget: object
+                fields:
+                  - {
+                      label: 題目識別碼,
+                      name: id,
+                      widget: string,
+                      pattern:
+                        [
+                          "^[A-Za-z0-9_-]{1,40}$",
+                          "只可使用英文字母、數字、底線或連字號",
+                        ],
+                    }
+                  - { label: 題目, name: prompt, widget: text }
+                  - {
+                      label: 分數,
+                      name: points,
+                      widget: number,
+                      value_type: int,
+                      min: 1,
+                      max: 100,
+                      default: 10,
+                    }
+                  - {
+                      label: 答題提示及解說,
+                      name: explanation,
+                      widget: text,
+                      hint: "學生交卷後可見；請勿在公開教材內放私人批改資料。",
+                    }
+      - name: publishing
+        label: 發布設定
+        widget: object
+        collapsed: true
+        fields:
+          - {
+              label: 公開顯示,
+              name: visible,
+              widget: boolean,
+              default: false,
+              hint: "關閉後從學生頁面隱藏；這不是私人存取權限，公開儲存庫仍可讀到內容。",
+            }
+          - {
+              label: 首頁精選,
+              name: featured,
+              widget: boolean,
+              default: false,
+              hint: "開啟後會出現在首頁精選；仍須同時公開任務、課題及年級。",
+            }
+          - {
+              label: 顯示次序,
+              name: order,
+              widget: number,
+              value_type: int,
+              min: 0,
+              default: 100,
+              hint: "數字越小越前；相同數字按標題排列。",
+            }
   - name: assets
     label: 圖片素材目錄
     folder: client/src/content/assets
@@ -404,6 +457,8 @@ collections:
     public_folder: /history-quest/uploads/library
     summary: "{{category}}｜{{title}}"
     sortable_fields: [category, title]
+    view_groups:
+      - { label: 按分類, field: category }
     fields:
       - {
           label: 素材識別碼,
@@ -428,4 +483,11 @@ collections:
           widget: list,
           required: false,
           field: { label: 標籤, name: tag, widget: string },
+        }
+      - {
+          label: 圖片品質與使用位置,
+          name: _usage,
+          widget: image-audit,
+          source: image,
+          required: false,
         }

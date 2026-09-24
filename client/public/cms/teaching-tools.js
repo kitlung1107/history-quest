@@ -1,4 +1,4 @@
-/* global CMS, createClass, h */
+/* global CMS, createClass, h, HQEditor */
 (() => {
   const base = new URL("../", location.href);
   function template(kind) {
@@ -26,7 +26,7 @@
         window.removeEventListener("message", this.receive);
       },
       sendDraft() {
-        const data = this.props.entry.get("data").toJS();
+        const data = HQEditor.effective(this.props.entry);
         for (const key of ["image", "hero", "logo"]) {
           const asset = data[key] && this.props.getAsset?.(data[key]);
           if (asset?.url) data[key] = asset.url;
@@ -51,24 +51,29 @@
                 onChange: e => this.setState({ width: e.target.value }),
               },
               h("option", { value: "100%" }, "填滿預覽欄"),
-              h("option", { value: "390px" }, "手機 390px")
+              h("option", { value: "390px" }, "手機 390px"),
+              h("option", { value: "768px" }, "平板 768px"),
+              h("option", { value: "1280px" }, "桌面 1280px")
             )
           ),
-          h("iframe", {
-            title: "學生畫面即時預覽",
-            ref: frame => {
-              this.frame = frame;
-            },
-            onLoad: () => this.sendDraft(),
-            src: new URL(`preview#${this.state.token}`, base).href,
-            style: {
-              width: this.state.width,
-              maxWidth: "100%",
-              height: "90vh",
-              minHeight: 650,
-              border: 0,
-            },
-          })
+          h(
+            "div",
+            { style: { overflowX: "auto", maxWidth: "100%" } },
+            h("iframe", {
+              title: "學生畫面即時預覽",
+              ref: frame => {
+                this.frame = frame;
+              },
+              onLoad: () => this.sendDraft(),
+              src: new URL(`preview#${this.state.token}`, base).href,
+              style: {
+                width: this.state.width,
+                height: "90vh",
+                minHeight: 650,
+                border: 0,
+              },
+            })
+          )
         );
       },
     });
@@ -113,9 +118,27 @@
   CMS.registerEventListener({
     name: "preSave",
     handler: ({ entry }) => {
-      if (entry.get("collection") !== "tasks") return;
+      const kind =
+        entry.get("collection") === "tasks"
+          ? "tasks"
+          : entry.get("data").get("hero") !== undefined
+            ? "site"
+            : null;
+      if (!kind) return;
       let data = entry.get("data");
-      const questions = data.get("questions")?.toJS?.() || [];
+      const raw = data.toJS();
+      let flat = raw._tools?.restore
+        ? HQEditor.restore(raw, raw._tools.restore, kind)
+        : HQEditor.flatten(raw);
+      const errors = HQEditor.issues(flat, kind);
+      if (errors.length) throw new Error(errors.join("\n"));
+      if (kind === "site") {
+        for (const key of Object.keys(raw)) data = data.delete(key);
+        for (const [key, value] of Object.entries(flat))
+          data = data.set(key, value);
+        return data.delete("_tools").delete("_preview");
+      }
+      const questions = flat.questions || [];
       if (
         !questions.length ||
         new Set(questions.map(q => q.id)).size !== questions.length
@@ -132,12 +155,18 @@
       if (entry.get("newRecord")) {
         // Native Duplicate creates a new record. Give it a distinct score identity,
         // and keep the first save hidden until the teacher explicitly publishes it.
-        const baseId = String(data.get("task_id") || "task").slice(0, 60);
-        data = data
-          .set("task_id", `${baseId}_${crypto.randomUUID().slice(0, 8)}`)
-          .set("visible", false)
-          .set("featured", false);
+        const baseId = String(flat.task_id || "task").slice(0, 60);
+        flat = {
+          ...flat,
+          task_id: `${baseId}_${crypto.randomUUID().slice(0, 8)}`,
+          visible: false,
+          featured: false,
+        };
       }
+      const grouped = HQEditor.group(flat);
+      for (const key of Object.keys(raw)) data = data.delete(key);
+      for (const [key, value] of Object.entries(grouped))
+        data = data.set(key, value);
       return data;
     },
   });

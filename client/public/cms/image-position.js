@@ -8,7 +8,7 @@
     render: function () {
       const { field, entry, value, onChange, forID } = this.props;
       const sourceField = field.get("source");
-      const storedSource = entry.getIn(["data", sourceField]) || "";
+      const storedSource = entry.getIn(["data", ...sourceField.split(".")]) || "";
       // Match the app's base path in both local previews and GitHub Pages.
       const base = new URL("../", location.href).pathname;
       const src = storedSource.startsWith("/history-quest/")

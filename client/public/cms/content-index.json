@@ -1,0 +1,196 @@
+{
+  "topics": [
+    {
+      "id": "s1-topic-1",
+      "title": "人類的需要—古與今",
+      "grade": 1,
+      "order": 1,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s1-topic-2",
+      "title": "歐洲文明的發展",
+      "grade": 1,
+      "order": 2,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s1-topic-3",
+      "title": "伊斯蘭文明的興起與中古時代歐亞的文化交流",
+      "grade": 1,
+      "order": 3,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s1-topic-4",
+      "title": "早期香港地區的歷史、文化與傳承",
+      "grade": 1,
+      "order": 4,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s2-topic-1",
+      "title": "近代歐洲的興起",
+      "grade": 2,
+      "order": 1,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s2-topic-2",
+      "title": "歐洲國家的殖民擴張",
+      "grade": 2,
+      "order": 2,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s2-topic-3",
+      "title": "美國的成立及發展",
+      "grade": 2,
+      "order": 3,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s2-topic-4",
+      "title": "香港直至19世紀末的成長與發展",
+      "grade": 2,
+      "order": 4,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s3-topic-1",
+      "title": "兩次世界大戰",
+      "grade": 3,
+      "order": 1,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s3-topic-2",
+      "title": "冷戰及後冷戰時代",
+      "grade": 3,
+      "order": 2,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s3-topic-3",
+      "title": "20世紀以來的國際合作",
+      "grade": 3,
+      "order": 3,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s3-topic-4",
+      "title": "20世紀香港的成長與蛻變",
+      "grade": 3,
+      "order": 4,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s4-topic-1",
+      "title": "二十世紀國際衝突",
+      "grade": 4,
+      "order": 1,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s4-topic-2",
+      "title": "香港現代化",
+      "grade": 4,
+      "order": 2,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s4-topic-3",
+      "title": "改革與革命",
+      "grade": 4,
+      "order": 3,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s5-topic-1",
+      "title": "中國近現代史",
+      "grade": 5,
+      "order": 1,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s5-topic-2",
+      "title": "冷戰世界",
+      "grade": 5,
+      "order": 2,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s5-topic-3",
+      "title": "東亞發展",
+      "grade": 5,
+      "order": 3,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s6-topic-1",
+      "title": "公開試研習",
+      "grade": 6,
+      "order": 1,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s6-topic-2",
+      "title": "史料分析",
+      "grade": 6,
+      "order": 2,
+      "visible": true,
+      "gradeVisible": true
+    },
+    {
+      "id": "s6-topic-3",
+      "title": "歷史論證",
+      "grade": 6,
+      "order": 3,
+      "visible": true,
+      "gradeVisible": true
+    }
+  ],
+  "images": {
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/AHoOEYFsvjjBELVv.png": [
+      "首頁大圖"
+    ],
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/fQwdjGMwUojWUNVd.png": [
+      "網站標誌"
+    ],
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/rqkulCuDciZdHjhL.png": [
+      "任務封面：尼羅河文明解碼",
+      "素材目錄：尼羅河文明解碼封面"
+    ],
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/dGmZCgNJcIGuefbW.png": [
+      "任務封面：香港保衞戰 1941",
+      "素材目錄：香港保衞戰 1941封面"
+    ],
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663927088869/UKcrbrknsGwZLUyU.png": [
+      "任務封面：香港開埠與早期發展",
+      "素材目錄：香港開埠與早期發展封面"
+    ],
+    "https://kitlung1107.github.io/ColdWarMaze/apple-touch-icon.png": [
+      "任務封面：冷戰・地下檔案",
+      "素材目錄：冷戰・地下檔案封面"
+    ]
+  }
+}

@@ -185,6 +185,42 @@ export default function Admin() {
           </a>
         </div>
       </header>
+      <aside className="admin-panel mx-auto mt-5 max-w-7xl p-4">
+        <div className="flex flex-wrap gap-3">
+          <a
+            className="pixel-button pixel-button-teal"
+            href="https://docs.google.com/spreadsheets/d/19FUB6aC_zmRdXz-VY9n3ZHY7NTOzwJIq0lh-Ucfhs-8/edit"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            開啟 Google 成績表
+          </a>
+          <Link href="/library" className="pixel-button pixel-button-paper">
+            教材搜尋與圖片目錄
+          </Link>
+          <a
+            className="pixel-button pixel-button-paper"
+            href="https://github.com/kitlung1107/history-quest/blob/main/docs/TEACHING_UPGRADE.md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google 同步設定說明
+          </a>
+        </div>
+        <p className="mt-3 text-sm">
+          Google 成績表需要有權限的 Google
+          帳戶登入。學生答案經成績服務自動儲存；CSV 可另匯入 Google 試算表。
+        </p>
+        {data && (
+          <p className="mt-2 font-bold" role="status">
+            {demo
+              ? "示範資料 · 不會傳送到 Google"
+              : legacy
+                ? "Google 連線：舊版服務，只能讀取舊成績；逐題答案、評語及名冊需升級。"
+                : "Google 連線：新版成績服務，可儲存答案、評語及名冊。"}
+          </p>
+        )}
+      </aside>
 
       {!data ? (
         <main className="admin-login mx-auto mt-10 max-w-2xl">

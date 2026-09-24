@@ -1,5 +1,6 @@
 import MySubmissions from "@/pages/MySubmissions";
 import ContentPreview from "@/pages/ContentPreview";
+import ContentLibrary from "@/pages/ContentLibrary";
 /**
  * 設計提醒：所有路由共用方案 A「香港歷史漫畫報紙」語言；首頁與教師後台必須有清楚返回路徑。
  */
@@ -24,6 +25,7 @@ function Routes() {
       <Route path="/admin" component={Admin} />
       <Route path="/submissions" component={MySubmissions} />
       <Route path="/preview" component={ContentPreview} />
+      <Route path="/library" component={ContentLibrary} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

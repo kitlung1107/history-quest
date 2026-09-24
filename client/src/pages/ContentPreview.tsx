@@ -9,6 +9,7 @@ export default function ContentPreview() {
     kind: string;
     data: Record<string, any>;
   } | null>(null);
+  const [view, setView] = useState("card");
   useEffect(() => {
     const token = location.hash.slice(1);
     const receive = (event: MessageEvent) => {
@@ -81,13 +82,38 @@ export default function ContentPreview() {
         {draft.kind === "site" ? (
           <Home previewSettings={{ ...SITE_SETTINGS, ...data }} />
         ) : (
-          <TaskModal
-            key={JSON.stringify(data)}
-            task={task}
-            open
-            preview
-            onOpenChange={() => {}}
-          />
+          <>
+            <div className="flex gap-3 bg-paper p-3">
+              <button
+                className="pixel-button pixel-button-paper"
+                onClick={() => setView("card")}
+              >
+                首頁卡片預覽
+              </button>
+              <button
+                className="pixel-button pixel-button-paper"
+                onClick={() => setView("task")}
+              >
+                教材全文與試答
+              </button>
+            </div>
+            {view === "card" ? (
+              <Home
+                previewSettings={SITE_SETTINGS}
+                previewTasks={[{ ...task, visible: true, featured: true }]}
+              />
+            ) : (
+              <TaskModal
+                key={JSON.stringify(data)}
+                task={task}
+                open
+                preview
+                onOpenChange={open => {
+                  if (!open) setView("card");
+                }}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

@@ -160,6 +160,25 @@ test("weighted answers stay pending until all short answers are marked", () => {
   );
 });
 
+test("migrated salted PIN stays valid and legacy clients keep read/write compatibility", () => {
+  const { ctx, post, teacher } = harness();
+  const properties = ctx.PropertiesService.getScriptProperties();
+  properties.setProperty("HQ_PIN_SALT", "legacy-salt:");
+  properties.setProperty("HQ_PIN_SHA256", createHash("sha256").update("legacy-salt:123456").digest("hex"));
+  assert.equal(teacher({ action: "admin" }).ok, true);
+  assert.equal(post({ action: "admin", pin: "000000" }).ok, false);
+  const old = { task_id: "test-task", attempt_id: "old-client-attempt", class_name: "3A", student_name: "示範學生", student_no: "01", score: 75, progress: 50 };
+  const submit = () => ctx.doPost({ postData: { contents: JSON.stringify(old) } });
+  assert.equal(submit().ok, true);
+  assert.equal(submit().duplicate, true);
+  const result = ctx.doGet({ parameter: { action: "admin", pin: "123456" } });
+  assert.equal(result.ok, true);
+  assert.equal(result.tasks[0].rows[0].progress, 50);
+  assert.equal(result.tasks[0].rows[0].status, "legacy");
+  assert.equal(ctx.doGet({ parameter: { action: "admin", pin: "000000" } }).ok, false);
+  assert.equal(ctx.doGet({ parameter: { action: "capabilities" } }).api_version, 2);
+});
+
 test("long short-answer submissions survive Sheets cell limits and grading", () => {
   const { post, teacher, sheets } = harness();
   const longQuestions = Array.from({ length: 30 }, (_, i) => ({
@@ -234,6 +253,13 @@ test("CMS duplicates get distinct identities, existing edits preserve identity, 
   });
   vm.runInContext(
     fs.readFileSync(
+      new URL("../client/public/cms/editor-model.js", import.meta.url),
+      "utf8"
+    ),
+    context
+  );
+  vm.runInContext(
+    fs.readFileSync(
       new URL("../client/public/cms/teaching-tools.js", import.meta.url),
       "utf8"
     ),
@@ -243,6 +269,10 @@ test("CMS duplicates get distinct identities, existing edits preserve identity, 
     get: key =>
       Array.isArray(value[key]) ? { toJS: () => value[key] } : value[key],
     set: (key, v) => immutable({ ...value, [key]: v }),
+    delete: key =>
+      immutable(
+        Object.fromEntries(Object.entries(value).filter(([k]) => k !== key))
+      ),
     toJS: () => value,
   });
   const entry = fresh => ({
@@ -251,6 +281,17 @@ test("CMS duplicates get distinct identities, existing edits preserve identity, 
         collection: "tasks",
         newRecord: fresh,
         data: immutable({
+          title: "示範",
+          topicId: "topic",
+          description: "簡介",
+          article: "內文",
+          image: "https://example.com/image.png",
+          type: "quiz",
+          duration: 10,
+          difficulty: 2,
+          order: 1,
+          label: "任務",
+          accent: "gold",
           task_id: "original",
           visible: true,
           featured: true,
@@ -258,8 +299,8 @@ test("CMS duplicates get distinct identities, existing edits preserve identity, 
         }),
       })[key],
   });
-  const first = hook({ entry: entry(true) }).toJS();
-  const second = hook({ entry: entry(true) }).toJS();
+  const first = context.HQEditor.flatten(hook({ entry: entry(true) }).toJS());
+  const second = context.HQEditor.flatten(hook({ entry: entry(true) }).toJS());
   assert.notEqual(first.task_id, second.task_id);
   assert.equal(first.visible, false);
   assert.equal(first.featured, false);

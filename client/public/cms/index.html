@@ -8,8 +8,21 @@
     <title>歷史互動探索館｜內容管理</title>
   </head>
   <body>
+    <script>
+      window.CMS_MANUAL_INIT = true;
+    </script>
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+    <script src="./editor-model.js"></script>
+    <script src="./editor-tools.js"></script>
     <script src="./image-position.js"></script>
     <script src="./teaching-tools.js"></script>
+    <script>
+      const localTest =
+        ["localhost", "127.0.0.1"].includes(location.hostname) &&
+        new URLSearchParams(location.search).get("test") === "1";
+      CMS.init(
+        localTest ? { config: { backend: { name: "test-repo" } } } : undefined
+      );
+    </script>
   </body>
 </html>
