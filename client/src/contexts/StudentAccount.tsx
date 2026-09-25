@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { auth, db, googleLogin, googleLoginInThisTab, finishGoogleRedirect, googleLogout, OWNER_EMAIL, SCHOOL_DOMAIN } from "@/lib/firebase";
+import { auth, db, googleLogin, googleLogout, OWNER_EMAIL } from "@/lib/firebase";
 import { CLASS_OPTIONS, type StudentProfile } from "@/lib/historyQuest";
 
 export const AVATARS = { explorer: "🧭", scholar: "📚", archaeologist: "🏺", navigator: "⛵" };
@@ -44,15 +44,13 @@ export function AccountGate({ children, teacherPage = false }: { children: React
     finally { setLoading(false); }
   }
   useEffect(() => onAuthStateChanged(auth, () => { setLoading(true); void refresh(); }), []);
-  useEffect(() => { void finishGoogleRedirect().catch(e => setError(e.message)); }, []);
   if (loading) return <main className="paper-texture min-h-screen p-10">正在確認 Google 帳戶…</main>;
   if (!account) return <main className="paper-texture min-h-screen p-6 md:p-16"><section className="admin-panel mx-auto max-w-xl p-8">
     <p className="comic-kicker">History Discovery Center</p><h1 className="display-title my-5 text-3xl">登入歷史探索館</h1>
-    <p>使用老師名單中的 @{SCHOOL_DOMAIN} 學校 Google 帳戶。獲老師核准的私人 Gmail 也可登入。</p>
+    <p>學校 Google 帳戶。獲老師核准的私人 Gmail 也可登入。</p>
     {waiting && <p role="status" className="my-4">{auth.currentUser?.email} 尚未獲准使用。請把此 email 告訴老師，待核准後按「重新檢查」。</p>}
     {error && <p role="alert" className="my-4 break-words">{error}</p>}
     <div className="mt-6 flex flex-wrap gap-3"><button className="pixel-button pixel-button-gold" onClick={() => { setError(""); void googleLogin().catch(e => setError(e.message)); }}>使用 Google 登入</button>
-    <button className="pixel-button pixel-button-paper" onClick={() => { setError(""); void googleLoginInThisTab().catch(e => setError(e.message)); }}>在同一分頁登入 Google</button>
     {auth.currentUser && <><button className="pixel-button pixel-button-paper" onClick={() => { setLoading(true); void refresh(); }}>重新檢查</button><button className="pixel-button pixel-button-paper" onClick={() => void googleLogout()}>登出</button></>}</div>
     <p className="mt-5 text-sm">共用電腦使用完畢請登出。網站不會取得你的 Google 密碼。</p>
   </section></main>;
