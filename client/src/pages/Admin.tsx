@@ -20,7 +20,7 @@ export default function Admin() {
   }
   useEffect(()=>{void run(refresh);},[]);
   return <main className="paper-texture min-h-screen p-5 md:p-10"><div className="mx-auto max-w-7xl">
-    <div className="flex flex-wrap gap-3"><Link href="/" className="pixel-button pixel-button-paper">返回探索館</Link><button className="pixel-button pixel-button-paper" onClick={()=>void googleLogout()}>登出</button><button disabled={busy} className="pixel-button pixel-button-paper" onClick={()=>void run(refresh)}>重新載入最新提交</button></div>
+    <div className="flex flex-wrap gap-3"><Link href="/" className="pixel-button pixel-button-paper">返回探索館</Link><button className="pixel-button pixel-button-paper" onClick={()=>void googleLogout()}>登出</button><button disabled={busy} className="pixel-button pixel-button-paper" onClick={()=>void run(refresh)}>重新載入最新提交</button><a href={`${import.meta.env.BASE_URL}cms/index.html`} className="pixel-button pixel-button-gold text-center">教材與題目管理（CMS）</a></div>
     <h1 className="display-title my-6 text-3xl">教師工作室</h1><p>{account.user.email} · Firestore</p>
     <p className="my-3">每次載入 100 份提交；篩選、匯出及欠交比較只涵蓋已載入的紀錄。需要完整比較時請先載入更多。</p>
     <button className="pixel-button pixel-button-gold" disabled={busy} onClick={()=>void run(async()=>{await syncCatalogue();let count=0;const failures:string[]=[];for(const row of data?.rows||[])if(!row.revision){try{await markSubmission(row.attempt_id);count++;}catch(e){failures.push(`${row.task_title}: ${e instanceof Error?e.message:"無法核算"}`);}}await refresh();setNotice(`已核算 ${count} 份。短答請逐份批改。${failures.join("；")}`);})}>核算已載入的選擇題</button>
