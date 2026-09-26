@@ -3,8 +3,6 @@ import { displayClass, matchesClass } from "@/lib/classOptions";
 import { useEffect, useMemo, useState } from "react";
 import { HISTORY_TASKS } from "@/lib/historyQuest";
 import {
-  getQuestions,
-  assessmentVersion,
   missingStudents,
   filterSubmissions,
   type SubmissionRow,
@@ -112,50 +110,9 @@ export default function TeachingWorkspace({
         >
           班級名單與欠交
         </button>
-        <button
-          className="pixel-button pixel-button-paper"
-          disabled={busy || legacy}
-          onClick={() =>
-            void perform(async () => {
-              if (!demo)
-                setData(
-                  await teachingApi<TeachingData>({ action: "admin", pin })
-                );
-              setNotice("資料已更新。");
-            })
-          }
-        >
-          重新整理
-        </button>
-        <button
-          className="pixel-button pixel-button-gold"
-          disabled={busy || legacy}
-          onClick={() =>
-            void perform(async () => {
-              if (!demo)
-                await teachingApi({
-                  action: "catalogue",
-                  pin,
-                  tasks: HISTORY_TASKS.map(task => ({
-                    task_id: task.id,
-                    title: task.title,
-                    questions: getQuestions(task),
-                    version: assessmentVersion(getQuestions(task)),
-                  })),
-                });
-              setNotice(
-                demo
-                  ? "示範：題目設定已同步。"
-                  : "已同步目前網站的公開題目，學生可以提交答案。"
-              );
-            })
-          }
-        >
-          同步題目設定
-        </button>
       </div>
       <p className="mt-3 text-sm text-ink/70">
-        新增或改題後，先同步題目設定。選擇題由教師按「核算已載入的選擇題」核算，正式成績存入 Firestore。
+        頂部「重新整理」會重新載入提交及學生名單，並同步目前網站的題目、標準答案、配分及版本。新增或改題後，請等待網站發佈完成，再重新載入網頁並按「重新整理」。重新整理不會自動核分或重新批改既有成績。選擇題由教師按「核算已載入的選擇題」核算，正式成績存入 Firestore。
       </p>
       <div className="my-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <label>

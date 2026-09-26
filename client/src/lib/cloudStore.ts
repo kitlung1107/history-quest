@@ -42,7 +42,7 @@ export async function markSubmission(id:string) {
     const data = snapshot.data() as CloudSubmission;
     if (!data || data.grade) return;
     const catalogue = await tx.get(doc(db,"catalogue",`${data.taskId}--${data.version}`));
-    if (!catalogue.exists()) throw new Error(`找不到 ${data.taskId} 的原版題目，請先同步題目設定。`);
+    if (!catalogue.exists()) throw new Error(`找不到 ${data.taskId} 的原版題目。請按教師工作室頂部「重新整理」重試；若仍失敗，需由網站管理員補回該提交版本的題目設定。`);
     const profile = await tx.get(doc(db,"profiles",data.studentId));
     const progressRef = doc(db,"progress",data.studentId,"tasks",data.taskId);
     const progress = await tx.get(progressRef);
