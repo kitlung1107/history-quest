@@ -1,0 +1,87 @@
+/* Loaded by LocalHomeDemo only; the production homepage has no matching wrapper. */
+.hero-corner-controls { display:flex; align-items:center; justify-content:center; gap:10px; flex-basis:100%; }
+.home-paper-preview[data-hero="edge"][data-corners="square"] .hero-panel > img { border-radius:0; }
+.home-paper-preview[data-hero="edge"][data-corners="round"] .hero-panel > img { border-radius:12px; }
+.home-paper-preview[data-hero="edge"] .home-main { display:flex; flex-direction:column; }
+.home-paper-preview[data-hero="edge"] .hero-panel {
+  order:-1; width:100%; margin:0; min-height:0; aspect-ratio:auto;
+  border:8px solid #fff; border-bottom:0; border-radius:0; container-type:inline-size; flex:none;
+}
+.home-paper-preview[data-hero="edge"] .hero-panel > img {
+  position:static; display:block; width:100%; height:auto;
+}
+.home-paper-preview[data-hero="edge"] .hero-title-wrap {
+  position:absolute; top:6%; left:18.5%; width:63%; margin:0; padding:8px 0;
+  background:transparent; border-radius:0;
+}
+.home-paper-preview[data-hero="edge"] .hero-title-wrap h1 { font-size:clamp(24px,4.4cqw,53px); }
+.home-paper-preview[data-hero="edge"] .home-status { min-height:0; padding:8px 28px 0; }
+.home-paper-preview[data-hero="edge"] .home-status:empty { display:none; }
+@media(max-width:767px) {
+  .home-paper-preview[data-hero="edge"] .hero-panel { border-width:6px; border-bottom:0; }
+  .home-paper-preview[data-hero="edge"] .hero-title-wrap {
+    position:static; width:100%; padding:16px 12px; background:#fff9e9;
+  }
+  .home-paper-preview[data-hero="edge"] .hero-title-wrap h1 { font-size:30px; }
+  .home-paper-preview[data-hero="edge"] .home-status { padding:8px 16px 0; }
+}
+.paper-preview-controls {
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+  gap:10px; padding:10px 16px; color:#183249; background:#fffdf6;
+  border-bottom:1px solid #ded3b9; font-size:13px;
+}
+.paper-preview-controls span { font-weight:800; }
+.paper-preview-controls button { padding:6px 14px; border:1px solid #d2c4a5; border-radius:18px; background:#fffaf0; }
+.paper-preview-controls button[aria-pressed="true"] { background:#ffe5a3; border-color:#bc903e; font-weight:800; }
+.paper-preview-controls small { font-size:11px; color:#526778; }
+.home-paper-preview[data-paper="A"] { --preview-paper:url("./preview-assets/paper-A.png"); }
+.home-paper-preview[data-paper="C"] { --preview-paper:url("./preview-assets/paper-C.png"); }
+.home-paper-preview:is([data-paper="A"],[data-paper="C"]) .manga-home {
+  background-image:var(--preview-paper);
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+}
+.home-paper-preview:is([data-paper="A"],[data-paper="C"]) .site-frame { background:transparent; }
+.home-paper-preview:is([data-paper="E"],[data-paper="F"],[data-paper="G"]) .site-frame { background:transparent; }
+.home-paper-preview:is([data-paper="E"],[data-paper="F"],[data-paper="G"]) .home-main {
+  position:relative; isolation:isolate;
+}
+.home-paper-preview:is([data-paper="E"],[data-paper="F"],[data-paper="G"]) .home-main::before,
+.home-paper-preview:is([data-paper="E"],[data-paper="F"],[data-paper="G"]) .home-main::after {
+  content:""; position:absolute; pointer-events:none; z-index:-1;
+}
+/* E: sky colors continue around the hero, fading out before the teaching cards. */
+.home-paper-preview[data-paper="E"] .manga-home { background:#fffcf5; }
+.home-paper-preview[data-paper="E"] .home-main {
+  background:linear-gradient(180deg,#c6e7f8 0,#e4f3fa 280px,#f5faf8 460px,#fffcf5 620px);
+}
+.home-paper-preview[data-paper="E"] .home-main::before {
+  inset:0 0 auto; height:460px;
+  background:radial-gradient(ellipse 180px 65px at -10px 100px,#ffffffd9 55%,transparent 75%),radial-gradient(ellipse 150px 62px at 100% 200px,#ffffffe0 45%,transparent 75%),radial-gradient(ellipse 160px 60px at 88% 2px,#ffffff9c 50%,transparent 80%);
+}
+/* F: clean album stock with broad, softly fading halftone at the outer edges. */
+.home-paper-preview[data-paper="F"] .manga-home { background:#fffdf5; }
+.home-paper-preview[data-paper="F"] .home-main { background:#fffdf5; }
+.home-paper-preview[data-paper="F"] .home-main::before {
+  inset:0; background:radial-gradient(#27496425 1.4px,transparent 1.7px) 0 0/9px 9px;
+  mask-image:linear-gradient(90deg,#000,transparent 20%,transparent 80%,#000);
+}
+.home-paper-preview[data-paper="F"] .home-main::after {
+  inset:0; background:radial-gradient(ellipse at 0 60%,#ffdb7730,transparent 24%),radial-gradient(ellipse at 100% 15%,#e2f2fa55,transparent 25%);
+}
+/* G: sand from the atlas; contour and route marks stay outside the reading area. */
+.home-paper-preview[data-paper="G"] .manga-home { background:#f9efd8; }
+.home-paper-preview[data-paper="G"] .home-main {
+  background:linear-gradient(90deg,#f1e1bc,#fff8e8 23%,#fff8e8 77%,#f1e1bc);
+}
+.home-paper-preview[data-paper="G"] .home-main::before {
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='560' viewBox='0 0 320 560'%3E%3Cg fill='none' stroke='%2398895a' stroke-width='1.2' opacity='.23'%3E%3Cpath d='M-80 20C160-40 20 130 200 150S360 300 140 310S90 440 300 490M-80 38C138-18 6 143 182 168S338 285 127 329S110 458 300 507M-80 57C112 0-6 160 165 187S314 270 116 348S135 477 300 526M-80 78C88 20-23 183 145 205S290 258 108 367S155 495 300 545M-80 100C65 43-34 200 128 226S266 248 102 385'/%3E%3Cpath stroke-dasharray='5 8' stroke-width='1.6' d='M28-20C100 70 20 126 62 206S165 235 134 330S20 440 60 580'/%3E%3C/g%3E%3C/svg%3E");
+  background-position:left top,right 60px; background-size:320px 560px;
+  mask-image:linear-gradient(90deg,#000,transparent 24%,transparent 76%,#000);
+}
+@media(max-width:767px) {
+  .paper-preview-controls { padding:10px 55px; gap:6px; font-size:11px; }
+  .paper-preview-controls small { flex-basis:100%; text-align:center; }
+}
