@@ -7,6 +7,16 @@ let env;
 const claims=email=>({email,email_verified:true,firebase:{sign_in_provider:'google.com'}});
 const profile={className:'1A',studentNo:'01',name:'測試學生',nickname:'探險家',avatar:'explorer',configured:false};
 const student=()=>env.authenticatedContext('uid-a',claims('student@ctshkpcc.edu.hk')).firestore();
+test('first login is owned, server-timed and immutable',async()=>{
+ const db=student();const ref=doc(db,'studentLogins','s1');
+ await assertFails(setDoc(doc(db,'studentLogins','s2'),{firstLoginAt:serverTimestamp()}));
+ await assertFails(setDoc(ref,{firstLoginAt:'fake'}));
+ await assertSucceeds(setDoc(ref,{firstLoginAt:serverTimestamp()}));
+ await assertSucceeds(getDocs(collection(teacher(),'studentLogins')));
+ await assertFails(getDoc(doc(env.authenticatedContext('other',claims('other@gmail.com')).firestore(),'studentLogins','s1')));
+ await assertFails(updateDoc(ref,{firstLoginAt:serverTimestamp()}));
+ await assertFails(updateDoc(doc(teacher(),'studentLogins','s1'),{firstLoginAt:serverTimestamp()}));
+});
 const teacher=()=>env.authenticatedContext('teacher',claims('kitlung1107@gmail.com')).firestore();
 before(async()=>{env=await initializeTestEnvironment({projectId:'demo-hdc',firestore:{rules:await readFile('firestore.rules','utf8')}});});
 after(async()=>{await env?.cleanup();});
