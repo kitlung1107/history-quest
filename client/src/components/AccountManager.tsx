@@ -15,6 +15,7 @@ import {
   type AccountRosterRow,
 } from "@/lib/csv";
 import type { CloudProfile } from "@/contexts/StudentAccount";
+import AccessRequestManager from "./AccessRequestManager";
 type Entry = { id: string; profile: CloudProfile };
 type Access = { email: string; studentId: string; enabled: boolean };
 type Plan = { row: AccountRosterRow; id: string; existing: boolean };
@@ -78,9 +79,9 @@ export default function AccountManager({
     studentNo: string;
     name: string;
   } | null>(null);
-  const [addMode, setAddMode] = useState<"manual" | "gmail" | "csv" | null>(
-    null
-  );
+  const [addMode, setAddMode] = useState<
+    "manual" | "gmail" | "csv" | "requests" | null
+  >(null);
   function edit(entry: Entry, oldEmail: string) {
     setAddMode(null);
     setNotice("");
@@ -555,6 +556,7 @@ export default function AccountManager({
                 ["manual", "手動新增"],
                 ["gmail", "連結現有學生 Gmail"],
                 ["csv", "CSV 批量匯入"],
+                ["requests", "准用電郵申請"],
               ] as const
             ).map(([mode, label]) => (
               <button
@@ -723,6 +725,17 @@ export default function AccountManager({
             </div>
           )}
           {addMode === "manual" && editorForm}
+          {addMode === "requests" && (
+            <AccessRequestManager
+              embedded
+              previewOnly={previewOnly}
+              onChanged={async () => {
+                setPlan([]);
+                await refresh();
+                await onChanged();
+              }}
+            />
+          )}
         </div>
       )}
       {!addMode && editorForm}
