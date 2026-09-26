@@ -46,7 +46,7 @@ export function AccountGate({ children, teacherPage = false }: { children: React
   useEffect(() => onAuthStateChanged(auth, () => { setLoading(true); void refresh(); }), []);
   if (loading) return <main className="paper-texture min-h-screen p-10">正在確認 Google 帳戶…</main>;
   if (!account) return <main className="login-scene" style={{ backgroundImage: `url(${import.meta.env.BASE_URL}images/login-history.webp)` }}>
-    <picture className="login-phone-art" aria-hidden="true"><source media="(max-width:600px) and (orientation:portrait)" srcSet={`${import.meta.env.BASE_URL}images/login-phone.webp`} /><img src={`${import.meta.env.BASE_URL}images/login-history.webp`} alt="" /></picture>
+    <picture className="login-phone-art" aria-hidden="true"><source media="(max-width:600px) and (orientation:portrait)" srcSet={`${import.meta.env.BASE_URL}images/login-phone.webp`} /><source media="(min-width:601px) and (max-width:1400px) and (orientation:portrait)" srcSet={`${import.meta.env.BASE_URL}images/login-ipad.webp`} /><img src={`${import.meta.env.BASE_URL}images/login-history.webp`} alt="" /></picture>
     <section className="login-card" aria-labelledby="login-title">
     <p className="login-kicker">History Discovery Center</p><h1 id="login-title" className="display-title login-title">登入歷史探索館</h1>
     {waiting && <p role="status" className="my-4">{auth.currentUser?.email} 尚未獲准使用。請把此 email 告訴老師，待核准後按「重新檢查」。</p>}
