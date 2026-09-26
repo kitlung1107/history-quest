@@ -31,7 +31,9 @@ export default function TeachingWorkspace({
   demo = false,
   legacy = false,
   onDataChange,
+  loading = false,
 }: {
+  loading?: boolean;
   pin: string;
   initial: TeachingData;
   demo?: boolean;
@@ -112,7 +114,7 @@ export default function TeachingWorkspace({
         </button>
       </div>
       <p className="mt-3 text-sm text-ink/70">
-        頂部「重新整理」會重新載入提交及學生名單，並同步目前網站的題目、標準答案、配分及版本。新增或改題後，請等待網站發佈完成，再重新載入網頁並按「重新整理」。重新整理不會自動核分或重新批改既有成績。選擇題由教師按「核算已載入的選擇題」核算，正式成績存入 Firestore。
+        開啟工作室、重新整理及載入更多提交時，系統會先同步題目版本，再核算本次載入的未核算提交，正式成績存入 Firestore。已有成績及評語會保留；短答仍需逐份手動批改。改題發佈後請重新載入網頁，以使用新網站版本。
       </p>
       <div className="my-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <label>
@@ -281,7 +283,7 @@ export default function TeachingWorkspace({
             <Review
               key={`${selected.attempt_id}-${selected.revision}`}
               row={selected}
-              busy={busy}
+              busy={busy || loading}
               close={() => setSelected(null)}
               save={(answers, feedback) =>
                 void perform(async () => {

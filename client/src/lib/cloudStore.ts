@@ -37,10 +37,11 @@ export async function syncCatalogue() {
 }
 export async function markSubmission(id:string) {
   const ref = doc(db,"submissions",id);
-  await runTransaction(db,async tx=>{
+  return runTransaction(db,async tx=>{
     const snapshot = await tx.get(ref);
     const data = snapshot.data() as CloudSubmission;
-    if (!data || data.grade) return;
+    if (!data) throw new Error("提交已不存在，請重新整理。");
+    if (data.grade) return data.grade;
     const catalogue = await tx.get(doc(db,"catalogue",`${data.taskId}--${data.version}`));
     if (!catalogue.exists()) throw new Error(`找不到 ${data.taskId} 的原版題目。請按教師工作室頂部「重新整理」重試；若仍失敗，需由網站管理員補回該提交版本的題目設定。`);
     const profile = await tx.get(doc(db,"profiles",data.studentId));
@@ -51,6 +52,7 @@ export async function markSubmission(id:string) {
     const grade:SubmissionRow = {...asRow(id,data,profile.data() as CloudProfile),task_title:catalogue.data().title,answers,score,status:score===null?"pending":"graded",revision:1,feedback:""};
     tx.update(ref,{grade});
     if (progress.data()?.attemptId===id) tx.update(progressRef,{score:score || 0});
+    return grade;
   });
 }
 export async function saveGrade(id:string, revision:number, marks:{question_id:string;awarded:number;feedback?:string}[], feedback:string) {
