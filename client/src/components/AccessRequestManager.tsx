@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { CLASS_OPTIONS, isCurrentClass } from "@/lib/classOptions";
+import { CLASS_OPTIONS, isCurrentClass, displayClass } from "@/lib/classOptions";
 import { reviewAccessRequest, type AccessRequest } from "@/lib/accessRequests";
 import type { CloudProfile } from "@/contexts/StudentAccount";
 
@@ -32,11 +32,11 @@ export default function AccessRequestManager({ onChanged }: { onChanged: () => P
   return <section className="admin-panel my-8 p-6"><h2 className="display-title text-2xl">准用電郵申請</h2>
     <p className="my-3">請核對申請人的身分。連結現有學生會沿用其角色及所有成績；建立新帳號會新增學生紀錄。</p>
     <button disabled={busy} className="pixel-button pixel-button-paper" onClick={() => void run(refresh)}>重新載入申請</button>
-    <ul className="my-4 max-h-96 overflow-auto">{requests.map(r => <li key={r.email} className="my-3 border-b pb-3"><p className="break-all">{r.email} · {r.className} · {r.studentNo} · {r.name}</p><p>{r.status === "pending" ? "待審批" : r.status === "approved" ? "已批准" : `已拒絕：${r.reason}`}</p>{r.status === "pending" && <button disabled={busy} className="underline" onClick={() => { setSelected(r.email); setSid(""); setMode("link"); setName(r.name); setClassName(r.className); setStudentNo(r.studentNo); setReason(""); }}>核對及審批</button>}</li>)}</ul>
+    <ul className="my-4 max-h-96 overflow-auto">{requests.map(r => <li key={r.email} className="my-3 border-b pb-3"><p className="break-all">{r.email} · {displayClass(r.className)} · {r.studentNo} · {r.name}</p><p>{r.status === "pending" ? "待審批" : r.status === "approved" ? "已批准" : `已拒絕：${r.reason}`}</p>{r.status === "pending" && <button disabled={busy} className="underline" onClick={() => { setSelected(r.email); setSid(""); setMode("link"); setName(r.name); setClassName(r.className); setStudentNo(r.studentNo); setReason(""); }}>核對及審批</button>}</li>)}</ul>
     {!requests.length && <p>目前沒有申請。</p>}
     {selected && <div className="grid gap-3 border-2 p-4"><h3 className="break-all">正在審批：{selected}</h3>
       <label>批准方式<select disabled={busy} className="comic-input block w-full" value={mode} onChange={e => setMode(e.target.value)}><option value="link">連結現有學生帳號</option><option value="new">建立新學生帳號</option></select></label>
-      {mode === "link" ? <label>對應學生<select disabled={busy} className="comic-input block w-full" value={sid} onChange={e => setSid(e.target.value)}><option value="">請核對並選擇學生</option>{profiles.map(p => <option key={p.id} value={p.id}>{p.profile.className} · {p.profile.studentNo} · {p.profile.name}</option>)}</select></label> : <>
+      {mode === "link" ? <label>對應學生<select disabled={busy} className="comic-input block w-full" value={sid} onChange={e => setSid(e.target.value)}><option value="">請核對並選擇學生</option>{profiles.map(p => <option key={p.id} value={p.id}>{displayClass(p.profile.className)} · {p.profile.studentNo} · {p.profile.name}</option>)}</select></label> : <>
         <label>班別<select disabled={busy} className="comic-input block w-full" value={className} onChange={e => setClassName(e.target.value)}><option value="">選擇班別</option>{CLASS_OPTIONS.map(c => <option key={c}>{c}</option>)}</select></label>
         <label>學號<input disabled={busy} maxLength={12} className="comic-input block w-full" value={studentNo} onChange={e => setStudentNo(e.target.value)} /></label>
         <label>姓名<input disabled={busy} maxLength={50} className="comic-input block w-full" value={name} onChange={e => setName(e.target.value)} /></label>

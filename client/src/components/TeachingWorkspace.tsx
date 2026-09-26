@@ -1,3 +1,5 @@
+import { submissionExport } from "@/lib/teachingExport";
+import { displayClass, matchesClass } from "@/lib/classOptions";
 import { useEffect, useMemo, useState } from "react";
 import { HISTORY_TASKS } from "@/lib/historyQuest";
 import {
@@ -55,7 +57,7 @@ export default function TeachingWorkspace({
     [data.rows, filters]
   );
   const classes = Array.from(
-    new Set([...data.rows, ...data.roster].map(row => row.class_name))
+    new Set([...data.rows, ...data.roster].map(row => displayClass(row.class_name)))
   ).sort();
   const tasks = Array.from(
     new Map(
@@ -82,59 +84,7 @@ export default function TeachingWorkspace({
     }
   }
   function exportRows(detailed = false) {
-    const header = detailed
-      ? [
-          "時間",
-          "班別",
-          "學號",
-          "姓名",
-          "任務",
-          "題目",
-          "學生答案",
-          "得分",
-          "滿分",
-          "評語",
-        ]
-      : [
-          "時間",
-          "班別",
-          "學號",
-          "姓名",
-          "任務",
-          "百分制成績",
-          "狀態",
-          "總評語",
-        ];
-    const rows = detailed
-      ? visible.flatMap(r =>
-          (r.answers || []).map(a => [
-            r.timestamp,
-            r.class_name,
-            r.student_no,
-            r.student_name,
-            r.task_title || r.task_id,
-            a.prompt,
-            a.response,
-            a.awarded ?? "待批改",
-            a.points,
-            a.feedback,
-          ])
-        )
-      : visible.map(r => [
-          r.timestamp,
-          r.class_name,
-          r.student_no,
-          r.student_name,
-          r.task_title || r.task_id,
-          r.score ?? "",
-          r.status === "pending"
-            ? "待批改"
-            : r.status === "legacy"
-              ? "舊紀錄"
-              : "已評分",
-          r.feedback || "",
-        ]);
-    downloadCsv(detailed ? "逐題答案.csv" : "任務成績.csv", [header, ...rows]);
+    downloadCsv(detailed ? "逐題答案.csv" : "任務成績.csv", submissionExport(visible, detailed));
   }
   return (
     <section className="admin-panel mt-6 p-4 md:p-6">
@@ -338,7 +288,7 @@ export default function TeachingWorkspace({
                       })}
                     </td>
                     <td>
-                      {row.class_name}／{row.student_no}
+                      {displayClass(row.class_name)}／{row.student_no}
                     </td>
                     <td>{row.student_name}</td>
                     <td>
@@ -496,7 +446,7 @@ export default function TeachingWorkspace({
               <ul className="max-h-48 overflow-auto">
                 {importRows.map(s => (
                   <li key={`${s.class_name}:${s.student_no}`}>
-                    {s.class_name} · {s.student_no} · {s.student_name}
+                    {displayClass(s.class_name)} · {s.student_no} · {s.student_name}
                   </li>
                 ))}
               </ul>
@@ -552,11 +502,11 @@ export default function TeachingWorkspace({
                 {data.roster
                   .filter(
                     s =>
-                      !filters.className || s.class_name === filters.className
+                      matchesClass(s.class_name, filters.className)
                   )
                   .map(s => (
                     <tr key={`${s.class_name}:${s.student_no}`}>
-                      <td>{s.class_name}</td>
+                      <td>{displayClass(s.class_name)}</td>
                       <td>{s.student_no}</td>
                       <td>{s.student_name}</td>
                     </tr>
@@ -578,7 +528,7 @@ export default function TeachingWorkspace({
               <ul className="my-3">
                 {missing.map(s => (
                   <li key={`${s.class_name}:${s.student_no}`}>
-                    {s.class_name} · {s.student_no} · {s.student_name}
+                    {displayClass(s.class_name)} · {s.student_no} · {s.student_name}
                   </li>
                 ))}
               </ul>

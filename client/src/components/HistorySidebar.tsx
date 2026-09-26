@@ -1,3 +1,4 @@
+import { displayClass } from "@/lib/classOptions";
 import {
   SITE_SETTINGS as defaults,
   GRADES,
@@ -61,7 +62,7 @@ function SidebarBody({
           <p className="pixel-label">{settings.studentHeading}</p>
           {account?.profile && <p className="mt-2 text-lg">{AVATARS[account.profile.avatar]} {account.profile.nickname}</p>}
           <p className="mt-1 text-sm text-paper/70">
-            {student.className} · {student.name} · {student.studentNo}
+            {displayClass(student.className)} · {student.name} · {student.studentNo}
           </p>
         </div>
       </div>

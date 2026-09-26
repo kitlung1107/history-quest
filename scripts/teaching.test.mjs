@@ -482,3 +482,41 @@ test('class options retain junior classes and group senior and external students
  assert.equal(parseAccountRoster('email,班別,學號,姓名\ntest@gmail.com,other,01,測試學生')[0].className,'Other');
  for(const className of ['4A','5B','6E','S3','S7','3F'])assert.throws(()=>parseAccountRoster(`email,班別,學號,姓名\ntest@gmail.com,${className},01,測試學生`));
 });
+
+test('senior filters include legacy classes without merging same-number students',async()=>{
+ const { displayClass, matchesClass }=await import('../client/src/lib/classOptions.ts');
+ assert.deepEqual(['3A','4A','4B','S4','5E','6C','Other'].map(displayClass),['3A','S4','S4','S4','S5','S6','Other']);
+ const roster=[
+  {class_name:'4A',student_no:'01',student_name:'甲同學'},
+  {class_name:'4B',student_no:'01',student_name:'乙同學'},
+  {class_name:'S4',student_no:'02',student_name:'丙同學'},
+  {class_name:'5A',student_no:'01',student_name:'丁同學'},
+  {class_name:'3A',student_no:'01',student_name:'戊同學'},
+ ];
+ const rows=roster.map((s,i)=>({...s,attempt_id:`attempt-${i}`,task_id:'task',timestamp:'2026-09-26T01:00:00Z',progress:100}));
+ const original=JSON.stringify({roster,rows});
+ const filters={task:'',className:'S4',search:'',from:'',to:'',status:''};
+ assert.deepEqual(filterSubmissions(rows,filters).map(s=>s.student_name),['甲同學','乙同學','丙同學']);
+ assert.deepEqual(roster.filter(s=>matchesClass(s.class_name,'S4')).map(s=>s.student_name),['甲同學','乙同學','丙同學']);
+ assert.deepEqual(missingStudents(roster,[rows[0]],'task','S4').map(s=>s.student_name),['乙同學','丙同學']);
+ assert.equal(filterSubmissions(rows,{...filters,className:'S5'}).length,1);
+ assert.equal(filterSubmissions(rows,{...filters,className:'3B'}).length,0);
+ assert.equal(filterSubmissions(rows,{...filters,className:''}).length,5);
+ assert.equal(JSON.stringify({roster,rows}),original);
+});
+
+test('report exports group senior classes and preserve original identity and columns',async()=>{
+ const { submissionExport }=await import('../client/src/lib/teachingExport.ts');
+ const source=['3A','4A','4B','S5','Other'].map((class_name,i)=>({class_name,student_no:'01',student_name:`學生${i}`,timestamp:'2026-09-26',task_id:'task',score:0,status:'pending',answers:[{prompt:'問題',response:'答案',awarded:0,points:10,feedback:''}]}));
+ const before=JSON.stringify(source);
+ for(const detailed of [false,true]) {
+  const [header,...rows]=submissionExport(source,detailed);
+  assert.equal(rows.length,5);
+  assert.deepEqual(rows.map(r=>r[1]),['3A','S4','S4','S5','Other']);
+  assert.deepEqual(rows.map(r=>r[2]),['3A','4A','4B','S5','Other']);
+  assert.ok(rows.every(r=>r.length===header.length));
+  assert.ok(rows.every(r=>r[3]==='01'));
+  assert.equal(rows[0][detailed?8:6],0);
+ }
+ assert.equal(JSON.stringify(source),before);
+});

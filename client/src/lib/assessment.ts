@@ -1,3 +1,4 @@
+import { matchesClass } from "./classOptions.ts";
 export type Question = {
   id: string;
   type: "choice" | "short";
@@ -127,7 +128,7 @@ export function missingStudents(
   );
   return roster.filter(
     student =>
-      (!className || student.class_name === className) &&
+      matchesClass(student.class_name, className) &&
       !submitted.has(studentKey(student))
   );
 }
@@ -149,7 +150,7 @@ export function filterSubmissions(
       : date.toLocaleDateString("sv-SE", { timeZone: "Asia/Hong_Kong" });
     return (
       (!filters.task || row.task_id === filters.task) &&
-      (!filters.className || row.class_name === filters.className) &&
+      matchesClass(row.class_name, filters.className) &&
       (!filters.search ||
         `${row.student_name} ${row.student_no}`
           .toLowerCase()
