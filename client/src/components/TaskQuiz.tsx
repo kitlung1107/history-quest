@@ -1,6 +1,9 @@
+import McFeedback from "./McFeedback";
+import { getMcEncouragement } from "@/lib/mcEncouragement";
 import { useState } from "react";
 import {
   getQuestions,
+  assessmentVersion,
   markAnswers,
   percentage,
   type Answer,
@@ -18,6 +21,7 @@ export default function TaskQuiz({
   const questions = getQuestions(task);
   const [values, setValues] = useState<Record<string, string | number>>({});
   const [result, setResult] = useState<AnswerRecord[] | null>(null);
+  const [attemptId, setAttemptId] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const { completeTask, syncError, retry, syncing } = useScoreSync();
@@ -36,8 +40,23 @@ export default function TaskQuiz({
         question_id: q.id,
         value: values[q.id],
       }));
-      const marked = markAnswers(questions, answers);
-      if (!preview) await completeTask(task, answers);
+      let marked = markAnswers(questions, answers);
+      if (preview) setAttemptId(crypto.randomUUID());
+      else {
+        const submitted = await completeTask(task, answers);
+        if (submitted.version !== assessmentVersion(questions)) {
+          throw new Error(
+            "先前作答已傳送，但題目版本已更新。請到「我的提交」查看該次結果，或重新作答目前版本。"
+          );
+        }
+        setAttemptId(submitted.id);
+        setValues(
+          Object.fromEntries(
+            submitted.answers.map(answer => [answer.question_id, answer.value])
+          )
+        );
+        marked = markAnswers(questions, submitted.answers);
+      }
       setResult(marked);
     } catch (e) {
       setError(e instanceof Error ? e.message : "未能儲存，請重試。");
@@ -48,7 +67,9 @@ export default function TaskQuiz({
   return (
     <form className="quiz-panel mt-9" onSubmit={submit}>
       <p className="comic-kicker">
-        {preview ? "試答預覽 · 不會提交成績" : "讀畢測驗 · 即時分數為練習參考，正式成績以教師核算為準"}
+        {preview
+          ? "試答預覽 · 不會提交成績"
+          : "讀畢測驗 · 即時分數為練習參考，正式成績以教師核算為準"}
       </p>
       <p className="mt-2 text-sm">
         已填 {count} / {questions.length} 題 · 共{" "}
@@ -116,9 +137,13 @@ export default function TaskQuiz({
         </button>
       ) : (
         <div className="result-strip mt-6">
+          <McFeedback
+            feedback={getMcEncouragement(attemptId, result)}
+            provisional
+          />
           <strong>
             {percentage(result) === null
-              ? "選擇題已評分，短答等待老師批改。"
+              ? "非 MC 題目等待老師批改。"
               : `暫計成績：${percentage(result)} / 100`}
           </strong>
           <p>

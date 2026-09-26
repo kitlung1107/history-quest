@@ -11,6 +11,8 @@ import {
 } from "@/lib/assessment";
 import { downloadCsv, parseRoster } from "@/lib/csv";
 import { teachingApi } from "@/lib/teachingApi";
+import McFeedback from "./McFeedback";
+import { getMcEncouragement } from "@/lib/mcEncouragement";
 
 export type TeachingData = {
   rows: SubmissionRow[];
@@ -267,7 +269,7 @@ export default function TeachingWorkspace({
                         onClick={() => setSelected(row)}
                       >
                         {row.answers?.length
-                          ? "查閱／批改"
+                          ? row.answers.some(answer => answer.type !== "choice") ? "查閱／批改" : "查閱 MC 回饋"
                           : "待核算選擇題"}
                       </button>
                     </td>
@@ -529,11 +531,13 @@ function Review({
   const [answers, setAnswers] = useState(row.answers || []);
   const [feedback, setFeedback] = useState(row.feedback || "");
   const [error, setError] = useState("");
+  const hasManualQuestions = answers.some(answer => answer.type !== "choice");
   return (
     <form
       className="mt-6 border-4 border-ink bg-paper p-5"
       onSubmit={e => {
         e.preventDefault();
+        if (!hasManualQuestions || busy) return;
         if (
           answers.some(
             a =>
@@ -552,6 +556,7 @@ function Review({
       <h3 className="display-title text-2xl">
         {row.student_name} · {row.task_title || row.task_id}
       </h3>
+      <McFeedback feedback={getMcEncouragement(row.attempt_id, answers)} />
       {answers.map((answer, i) => (
         <div
           key={answer.question_id}
@@ -611,14 +616,14 @@ function Review({
               </label>
             </>
           ) : (
-            <p>
+            <div><p>
               自動評分：{answer.awarded} / {answer.points}
-            </p>
+            </p>{answer.feedback && <p>既有老師評語：{answer.feedback}</p>}</div>
           )}
         </div>
       ))}
-      <label className="mt-5 block">
-        總評語
+      {hasManualQuestions ? <label className="mt-5 block">
+        非 MC 題目總評語
         <textarea
           className="comic-input mt-1 w-full"
           maxLength={2000}
@@ -626,12 +631,12 @@ function Review({
           value={feedback}
           onChange={e => setFeedback(e.target.value)}
         />
-      </label>
+      </label> : feedback && <p className="mt-5 whitespace-pre-wrap">既有老師總評語：{feedback}</p>}
       {error && <p role="alert">{error}</p>}
       <div className="mt-4 flex gap-3">
-        <button className="pixel-button pixel-button-teal" disabled={busy}>
+        {hasManualQuestions && <button className="pixel-button pixel-button-teal" disabled={busy}>
           儲存批改與評語
-        </button>
+        </button>}
         <button
           type="button"
           className="pixel-button pixel-button-paper"

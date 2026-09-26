@@ -10,7 +10,7 @@
     "preview": "vite preview --host",
     "check": "node scripts/check-content.mjs && tsc --noEmit",
     "test:content": "node --experimental-strip-types --test client/src/lib/contentModel.test.ts",
-    "test:teaching": "node --experimental-strip-types --test scripts/teaching.test.mjs scripts/admin-refresh.test.mjs",
+    "test:teaching": "node --experimental-strip-types --test scripts/teaching.test.mjs scripts/admin-refresh.test.mjs scripts/mc-encouragement.test.mjs",
     "test:editor": "node --test scripts/editor.test.mjs scripts/image-position.test.mjs",
     "format": "prettier --write ."
   },

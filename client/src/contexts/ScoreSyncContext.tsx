@@ -5,7 +5,7 @@ import { getQuestions, assessmentVersion, markAnswers, type Answer } from "@/lib
 import { loadCloudProgress, submitCloud } from "@/lib/cloudStore";
 import { useOptionalStudentAccount } from "./StudentAccount";
 type Pending={id:string;taskId:string;version:string;answers:Answer[]};
-type Value={progress:TaskProgress;completeTask:(task:HistoryTask,answers:Answer[])=>Promise<void>;syncing:boolean;syncError:string;retry:()=>Promise<void>};
+type Value={progress:TaskProgress;completeTask:(task:HistoryTask,answers:Answer[])=>Promise<Pending>;syncing:boolean;syncError:string;retry:()=>Promise<void>};
 const Context=createContext<Value|null>(null);
 export function ScoreSyncProvider({children}:{children:React.ReactNode}) {
   const account=useOptionalStudentAccount();
@@ -38,6 +38,7 @@ export function ScoreSyncProvider({children}:{children:React.ReactNode}) {
     await retry();
     if(read().some(p=>p.id===pending.id)) throw new Error("答案尚未傳送；請保持此分頁開啟，按重試同步。");
     toast.success("答案已存入 Firestore，正式成績待教師確認。");
+    return pending;
   }
   return <Context.Provider value={{progress,completeTask,syncing,syncError,retry}}>{children}</Context.Provider>;
 }
