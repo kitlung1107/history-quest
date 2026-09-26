@@ -1,3 +1,4 @@
+import AccessRequestManager from "@/components/AccessRequestManager";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { collection, getDocs, type DocumentSnapshot } from "firebase/firestore";
@@ -28,6 +29,6 @@ export default function Admin() {
     {notice&&<p role="status" className="my-4 border-2 p-3">{notice}</p>}
     {data&&<TeachingWorkspace pin="" initial={data} onDataChange={setData}/>}
     {more&&<button disabled={busy} className="pixel-button pixel-button-paper my-4" onClick={()=>void run(async()=>{const page=await loadSubmissions(undefined,cursor);setData(current=>current?{...current,rows:[...current.rows,...page.docs.map(d=>asRow(d.id,d.data() as CloudSubmission,profiles.get(d.data().studentId)))].filter((r,i,all)=>all.findIndex(a=>a.attempt_id===r.attempt_id)===i)}:current);setCursor(page.cursor);setMore(page.more);})}>載入更早的 100 份</button>}
-    <AccountManager onChanged={refresh}/>
+    <AccessRequestManager onChanged={refresh}/><AccountManager onChanged={refresh}/>
   </div></main>;
 }

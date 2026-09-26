@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import AccessRequestForm from "@/components/AccessRequestForm";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db, googleLogin, googleLogout, OWNER_EMAIL } from "@/lib/firebase";
 import { CLASS_OPTIONS, type StudentProfile } from "@/lib/historyQuest";
 
@@ -23,11 +24,13 @@ export function AccountGate({ children, teacherPage = false }: { children: React
     const user = auth.currentUser;
     setAccount(null);
     setWaiting(false);
+    setError("");
     if (!user) { setLoading(false); return; }
     try {
       const email = user.email?.toLowerCase() || "";
       const teacher = email === OWNER_EMAIL && user.emailVerified;
       const access = await getDoc(doc(db, "access", email));
+      if (auth.currentUser?.uid !== user.uid) return;
       let studentId = user.uid;
       if (access.exists()) {
         if (!access.data().enabled) { setWaiting(true); return; }
@@ -49,7 +52,7 @@ export function AccountGate({ children, teacherPage = false }: { children: React
     <picture className="login-phone-art" aria-hidden="true"><source media="(max-width:1000px) and (max-height:500px) and (orientation:landscape)" srcSet={`${import.meta.env.BASE_URL}images/login-phone-landscape.webp`} /><source media="(max-width:600px) and (orientation:portrait)" srcSet={`${import.meta.env.BASE_URL}images/login-phone.webp`} /><source media="(min-width:601px) and (max-width:1400px) and (orientation:portrait)" srcSet={`${import.meta.env.BASE_URL}images/login-ipad.webp`} /><img src={`${import.meta.env.BASE_URL}images/login-history.webp`} alt="" /></picture>
     <section className="login-card" aria-labelledby="login-title">
     <p className="login-kicker">History Discovery Center</p><h1 id="login-title" className="display-title login-title">登入歷史探索館</h1>
-    {waiting && <p role="status" className="my-4">{auth.currentUser?.email} 尚未獲准使用。請把此 email 告訴老師，待核准後按「重新檢查」。</p>}
+    {waiting && auth.currentUser?.email && <AccessRequestForm key={auth.currentUser.uid} email={auth.currentUser.email.toLowerCase()} />}
     {error && <p role="alert" className="my-4 break-words">{error}</p>}
     <div className="login-action"><button type="button" className="pixel-button pixel-button-gold login-google" onClick={() => { setError(""); void googleLogin().catch(e => setError(e.message)); }}><svg aria-hidden="true" viewBox="0 0 48 48" className="login-google-icon"><circle cx="24" cy="24" r="24" fill="white"/><path fill="#4285F4" d="M40 24.4c0-1.1-.1-2.2-.3-3.3H24v6.3h9c-.4 2.1-1.6 3.9-3.4 5.1v4.2h5.5c3.2-3 4.9-7.2 4.9-12.3Z"/><path fill="#34A853" d="M24 40c4.5 0 8.3-1.5 11.1-4.1l-5.5-4.2c-1.5 1-3.4 1.6-5.6 1.6-4.3 0-7.9-2.9-9.2-6.7H9.1v4.4A16.8 16.8 0 0 0 24 40Z"/><path fill="#FBBC05" d="M14.8 26.6a10 10 0 0 1 0-6.4v-4.4H9.1a16.8 16.8 0 0 0 0 15.2l5.7-4.4Z"/><path fill="#EA4335" d="M24 13.4c2.4 0 4.5.8 6.2 2.4l4.6-4.6A16 16 0 0 0 24 7a16.8 16.8 0 0 0-14.9 8.8l5.7 4.4c1.3-3.9 4.9-6.8 9.2-6.8Z"/></svg><span>使用 Google 登入</span></button></div>
     <p className="text-sm leading-7">請使用學校 Google 帳戶登入。<br />獲老師核准的私人 Gmail 也可登入。</p>

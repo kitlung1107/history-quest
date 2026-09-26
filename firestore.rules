@@ -29,6 +29,39 @@ service cloud.firestore {
         && request.resource.data.studentId is string && request.resource.data.enabled is bool;
       allow delete: if teacher();
     }
+    function requestIdentityOK(d) {
+      return d.name is string && d.name.size() >= 2 && d.name.size() <= 50
+        && d.name.matches('.*[^ ].*')
+        && d.className is string && d.className.matches('[1-6][A-E]')
+        && d.studentNo is string && d.studentNo.matches('[A-Z0-9-]{1,12}');
+    }
+    function pendingRequestOK(email) {
+      return signed() && request.auth.token.email == email && !teacher()
+        && (!exists(/databases/$(database)/documents/access/$(email))
+          || get(/databases/$(database)/documents/access/$(email)).data.enabled == false)
+        && request.resource.data.keys().hasOnly(['name', 'className', 'studentNo', 'status', 'submittedAt'])
+        && requestIdentityOK(request.resource.data)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.submittedAt == request.time;
+    }
+    match /accessRequests/{email} {
+      allow get: if teacher() || (signed() && request.auth.token.email == email);
+      allow list: if teacher();
+      allow create: if pendingRequestOK(email);
+      allow update: if (resource.data.status == 'rejected' && pendingRequestOK(email))
+        || (teacher() && resource.data.status == 'pending'
+          && request.resource.data.reviewedAt == request.time
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'reviewedAt', 'studentId', 'reason'])
+          && ((request.resource.data.status == 'rejected'
+            && request.resource.data.keys().hasOnly(['name', 'className', 'studentNo', 'status', 'submittedAt', 'reviewedAt', 'reason'])
+            && request.resource.data.reason is string && request.resource.data.reason.size() >= 1 && request.resource.data.reason.size() <= 200)
+          || (request.resource.data.status == 'approved'
+            && request.resource.data.keys().hasOnly(['name', 'className', 'studentNo', 'status', 'submittedAt', 'reviewedAt', 'studentId'])
+            && request.resource.data.studentId is string
+            && profileOK(getAfter(/databases/$(database)/documents/profiles/$(request.resource.data.studentId)).data)
+            && getAfter(/databases/$(database)/documents/access/$(email)).data.enabled == true
+            && getAfter(/databases/$(database)/documents/access/$(email)).data.studentId == request.resource.data.studentId)));
+    }
     match /profiles/{sid} {
       allow read: if teacher() || owns(sid);
       allow create: if teacher() && profileOK(request.resource.data);

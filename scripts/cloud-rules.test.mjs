@@ -53,3 +53,59 @@ test('teacher can grade, but cannot change original answers via client',async()=
  await submit(student());await assertSucceeds(updateDoc(doc(teacher(),'submissions','attempt1'),{grade:{score:80,revision:1}}));
  await assertFails(updateDoc(doc(teacher(),'submissions','attempt1'),{answers:[]}));
 });
+
+const applicantEmail='new@gmail.com';
+const applicant=()=>env.authenticatedContext('applicant',claims(applicantEmail)).firestore();
+const application=()=>({name:'申請學生',className:'1A',studentNo:'03',status:'pending',submittedAt:serverTimestamp()});
+async function apply(){await setDoc(doc(applicant(),'accessRequests',applicantEmail),application());}
+async function approve(sid='s1',newProfile=false){
+ const db=teacher();const batch=writeBatch(db);
+ if(newProfile)batch.set(doc(db,'profiles',sid),{...profile,studentNo:'03'});
+ batch.set(doc(db,'access',applicantEmail),{studentId:sid,enabled:true});
+ batch.update(doc(db,'accessRequests',applicantEmail),{status:'approved',studentId:sid,reviewedAt:serverTimestamp()});
+ return batch.commit();
+}
+test('unapproved verified Google account can submit and read own application only',async()=>{
+ await assertSucceeds(apply());
+ await assertSucceeds(getDoc(doc(applicant(),'accessRequests',applicantEmail)));
+ await assertFails(getDoc(doc(student(),'accessRequests',applicantEmail)));
+ await assertFails(getDocs(collection(applicant(),'accessRequests')));
+ await assertSucceeds(getDocs(collection(teacher(),'accessRequests')));
+ await assertFails(getDoc(doc(applicant(),'profiles','s1')));
+});
+test('application rejects impersonation, invalid identity, extra privileges and invalid providers',async()=>{
+ const db=applicant();
+ await assertFails(setDoc(doc(db,'accessRequests','someone@gmail.com'),application()));
+ for(const fields of [{name:' '},{className:'7Z'},{studentNo:'../x'},{name:'x'.repeat(51)},{status:'approved'},{studentId:'s1'},{submittedAt:new Date(0)}])
+  await assertFails(setDoc(doc(db,'accessRequests',applicantEmail),{...application(),...fields}));
+ for(const context of [env.unauthenticatedContext(),env.authenticatedContext('fake',{...claims(applicantEmail),email_verified:false}),env.authenticatedContext('password',{...claims(applicantEmail),firebase:{sign_in_provider:'password'}})])
+  await assertFails(setDoc(doc(context.firestore(),'accessRequests',applicantEmail),application()));
+ await assertFails(setDoc(doc(student(),'accessRequests','student@ctshkpcc.edu.hk'),application()));
+});
+test('pending applications cannot be replaced or self approved; rejected applications may be corrected',async()=>{
+ await apply();const ref=doc(applicant(),'accessRequests',applicantEmail);
+ await assertFails(setDoc(ref,application()));
+ await assertFails(updateDoc(ref,{status:'approved',studentId:'s1',reviewedAt:serverTimestamp()}));
+ await assertFails(updateDoc(doc(teacher(),'accessRequests',applicantEmail),{status:'rejected',reason:'',reviewedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(doc(teacher(),'accessRequests',applicantEmail),{status:'rejected',reason:'請核對學號',reviewedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(ref,{...application(),studentNo:'04'}));
+ assert.equal((await getDoc(ref)).data().reason,undefined);
+});
+test('approval links existing profile and preserves role; approved application cannot be replayed',async()=>{
+ await apply();await assertSucceeds(approve());
+ assert.deepEqual((await getDoc(doc(applicant(),'profiles','s1'))).data(),profile);
+ await assertFails(setDoc(doc(applicant(),'accessRequests',applicantEmail),application()));
+ await assertFails(updateDoc(doc(teacher(),'accessRequests',applicantEmail),{status:'rejected',reason:'changed',reviewedAt:serverTimestamp()}));
+});
+test('new profile, access and approval succeed atomically; missing profile or binding fails',async()=>{
+ await apply();
+ await assertFails(updateDoc(doc(teacher(),'accessRequests',applicantEmail),{status:'approved',studentId:'s1',reviewedAt:serverTimestamp()}));
+ await assertFails(approve('missing'));
+ assert.equal((await getDoc(doc(applicant(),'access',applicantEmail))).exists(),false);
+ assert.equal((await getDoc(doc(applicant(),'accessRequests',applicantEmail))).data().status,'pending');
+ await assertSucceeds(approve('new-student',true));
+ assert.equal((await getDoc(doc(applicant(),'profiles','new-student'))).data().studentNo,'03');
+});
+test('teacher cannot alter student supplied identity during review',async()=>{
+ await apply();await assertFails(updateDoc(doc(teacher(),'accessRequests',applicantEmail),{name:'替換姓名',status:'rejected',reason:'核對',reviewedAt:serverTimestamp()}));
+});
