@@ -15,26 +15,81 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { ScoreSyncProvider } from "./contexts/ScoreSyncContext";
 import { useEffect } from "react";
 import { SITE_SETTINGS, mediaUrl } from "./lib/siteSettings";
-import { AccountGate, ProfileForm, useOptionalStudentAccount } from "./contexts/StudentAccount";
+import {
+  AccountGate,
+  ProfileForm,
+  useOptionalStudentAccount,
+} from "./contexts/StudentAccount";
+import "./home.css";
+import { lazy, Suspense } from "react";
+
+const LocalHomeDemo = import.meta.env.DEV
+  ? lazy(() => import("./pages/LocalHomeDemo"))
+  : null;
 
 function SessionContent({ children }: { children: React.ReactNode }) {
   const account = useOptionalStudentAccount();
-  return <ScoreSyncProvider key={account?.studentId || "preview"}>{children}</ScoreSyncProvider>;
+  return (
+    <ScoreSyncProvider key={account?.studentId || "preview"}>
+      {children}
+    </ScoreSyncProvider>
+  );
 }
-function StudentArea({ children, teacherPage = false }: { children: React.ReactNode; teacherPage?: boolean }) {
-  return <AccountGate teacherPage={teacherPage}><SessionContent>{children}</SessionContent></AccountGate>;
+function StudentArea({
+  children,
+  teacherPage = false,
+}: {
+  children: React.ReactNode;
+  teacherPage?: boolean;
+}) {
+  return (
+    <AccountGate teacherPage={teacherPage}>
+      <SessionContent>{children}</SessionContent>
+    </AccountGate>
+  );
 }
 
 function Routes() {
   return (
     <Switch>
+      {LocalHomeDemo && (
+        <Route path="/__home-demo">
+          <Suspense fallback={<p>載入本機預覽…</p>}>
+            <ScoreSyncProvider>
+              <LocalHomeDemo />
+            </ScoreSyncProvider>
+          </Suspense>
+        </Route>
+      )}
       <Route path="/">
-        <StudentArea><Home /></StudentArea>
+        <StudentArea>
+          <Home />
+        </StudentArea>
       </Route>
-      <Route path="/admin"><StudentArea teacherPage><Admin /></StudentArea></Route>
-      <Route path="/submissions"><StudentArea><MySubmissions /></StudentArea></Route>
-      <Route path="/profile"><StudentArea><ProfileForm onDone={() => { window.location.href = import.meta.env.BASE_URL; }} /></StudentArea></Route>
-      <Route path="/preview"><ScoreSyncProvider><ContentPreview /></ScoreSyncProvider></Route>
+      <Route path="/admin">
+        <StudentArea teacherPage>
+          <Admin />
+        </StudentArea>
+      </Route>
+      <Route path="/submissions">
+        <StudentArea>
+          <MySubmissions />
+        </StudentArea>
+      </Route>
+      <Route path="/profile">
+        <StudentArea>
+          <ProfileForm
+            onDone={() => {
+              window.location.href = import.meta.env.BASE_URL;
+            }}
+          />
+        </StudentArea>
+      </Route>
+      <Route path="/preview">
+        <ScoreSyncProvider>
+          <ContentPreview />
+        </ScoreSyncProvider>
+      </Route>
       <Route path="/library" component={ContentLibrary} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
@@ -57,10 +112,10 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-            <Router base={base === "/" ? undefined : base}>
-              <Routes />
-            </Router>
-            <Toaster position="top-right" richColors closeButton />
+          <Router base={base === "/" ? undefined : base}>
+            <Routes />
+          </Router>
+          <Toaster position="top-right" richColors closeButton />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

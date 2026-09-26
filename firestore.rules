@@ -20,7 +20,7 @@ service cloud.firestore {
         && d.studentNo is string && d.studentNo.matches('[A-Z0-9-]{1,12}')
         && d.name is string && d.name.size() >= 2 && d.name.size() <= 50
         && d.nickname is string && d.nickname.size() >= 1 && d.nickname.size() <= 20
-        && d.avatar in ['explorer', 'scholar', 'archaeologist', 'navigator'];
+        && d.avatar in ['explorer', 'scholar', 'archaeologist', 'navigator', 'studentBoy', 'studentGirl', 'detective', 'conservator', 'ancientScholar', 'cartographer'];
     }
     match /access/{email} {
       allow get: if teacher() || (signed() && request.auth.token.email == email);

@@ -83,6 +83,17 @@ test('unapproved verified Google account can submit and read own application onl
  await assertSucceeds(getDocs(collection(teacher(),'accessRequests')));
  await assertFails(getDoc(doc(applicant(),'profiles','s1')));
 });
+
+test('all ten character keys persist while invalid keys and identity edits are denied',async()=>{
+ const db=student();const ref=doc(db,'profiles','s1');
+ for(const avatar of ['explorer','scholar','archaeologist','navigator','studentBoy','studentGirl','detective','conservator','ancientScholar','cartographer']) {
+  await assertSucceeds(updateDoc(ref,{avatar,nickname:'歷史小探員',configured:true}));
+  assert.equal((await getDoc(ref)).data().avatar,avatar);
+ }
+ for(const avatar of ['boat','compass','unknown','',null]) await assertFails(updateDoc(ref,{avatar}));
+ await assertFails(updateDoc(ref,{avatar:'studentBoy',name:'冒認同學'}));
+ await assertFails(updateDoc(doc(db,'profiles','s2'),{avatar:'studentGirl'}));
+});
 test('application rejects impersonation, invalid identity, extra privileges and invalid providers',async()=>{
  const db=applicant();
  await assertFails(setDoc(doc(db,'accessRequests','someone@gmail.com'),application()));

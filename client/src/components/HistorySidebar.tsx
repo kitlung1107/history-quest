@@ -5,14 +5,10 @@ import {
   PUBLIC_TOPICS,
   mediaUrl,
 } from "@/lib/siteSettings";
-/**
- * 設計提醒：側欄是參考圖的深墨藍學生報到處，以像素角色、粗線 Accordion 與芥末黃「全部」狀態還原。
- */
 import {
   ChevronRight,
   Grid2X2,
   Menu,
-  School,
   ShieldCheck,
   UserRoundCog,
 } from "lucide-react";
@@ -23,13 +19,26 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { type StudentProfile } from "@/lib/historyQuest";
 import { googleLogout } from "@/lib/firebase";
-import { AVATARS, useOptionalStudentAccount } from "@/contexts/StudentAccount";
+import {
+  useOptionalStudentAccount,
+  type CloudProfile,
+} from "@/contexts/StudentAccount";
+import { CHARACTERS, characterImage, characterKey } from "@/lib/characters";
+import { useState } from "react";
 
 type SidebarProps = {
   previewSettings?: typeof defaults;
+  previewProfile?: CloudProfile;
+  onChangeCharacter?: () => void;
   student: StudentProfile;
   activeGrade: number | null;
   activeTopic: string | null;
@@ -47,9 +56,13 @@ function SidebarBody({
   showAll,
   onFeatured,
   previewSettings,
+  previewProfile,
+  onChangeCharacter,
 }: SidebarProps) {
   const settings = previewSettings || defaults;
   const account = useOptionalStudentAccount();
+  const profile = previewProfile || account?.profile;
+  const avatar = characterKey(profile?.avatar);
   return (
     <div className="flex h-full flex-col">
       <div className="sidebar-brand">
@@ -60,21 +73,37 @@ function SidebarBody({
         />
         <div>
           <p className="pixel-label">{settings.studentHeading}</p>
-          {account?.profile && <p className="mt-2 text-lg">{AVATARS[account.profile.avatar]} {account.profile.nickname}</p>}
-          <p className="mt-1 text-sm text-paper/70">
-            {displayClass(student.className)} · {student.name} · {student.studentNo}
+          <p className="student-identity mt-1 text-sm">
+            {displayClass(student.className)} · {student.name} ·{" "}
+            {student.studentNo}
           </p>
         </div>
       </div>
-      <div className="school-pixel" aria-hidden="true">
-        <School className="h-11 w-11" />
-        <span className="flag" />
+      <div className="student-character">
+        <div className="character-stage">
+          <img
+            src={characterImage(avatar)}
+            alt={CHARACTERS[avatar].name}
+            width="240"
+            height="280"
+          />
+        </div>
+        <p className="character-nickname">
+          {profile?.nickname || "歷史小探員"}
+        </p>
+        {onChangeCharacter ? (
+          <button className="change-character" onClick={onChangeCharacter}>
+            更換角色
+          </button>
+        ) : !previewSettings ? (
+          <Link href="/profile" className="change-character">
+            更換角色
+          </Link>
+        ) : (
+          <span className="character-preview-label">角色展示</span>
+        )}
       </div>
-      <Accordion
-        type="multiple"
-        defaultValue={["grade-1", "grade-3"]}
-        className="mt-4 space-y-2"
-      >
+      <Accordion type="multiple" defaultValue={[]} className="mt-4 space-y-2">
         {GRADES.map(({ grade, title }) => {
           const topics = PUBLIC_TOPICS.filter(topic => topic.grade === grade);
           return (
@@ -83,7 +112,10 @@ function SidebarBody({
               value={`grade-${grade}`}
               className={`grade-accordion ${activeGrade === grade ? "grade-active" : ""}`}
             >
-              <AccordionTrigger onClick={() => onGradeChange(grade)}>
+              <AccordionTrigger
+                onClick={() => onGradeChange(grade)}
+                aria-label={`${title}課題`}
+              >
                 <span className="pixel-avatar">{grade}</span>
                 <span>{title}</span>
               </AccordionTrigger>
@@ -124,7 +156,9 @@ function SidebarBody({
           <Link href="/submissions" className="sidebar-utility">
             我的提交與評語
           </Link>
-          <Link href="/profile" className="sidebar-utility">我的角色</Link>
+          <Link href="/profile" className="sidebar-utility">
+            我的角色
+          </Link>
           <Link href="/admin" className="sidebar-utility">
             <ShieldCheck className="h-4 w-4" />
             教師後台
@@ -145,13 +179,14 @@ function SidebarBody({
 }
 
 export default function HistorySidebar(props: SidebarProps) {
+  const [open, setOpen] = useState(false);
   return (
     <>
       <aside className="history-sidebar hidden md:block">
         <SidebarBody {...props} />
       </aside>
       <div className="fixed left-4 top-4 z-50 md:hidden">
-        <Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <button className="mobile-menu" aria-label="開啟年級選單">
               <Menu />
@@ -159,10 +194,32 @@ export default function HistorySidebar(props: SidebarProps) {
           </SheetTrigger>
           <SheetContent
             side="left"
-            className="history-sidebar w-[88vw] max-w-sm border-r-4 border-ink p-0"
+            className="history-sidebar manga-sidebar w-[88vw] max-w-sm p-0"
           >
-            <div className="h-full p-4">
-              <SidebarBody {...props} />
+            <SheetTitle className="sr-only">學生與年級選單</SheetTitle>
+            <SheetDescription className="sr-only">
+              選擇角色、年級與課題
+            </SheetDescription>
+            <div className="h-full overflow-y-auto p-4">
+              <SidebarBody
+                {...props}
+                onTopicChange={(grade, topic) => {
+                  props.onTopicChange(grade, topic);
+                  setOpen(false);
+                }}
+                onFeatured={() => {
+                  props.onFeatured();
+                  setOpen(false);
+                }}
+                onChangeCharacter={
+                  props.onChangeCharacter
+                    ? () => {
+                        setOpen(false);
+                        props.onChangeCharacter?.();
+                      }
+                    : undefined
+                }
+              />
             </div>
           </SheetContent>
         </Sheet>

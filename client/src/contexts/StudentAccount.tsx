@@ -17,16 +17,12 @@ import {
   OWNER_EMAIL,
 } from "@/lib/firebase";
 import { CLASS_OPTIONS, type StudentProfile } from "@/lib/historyQuest";
+import { characterKey, type CharacterKey } from "@/lib/characters";
+import CharacterPicker from "@/components/CharacterPicker";
 
-export const AVATARS = {
-  explorer: "🧭",
-  scholar: "📚",
-  archaeologist: "🏺",
-  navigator: "⛵",
-};
 export type CloudProfile = StudentProfile & {
   nickname: string;
-  avatar: keyof typeof AVATARS;
+  avatar: CharacterKey;
   configured: boolean;
 };
 type Account = {
@@ -267,15 +263,49 @@ export function AccountGate({
 }
 export function ProfileForm({ onDone }: { onDone?: () => void }) {
   const account = useStudentAccount();
-  const [profile, setProfile] = useState<CloudProfile>(account.profile!);
+  return (
+    <ProfileEditor
+      initialProfile={account.profile!}
+      email={account.user.email || ""}
+      onSave={async profile => {
+        await updateDoc(doc(db, "profiles", account.studentId), {
+          nickname: profile.nickname,
+          avatar: profile.avatar,
+          configured: true,
+        });
+        await account.refresh();
+        onDone?.();
+      }}
+      onLogout={() => void googleLogout()}
+    />
+  );
+}
+
+/** Shared presentation; preview callers supply local-only persistence. */
+export function ProfileEditor({
+  initialProfile,
+  email,
+  onSave,
+  onLogout,
+  onCancel,
+}: {
+  initialProfile: CloudProfile;
+  email: string;
+  onSave: (profile: CloudProfile) => Promise<void>;
+  onLogout?: () => void;
+  onCancel?: () => void;
+}) {
+  const [profile, setProfile] = useState<CloudProfile>(() => ({
+    ...initialProfile,
+    avatar: characterKey(initialProfile.avatar),
+    nickname: initialProfile.nickname || "歷史小探員",
+  }));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   return (
-    <section className="paper-texture mx-auto min-h-screen max-w-2xl p-8">
-      <h1 className="display-title text-3xl">
-        {account.profile ? "我的角色" : "建立你的探險角色"}
-      </h1>
-      <p className="my-3">{account.user.email}</p>
+    <section className="profile-page mx-auto min-h-screen max-w-5xl p-5 md:p-8">
+      <h1 className="display-title text-3xl">我的角色</h1>
+      <p className="my-3">{email}</p>
       <form
         className="grid gap-5"
         onSubmit={async e => {
@@ -291,13 +321,7 @@ export function ProfileForm({ onDone }: { onDone?: () => void }) {
             };
             if (!next.nickname || next.name.length < 2)
               throw new Error("請填寫姓名及角色暱稱。");
-            await updateDoc(doc(db, "profiles", account.studentId), {
-              nickname: next.nickname,
-              avatar: next.avatar,
-              configured: true,
-            });
-            await account.refresh();
-            onDone?.();
+            await onSave({ ...next, configured: true });
           } catch (err) {
             setError(err instanceof Error ? err.message : "未能儲存");
           } finally {
@@ -305,54 +329,56 @@ export function ProfileForm({ onDone }: { onDone?: () => void }) {
           }
         }}
       >
-        <label>
-          班別
-          <select
-            required
-            disabled={!!account.profile}
-            className="comic-input block w-full"
-            value={profile.className}
-            onChange={e =>
-              setProfile({ ...profile, className: e.target.value })
-            }
-          >
-            <option value="">選擇班別</option>
-            {profile.className &&
-              !CLASS_OPTIONS.includes(profile.className) && (
-                <option value={profile.className}>
-                  {displayClass(profile.className)}
-                </option>
-              )}
-            {CLASS_OPTIONS.map(c => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          姓名
-          <input
-            required
-            minLength={2}
-            maxLength={50}
-            disabled={!!account.profile}
-            className="comic-input block w-full"
-            value={profile.name}
-            onChange={e => setProfile({ ...profile, name: e.target.value })}
-          />
-        </label>
-        <label>
-          學號
-          <input
-            required
-            pattern="[A-Za-z0-9-]{1,12}"
-            disabled={!!account.profile}
-            className="comic-input block w-full"
-            value={profile.studentNo}
-            onChange={e =>
-              setProfile({ ...profile, studentNo: e.target.value })
-            }
-          />
-        </label>
+        <div className="grid gap-4 md:grid-cols-3">
+          <label>
+            班別
+            <select
+              required
+              disabled
+              className="comic-input block w-full"
+              value={profile.className}
+              onChange={e =>
+                setProfile({ ...profile, className: e.target.value })
+              }
+            >
+              <option value="">選擇班別</option>
+              {profile.className &&
+                !CLASS_OPTIONS.includes(profile.className) && (
+                  <option value={profile.className}>
+                    {displayClass(profile.className)}
+                  </option>
+                )}
+              {CLASS_OPTIONS.map(c => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            姓名
+            <input
+              required
+              minLength={2}
+              maxLength={50}
+              disabled
+              className="comic-input block w-full"
+              value={profile.name}
+              onChange={e => setProfile({ ...profile, name: e.target.value })}
+            />
+          </label>
+          <label>
+            學號
+            <input
+              required
+              pattern="[A-Za-z0-9-]{1,12}"
+              disabled
+              className="comic-input block w-full"
+              value={profile.studentNo}
+              onChange={e =>
+                setProfile({ ...profile, studentNo: e.target.value })
+              }
+            />
+          </label>
+        </div>
         <label>
           角色暱稱
           <input
@@ -363,36 +389,32 @@ export function ProfileForm({ onDone }: { onDone?: () => void }) {
             onChange={e => setProfile({ ...profile, nickname: e.target.value })}
           />
         </label>
-        <fieldset>
-          <legend>選擇角色</legend>
-          <div className="flex flex-wrap gap-3">
-            {Object.entries(AVATARS).map(([key, emoji]) => (
-              <label key={key} className="comic-input p-3 text-3xl">
-                <input
-                  type="radio"
-                  name="avatar"
-                  checked={profile.avatar === key}
-                  onChange={() =>
-                    setProfile({
-                      ...profile,
-                      avatar: key as CloudProfile["avatar"],
-                    })
-                  }
-                  aria-label={key}
-                />
-                {emoji}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <CharacterPicker
+          value={profile.avatar}
+          onChange={avatar => setProfile({ ...profile, avatar })}
+        />
         {error && <p role="alert">{error}</p>}
         <button disabled={busy} className="pixel-button pixel-button-gold">
           {busy ? "儲存中…" : "儲存角色"}
         </button>
       </form>
-      <button className="mt-5 underline" onClick={() => void googleLogout()}>
-        登出 Google 帳戶
-      </button>
+      {onCancel ? (
+        <button className="mt-5 underline" onClick={onCancel}>
+          返回首頁
+        </button>
+      ) : (
+        <a
+          className="mt-5 inline-block underline"
+          href={import.meta.env.BASE_URL}
+        >
+          返回首頁
+        </a>
+      )}
+      {onLogout && (
+        <button className="ml-6 mt-5 underline" onClick={onLogout}>
+          登出 Google 帳戶
+        </button>
+      )}
     </section>
   );
 }
