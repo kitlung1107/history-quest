@@ -502,3 +502,29 @@
     transition: none !important;
   }
 }
+
+/* Approved near-full-width hero: keep the entire illustration at its natural ratio. */
+.manga-home .home-main { display:flex; flex-direction:column; }
+.manga-home .hero-panel {
+  order:-1; width:100%; margin:0; min-height:0; aspect-ratio:auto;
+  border:8px solid #fff; border-bottom:0; border-radius:0;
+  container-type:inline-size; flex:none;
+}
+.manga-home .hero-panel > img {
+  position:static; display:block; width:100%; height:auto; border-radius:12px;
+}
+.manga-home .hero-title-wrap {
+  position:absolute; top:6%; left:18.5%; width:63%; margin:0; padding:8px 0;
+  background:transparent; border-radius:0;
+}
+.manga-home .hero-title-wrap h1 { font-size:clamp(24px,4.4cqw,53px); }
+.manga-home .home-status { min-height:0; padding:8px 28px 0; }
+.manga-home .home-status:empty { display:none; }
+@media(max-width:767px) {
+  .manga-home .hero-panel { border-width:6px; border-bottom:0; }
+  .manga-home .hero-title-wrap {
+    position:static; width:100%; padding:16px 12px; background:#fff9e9;
+  }
+  .manga-home .hero-title-wrap h1 { font-size:30px; }
+  .manga-home .home-status { padding:8px 16px 0; }
+}
