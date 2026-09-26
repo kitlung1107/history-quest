@@ -45,14 +45,14 @@ export function AccountGate({ children, teacherPage = false }: { children: React
   }
   useEffect(() => onAuthStateChanged(auth, () => { setLoading(true); void refresh(); }), []);
   if (loading) return <main className="paper-texture min-h-screen p-10">正在確認 Google 帳戶…</main>;
-  if (!account) return <main className="paper-texture min-h-screen p-6 md:p-16"><section className="admin-panel mx-auto max-w-xl p-8">
-    <p className="comic-kicker">History Discovery Center</p><h1 className="display-title my-5 text-3xl">登入歷史探索館</h1>
-    <p>學校 Google 帳戶。獲老師核准的私人 Gmail 也可登入。</p>
+  if (!account) return <main className="login-scene" style={{ backgroundImage: `url(${import.meta.env.BASE_URL}images/login-history.webp)` }}><section className="login-card" aria-labelledby="login-title">
+    <p className="login-kicker">History Discovery Center</p><h1 id="login-title" className="display-title login-title">登入歷史探索館</h1>
     {waiting && <p role="status" className="my-4">{auth.currentUser?.email} 尚未獲准使用。請把此 email 告訴老師，待核准後按「重新檢查」。</p>}
     {error && <p role="alert" className="my-4 break-words">{error}</p>}
-    <div className="mt-6 flex flex-wrap gap-3"><button className="pixel-button pixel-button-gold" onClick={() => { setError(""); void googleLogin().catch(e => setError(e.message)); }}>使用 Google 登入</button>
-    {auth.currentUser && <><button className="pixel-button pixel-button-paper" onClick={() => { setLoading(true); void refresh(); }}>重新檢查</button><button className="pixel-button pixel-button-paper" onClick={() => void googleLogout()}>登出</button></>}</div>
-    <p className="mt-5 text-sm">共用電腦使用完畢請登出。網站不會取得你的 Google 密碼。</p>
+    <div className="login-action"><button type="button" className="pixel-button pixel-button-gold login-google" onClick={() => { setError(""); void googleLogin().catch(e => setError(e.message)); }}><svg aria-hidden="true" viewBox="0 0 48 48" className="login-google-icon"><circle cx="24" cy="24" r="24" fill="white"/><path fill="#4285F4" d="M40 24.4c0-1.1-.1-2.2-.3-3.3H24v6.3h9c-.4 2.1-1.6 3.9-3.4 5.1v4.2h5.5c3.2-3 4.9-7.2 4.9-12.3Z"/><path fill="#34A853" d="M24 40c4.5 0 8.3-1.5 11.1-4.1l-5.5-4.2c-1.5 1-3.4 1.6-5.6 1.6-4.3 0-7.9-2.9-9.2-6.7H9.1v4.4A16.8 16.8 0 0 0 24 40Z"/><path fill="#FBBC05" d="M14.8 26.6a10 10 0 0 1 0-6.4v-4.4H9.1a16.8 16.8 0 0 0 0 15.2l5.7-4.4Z"/><path fill="#EA4335" d="M24 13.4c2.4 0 4.5.8 6.2 2.4l4.6-4.6A16 16 0 0 0 24 7a16.8 16.8 0 0 0-14.9 8.8l5.7 4.4c1.3-3.9 4.9-6.8 9.2-6.8Z"/></svg><span>使用 Google 登入</span></button></div>
+    <p className="text-sm leading-7">請使用學校 Google 帳戶登入。<br />獲老師核准的私人 Gmail 也可登入。</p>
+    {auth.currentUser && <div className="mt-5 flex flex-wrap justify-center gap-3"><button className="pixel-button pixel-button-paper" onClick={() => { setLoading(true); void refresh(); }}>重新檢查</button><button className="pixel-button pixel-button-paper" onClick={() => void googleLogout()}>登出</button></div>}
+    <p className="login-footer">共用電腦使用完畢請登出。<br />網站不會取得你的 Google 密碼。</p>
   </section></main>;
   if (teacherPage && !account.teacher) return <main className="p-10">這個帳戶沒有教師權限。<a href={import.meta.env.BASE_URL}>返回首頁</a></main>;
   if (account.teacher && !account.profile && !teacherPage) return <main className="paper-texture min-h-screen p-10"><h1 className="display-title text-3xl">教師帳戶已登入</h1><p className="my-5">教師帳戶不用建立學生角色。</p><a className="pixel-button pixel-button-gold" href={`${import.meta.env.BASE_URL}admin`}>前往教師工作室</a><button className="ml-4 underline" onClick={()=>void googleLogout()}>登出</button></main>;

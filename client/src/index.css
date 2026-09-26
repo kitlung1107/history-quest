@@ -183,6 +183,16 @@
   .pixel-toast-success { background:#2a9d8f!important; color:white!important; } .pixel-toast-warning { background:#e3a72f!important; color:#172a3a!important; }
 }
 
+.login-scene { min-height:100svh; display:flex; align-items:center; justify-content:center; padding:32px 20px; background-color:#67bde5; background-size:cover; background-position:center; }
+.login-card { width:min(580px, 100%); padding:30px 34px; text-align:center; color:#14233e; background:#fff9e8; border:5px solid #14233e; outline:3px solid #fff9e8; box-shadow:7px 8px 0 #14233e55; border-radius:12px; }
+.login-kicker { font-size:14px; font-weight:700; letter-spacing:.12em; }
+.login-title { margin:22px 0 26px; font-size:clamp(26px, 3vw, 42px); line-height:1.35; }
+.login-action { margin:0 0 22px; }
+.login-google { width:100%; min-height:70px; gap:16px; font-size:clamp(18px, 2vw, 26px); background:#ffc537; }
+.login-google-icon { width:40px; height:40px; flex-shrink:0; }
+.login-google:focus-visible { outline:4px solid #237bc1; outline-offset:5px; }
+.login-footer { margin-top:25px; padding-top:20px; border-top:1px solid #14233e44; font-size:13px; line-height:1.8; }
+@media (max-width:600px) { .login-scene { padding:150px 20px 70px; background-position:50% 50%; } .login-card { padding:25px 18px; border-width:4px; } .login-kicker { font-size:11px; letter-spacing:.07em; } .login-title { margin:20px 0 24px; } .login-google { min-height:62px; gap:10px; } .login-google-icon { width:32px; height:32px; } }
 @media (min-width:640px) { .container { padding-inline:1.5rem; } .topic-card small { display:block; } }
 @media (min-width:1024px) { .container { padding-inline:2rem; max-width:1280px; } }
 @media (max-width:899px) { .mission-card { min-height:315px; } .mission-image { width:35%; } .daily-strip { flex-wrap:wrap; } .daily-strip > .flex { min-width:65%; } .stat-cell { flex:1; border-top:2px solid #172a3a; } .daily-burst { min-width:90px; } }
