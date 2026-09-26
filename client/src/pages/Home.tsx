@@ -117,9 +117,7 @@ export default function Home({
                   <span>尚未完成同步</span>
                   <button onClick={() => void retry()}>重試同步</button>
                 </>
-              ) : (
-                "✓ 自動存檔已啟用"
-              )}
+              ) : null}
             </div>
             <header className="hero-panel relative isolate overflow-hidden">
               <img
