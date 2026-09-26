@@ -1,3 +1,4 @@
+import { isCurrentClass } from "./classOptions.ts";
 import type { RosterStudent } from "./assessment";
 export function csvText(rows: unknown[][]) {
   return (
@@ -101,8 +102,8 @@ export function parseAccountRoster(text: string): AccountRosterRow[] {
   const emails=new Set<string>();const identities=new Set<string>();
   return rows.map((row,i)=>{
     const [rawEmail,rawClass,rawNo,name]=columns.map(c=>(row[c]||'').trim());
-    const email=rawEmail.toLowerCase(),className=rawClass.toUpperCase(),studentNo=rawNo.toUpperCase();
-    if(!/^[^/\s@]+@(ctshkpcc\.edu\.hk|gmail\.com)$/.test(email)||! /^[1-6][A-E]$/.test(className)||! /^[A-Z0-9-]{1,12}$/.test(studentNo)||name.length<2||name.length>50)throw new Error(`第 ${i+2} 行資料格式不正確。`);
+    const email=rawEmail.toLowerCase(),className=rawClass.toUpperCase()==="OTHER"?"Other":rawClass.toUpperCase(),studentNo=rawNo.toUpperCase();
+    if(!/^[^/\s@]+@(ctshkpcc\.edu\.hk|gmail\.com)$/.test(email)||!isCurrentClass(className)||! /^[A-Z0-9-]{1,12}$/.test(studentNo)||name.length<2||name.length>50)throw new Error(`第 ${i+2} 行資料格式不正確。`);
     const key=`${className}:${studentNo}`;
     if(emails.has(email)||identities.has(key))throw new Error(`第 ${i+2} 行 email 或班別＋學號重複；請先核對。`);
     emails.add(email);identities.add(key);

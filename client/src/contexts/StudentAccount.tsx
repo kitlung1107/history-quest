@@ -76,7 +76,7 @@ export function ProfileForm({ onDone }: { onDone?: () => void }) {
       await updateDoc(doc(db,"profiles",account.studentId), { nickname: next.nickname, avatar: next.avatar, configured: true });
       await account.refresh(); onDone?.();
     } catch (err) { setError(err instanceof Error ? err.message : "未能儲存"); } finally { setBusy(false); } }}>
-      <label>班別<select required disabled={!!account.profile} className="comic-input block w-full" value={profile.className} onChange={e=>setProfile({...profile,className:e.target.value})}><option value="">選擇班別</option>{CLASS_OPTIONS.map(c=><option key={c}>{c}</option>)}</select></label>
+      <label>班別<select required disabled={!!account.profile} className="comic-input block w-full" value={profile.className} onChange={e=>setProfile({...profile,className:e.target.value})}><option value="">選擇班別</option>{profile.className && !CLASS_OPTIONS.includes(profile.className) && <option value={profile.className}>{profile.className}（原有班別）</option>}{CLASS_OPTIONS.map(c=><option key={c}>{c}</option>)}</select></label>
       <label>姓名<input required minLength={2} maxLength={50} disabled={!!account.profile} className="comic-input block w-full" value={profile.name} onChange={e=>setProfile({...profile,name:e.target.value})}/></label>
       <label>學號<input required pattern="[A-Za-z0-9-]{1,12}" disabled={!!account.profile} className="comic-input block w-full" value={profile.studentNo} onChange={e=>setProfile({...profile,studentNo:e.target.value})}/></label>
       <label>角色暱稱<input required maxLength={20} className="comic-input block w-full" value={profile.nickname} onChange={e=>setProfile({...profile,nickname:e.target.value})}/></label>

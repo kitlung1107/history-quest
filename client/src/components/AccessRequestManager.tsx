@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { CLASS_OPTIONS } from "@/lib/historyQuest";
+import { CLASS_OPTIONS, isCurrentClass } from "@/lib/classOptions";
 import { reviewAccessRequest, type AccessRequest } from "@/lib/accessRequests";
 import type { CloudProfile } from "@/contexts/StudentAccount";
 
@@ -22,7 +22,7 @@ export default function AccessRequestManager({ onChanged }: { onChanged: () => P
     let profile: CloudProfile | undefined;
     if (approve && mode === "new") {
       const cleanName = name.trim(), cleanNo = studentNo.trim().toUpperCase();
-      if (cleanName.length < 2 || cleanName.length > 50 || !/^[1-6][A-E]$/.test(className) || !/^[A-Z0-9-]{1,12}$/.test(cleanNo)) throw new Error("請填齊有效的學生名冊資料。");
+      if (cleanName.length < 2 || cleanName.length > 50 || !isCurrentClass(className) || !/^[A-Z0-9-]{1,12}$/.test(cleanNo)) throw new Error("請填齊有效的學生名冊資料。");
       profile = { name: cleanName, className, studentNo: cleanNo, nickname: cleanName.slice(0,20), avatar: "explorer", configured: false };
     }
     if (approve && mode === "link" && !sid) throw new Error("請選擇對應學生。");

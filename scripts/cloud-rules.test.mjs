@@ -109,3 +109,24 @@ test('new profile, access and approval succeed atomically; missing profile or bi
 test('teacher cannot alter student supplied identity during review',async()=>{
  await apply();await assertFails(updateDoc(doc(teacher(),'accessRequests',applicantEmail),{name:'替換姓名',status:'rejected',reason:'核對',reviewedAt:serverTimestamp()}));
 });
+
+test('new applications and profiles accept grouped senior classes and Other only',async()=>{
+ for(const className of ['1A','3E','S4','S5','S6','Other']) {
+  const email=`${className.toLowerCase()}@gmail.com`;
+  const db=env.authenticatedContext(email,claims(email)).firestore();
+  await assertSucceeds(setDoc(doc(db,'accessRequests',email),{...application(),className}));
+  await assertSucceeds(setDoc(doc(teacher(),'profiles',className),{...profile,className}));
+ }
+ for(const className of ['4A','5B','6E','S3','S7','3F','OTHER']) {
+  await assertFails(setDoc(doc(applicant(),'accessRequests',applicantEmail),{...application(),className}));
+  await assertFails(setDoc(doc(teacher(),'profiles',`invalid-${className}`),{...profile,className}));
+ }
+});
+test('legacy senior profile retains identity and can still customise and link',async()=>{
+ await env.withSecurityRulesDisabled(async c=>setDoc(doc(c.firestore(),'profiles','s1'),{...profile,className:'4A'}));
+ await assertSucceeds(updateDoc(doc(student(),'profiles','s1'),{nickname:'新暱稱',configured:true}));
+ await apply();await assertSucceeds(approve('s1'));
+ assert.equal((await getDoc(doc(applicant(),'profiles','s1'))).data().className,'4A');
+ await assertFails(updateDoc(doc(teacher(),'profiles','s1'),{className:'5B'}));
+ await assertSucceeds(updateDoc(doc(teacher(),'profiles','s1'),{className:'S4'}));
+});

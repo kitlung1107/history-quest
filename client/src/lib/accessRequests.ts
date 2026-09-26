@@ -1,3 +1,4 @@
+import { isCurrentClass } from "./classOptions.ts";
 import { collection, getDoc, getDocs, doc, runTransaction, serverTimestamp, type Timestamp } from "firebase/firestore";
 import type { CloudProfile } from "@/contexts/StudentAccount";
 import { db } from "./firebase";
@@ -9,7 +10,7 @@ export type AccessRequest = {
 };
 export async function submitAccessRequest(email: string, identity: Pick<AccessRequest, "name" | "className" | "studentNo">) {
   const clean = { name: identity.name.trim(), className: identity.className, studentNo: identity.studentNo.trim().toUpperCase() };
-  if (clean.name.length < 2 || clean.name.length > 50 || !/^[1-6][A-E]$/.test(clean.className) || !/^[A-Z0-9-]{1,12}$/.test(clean.studentNo)) throw new Error("請填寫有效的班別、學號及姓名。");
+  if (clean.name.length < 2 || clean.name.length > 50 || !isCurrentClass(clean.className) || !/^[A-Z0-9-]{1,12}$/.test(clean.studentNo)) throw new Error("請填寫有效的班別、學號及姓名。");
   await runTransaction(db, async tx => {
     const ref = doc(db, "accessRequests", email);
     const previous = await tx.get(ref);

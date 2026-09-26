@@ -24,9 +24,7 @@ export const STUDENT_STORAGE_KEY = "historyQuest.student.v1";
 export const PROGRESS_STORAGE_KEY = "historyQuest.progress.v1";
 export const SYNC_QUEUE_KEY = "historyQuest.syncQueue.v1";
 
-export const CLASS_OPTIONS = Array.from({ length: 6 }, (_, level) =>
-  ["A", "B", "C", "D", "E"].map(letter => `${level + 1}${letter}`)
-).flat();
+export { CLASS_OPTIONS } from "./classOptions.ts";
 
 export type StudentProfile = {
   className: string;

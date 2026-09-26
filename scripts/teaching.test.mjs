@@ -471,3 +471,14 @@ test("legacy score tabs are read without being overwritten", () => {
   assert.equal(teacher({ action: "admin" }).rows[0].status, "legacy");
   assert.equal(old.cells.length, 2);
 });
+
+test('class options retain junior classes and group senior and external students',async()=>{
+ const { CLASS_OPTIONS }=await import('../client/src/lib/classOptions.ts');
+ const { parseAccountRoster }=await import('../client/src/lib/csv.ts');
+ assert.deepEqual(CLASS_OPTIONS,[...Array.from({length:3},(_,i)=>['A','B','C','D','E'].map(c=>`${i+1}${c}`)).flat(),'S4','S5','S6','Other']);
+ for(const className of ['1A','3E','S4','S5','S6','Other']) {
+  assert.equal(parseAccountRoster(`email,班別,學號,姓名\ntest@gmail.com,${className},01,測試學生`)[0].className,className);
+ }
+ assert.equal(parseAccountRoster('email,班別,學號,姓名\ntest@gmail.com,other,01,測試學生')[0].className,'Other');
+ for(const className of ['4A','5B','6E','S3','S7','3F'])assert.throws(()=>parseAccountRoster(`email,班別,學號,姓名\ntest@gmail.com,${className},01,測試學生`));
+});
