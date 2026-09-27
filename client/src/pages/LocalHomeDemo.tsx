@@ -28,6 +28,7 @@ export default function LocalHomeDemo() {
                 ? saved.nickname
                 : example.nickname,
             avatar: characterKey(saved.avatar),
+            cardId: typeof saved.cardId === "string" ? saved.cardId : undefined,
           }
         : example;
     } catch {
@@ -35,6 +36,7 @@ export default function LocalHomeDemo() {
     }
   });
   const [editing, setEditing] = useState(false);
+  const cardPreview = new URLSearchParams(location.search).get("view") === "cards";
   const [corners, setCorners] = useState(() => new URLSearchParams(location.search).get("corners") === "round" ? "round" : "square");
   const edgePreview = new URLSearchParams(location.search).get("hero") === "edge";
   function selectCorners(value: string) {
@@ -57,8 +59,8 @@ export default function LocalHomeDemo() {
   return (
     <div className="home-paper-preview" data-paper={paper} data-corners={corners}
       data-hero={edgePreview ? "edge" : "original"}>
-      <div className="demo-notice">
-        本機示範帳戶 · 教材唯讀預覽 · 角色只儲存於此瀏覽器
+      {!cardPreview && <><div className="demo-notice">
+        本機示範帳戶 · 教材唯讀預覽 · 卡片只儲存於此瀏覽器
       </div>
       <nav className="paper-preview-controls" aria-label="首頁底紙比較">
         <span>首頁底紙比較</span>
@@ -72,7 +74,7 @@ export default function LocalHomeDemo() {
           <button type="button" aria-pressed={corners === "square"} onClick={() => selectCorners("square")}>直角</button>
           <button type="button" aria-pressed={corners === "round"} onClick={() => selectCorners("round")}>圓角</button>
         </div>}
-      </nav>
+      </nav></>}
       {editing ? (
         <ProfileEditor
           initialProfile={profile}
@@ -81,7 +83,7 @@ export default function LocalHomeDemo() {
           onSave={async next => {
             localStorage.setItem(
               storageKey,
-              JSON.stringify({ nickname: next.nickname, avatar: next.avatar })
+              JSON.stringify({ nickname: next.nickname, avatar: next.avatar, cardId: next.cardId })
             );
             setProfile(next);
             setEditing(false);

@@ -21,6 +21,7 @@ import {
   useOptionalStudentAccount,
 } from "./contexts/StudentAccount";
 import "./home.css";
+import "./cards.css";
 import { lazy, Suspense } from "react";
 
 const LocalHomeDemo = import.meta.env.DEV

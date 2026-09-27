@@ -1,0 +1,6 @@
+{
+  "cards": [
+    { "id": "nile-explorer-boy", "name": "尼羅河探險・少年", "image": "/history-quest/uploads/nile-explorer-boy-v1.webp", "enabled": true },
+    { "id": "nile-explorer-girl", "name": "尼羅河探險・少女", "image": "/history-quest/uploads/nile-explorer-girl-v1.webp", "enabled": true }
+  ]
+}

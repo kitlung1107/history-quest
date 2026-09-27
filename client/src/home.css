@@ -28,6 +28,7 @@
   letter-spacing: 0.03em;
 }
 :is(.manga-home, .manga-sidebar) .sidebar-brand {
+  display: block;
   border: 0;
   border-block: 1px solid #dfd2b5;
   box-shadow: none;
@@ -35,8 +36,18 @@
   gap: 10px;
 }
 :is(.manga-home, .manga-sidebar) .sidebar-brand img {
-  width: 56px;
+  width: 74px;
   height: 56px;
+  flex-shrink: 0;
+  transform: translateY(-4px);
+}
+:is(.manga-home, .manga-sidebar) .sidebar-brand-heading {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  min-width: 0;
+  text-align: left;
 }
 :is(.manga-home, .manga-sidebar) .sidebar-brand .pixel-label {
   font-size: 21px;

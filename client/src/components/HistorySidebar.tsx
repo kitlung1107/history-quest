@@ -1,9 +1,7 @@
-import { displayClass } from "@/lib/classOptions";
 import {
   SITE_SETTINGS as defaults,
   GRADES,
   PUBLIC_TOPICS,
-  mediaUrl,
 } from "@/lib/siteSettings";
 import {
   ChevronRight,
@@ -32,7 +30,9 @@ import {
   useOptionalStudentAccount,
   type CloudProfile,
 } from "@/contexts/StudentAccount";
-import { CHARACTERS, characterImage, characterKey } from "@/lib/characters";
+import ExplorerCard from "@/components/ExplorerCard";
+import { EXPLORER_CARDS } from "@/lib/cards";
+import { resolveCard } from "@/lib/cardModel";
 import { useState } from "react";
 
 type SidebarProps = {
@@ -62,42 +62,18 @@ function SidebarBody({
   const settings = previewSettings || defaults;
   const account = useOptionalStudentAccount();
   const profile = previewProfile || account?.profile;
-  const avatar = characterKey(profile?.avatar);
+  const card = resolveCard(EXPLORER_CARDS, profile?.cardId);
   return (
     <div className="flex h-full flex-col">
-      <div className="sidebar-brand">
-        <img
-          src={mediaUrl(settings.logo)}
-          className="h-16 w-16 object-contain"
-          alt=""
-        />
-        <div>
-          <p className="pixel-label">{settings.studentHeading}</p>
-          <p className="student-identity mt-1 text-sm">
-            {displayClass(student.className)} · {student.name} ·{" "}
-            {student.studentNo}
-          </p>
-        </div>
-      </div>
-      <div className="student-character">
-        <div className="character-stage">
-          <img
-            src={characterImage(avatar)}
-            alt={CHARACTERS[avatar].name}
-            width="240"
-            height="280"
-          />
-        </div>
-        <p className="character-nickname">
-          {profile?.nickname || "歷史小探員"}
-        </p>
+      <div className="collection-card-area">
+        <ExplorerCard card={card} profile={{ ...student, nickname: profile?.nickname }} />
         {onChangeCharacter ? (
           <button className="change-character" onClick={onChangeCharacter}>
-            更換角色
+            更換卡片
           </button>
         ) : !previewSettings ? (
           <Link href="/profile" className="change-character">
-            更換角色
+            更換卡片
           </Link>
         ) : (
           <span className="character-preview-label">角色展示</span>
@@ -157,7 +133,7 @@ function SidebarBody({
             我的提交與評語
           </Link>
           <Link href="/profile" className="sidebar-utility">
-            我的角色
+            我的卡片
           </Link>
           <Link href="/admin" className="sidebar-utility">
             <ShieldCheck className="h-4 w-4" />

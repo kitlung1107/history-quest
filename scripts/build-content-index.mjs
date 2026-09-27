@@ -19,6 +19,7 @@ function use(src, label) {
 const site = read("settings/site.json");
 use(site.hero, "首頁大圖");
 use(site.logo, "網站標誌");
+for (const card of read("settings/cards.json").cards ?? []) use(card.image, `收藏卡：${card.name}`);
 for (const { data } of tasks) {
   use(data.image, `任務封面：${data.title}`);
   for (const match of (data.article || "").matchAll(

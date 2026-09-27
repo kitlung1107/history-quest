@@ -14,7 +14,8 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.enabled == true);
     }
     function profileOK(d) {
-      return d.keys().hasOnly(['className', 'studentNo', 'name', 'nickname', 'avatar', 'configured'])
+      return d.keys().hasOnly(['className', 'studentNo', 'name', 'nickname', 'avatar', 'configured', 'cardId'])
+        && (!('cardId' in d) || (d.cardId is string && d.cardId.matches('[A-Za-z0-9_-]{3,80}')))
         && d.configured is bool
         && d.className is string && d.className.matches('([1-6][A-E]|S[4-6]|Other)')
         && d.studentNo is string && d.studentNo.matches('[A-Z0-9-]{1,12}')
@@ -75,7 +76,7 @@ service cloud.firestore {
       allow read: if teacher() || owns(sid);
       allow create: if teacher() && profileOK(request.resource.data) && request.resource.data.className.matches('([1-3][A-E]|S[4-6]|Other)');
       allow update: if profileOK(request.resource.data) && (request.resource.data.className.matches('([1-3][A-E]|S[4-6]|Other)') || request.resource.data.className == resource.data.className) && (teacher() || (owns(sid)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nickname', 'avatar', 'configured'])));
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nickname', 'avatar', 'configured', 'cardId'])));
     }
     match /submissions/{attempt} {
       allow get: if teacher() || (resource == null && signed()) || owns(resource.data.studentId);

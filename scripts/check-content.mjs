@@ -28,6 +28,8 @@ const unique = (values, label) => {
 };
 
 export function validateContent() {
+  const explorerCards = z.array(z.object({ id, name: text.max(80), image: media, enabled: z.boolean() })).parse(read("settings/cards.json").cards ?? []);
+  unique(explorerCards.map(card => card.id), "收藏卡識別碼");
   const grades = z
     .array(z.object({ grade, title: text, visible: z.boolean() }))
     .length(6)
@@ -153,6 +155,7 @@ export function validateContent() {
   );
   return {
     grades: grades.length,
+    explorerCards: explorerCards.length,
     topics: topics.length,
     tasks: tasks.length,
     cards: site.topicCards?.length ?? 0,

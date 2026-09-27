@@ -7,6 +7,15 @@ let env;
 const claims=email=>({email,email_verified:true,firebase:{sign_in_provider:'google.com'}});
 const profile={className:'1A',studentNo:'01',name:'測試學生',nickname:'探險家',avatar:'explorer',configured:false};
 const student=()=>env.authenticatedContext('uid-a',claims('student@ctshkpcc.edu.hk')).firestore();
+test('card choice persists independently while identity and other accounts remain protected',async()=>{
+ const db=student(),ref=doc(db,'profiles','s1');
+ for(const cardId of ['nile-explorer-boy','nile-explorer-girl','future-cms-card']) await assertSucceeds(updateDoc(ref,{cardId}));
+ assert.equal((await getDoc(ref)).data().avatar,'explorer');
+ for(const cardId of ['',null,42,'../x','a'.repeat(81)]) await assertFails(updateDoc(ref,{cardId}));
+ await assertFails(updateDoc(ref,{cardId:'nile-explorer-boy',name:'冒認同學'}));
+ await assertFails(updateDoc(doc(db,'profiles','s2'),{cardId:'nile-explorer-boy'}));
+ await assertFails(updateDoc(ref,{cardId:'nile-explorer-boy',teacher:true}));
+});
 test('first login is owned, server-timed and immutable',async()=>{
  const db=student();const ref=doc(db,'studentLogins','s1');
  await assertFails(setDoc(doc(db,'studentLogins','s2'),{firstLoginAt:serverTimestamp()}));

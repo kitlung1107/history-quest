@@ -1,0 +1,16 @@
+.explorer-card-figure { margin: 0; min-width: 0; }
+.explorer-card { position: relative; width: 100%; color: #10243c; }
+.explorer-card > img { display: block; width: 100%; height: auto; border-radius: 10px; }
+.explorer-card-nickname, .explorer-card-identity { position: absolute; display: flex; align-items: center; justify-content: center; font-family: "Microsoft JhengHei", sans-serif; font-weight: 800; text-align: center; overflow: hidden; line-height: 1.12; overflow-wrap: anywhere; }
+.explorer-card-nickname { left: 14%; top: 3.6%; width: 47%; height: 6.7%; }
+.explorer-card-identity { left: 27%; top: 90.3%; width: 45%; height: 4.8%; display: block; align-content: center; white-space: nowrap; text-overflow: ellipsis; }
+.explorer-card-full-text, .explorer-card-unavailable { padding: 10px; background: #fff7df; border: 1px solid #ddc994; border-radius: 8px; overflow-wrap: anywhere; font-size: 13px; }
+.explorer-card-unavailable { min-height: 160px; display: grid; align-content: center; gap: 12px; }
+.collection-card-area { margin-bottom: 8px; text-align: center; }
+.collection-card-area .change-character { margin-top: 12px; }
+.card-picker-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 16px; }
+.card-choice { border: 2px solid #ded1b3; border-radius: 12px; padding: 10px; background: #fffaf0; cursor: pointer; display: grid; gap: 8px; align-content: start; }
+.card-choice.selected { border-color: #92700a; background: #fff0b2; }
+.card-choice img { display: block; width: 100%; height: 220px; object-fit: contain; }
+.card-choice span { overflow-wrap: anywhere; }
+.card-editor-preview { width: min(100%, 280px); margin: 0 auto; }

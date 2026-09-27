@@ -16,6 +16,33 @@ media_libraries:
     max_file_size: 5242880
 
 collections:
+  - name: card_library
+    label: 收藏卡庫
+    editor: { preview: false }
+    files:
+      - name: cards
+        label: 收藏卡上載、排序與啟用
+        file: client/src/content/settings/cards.json
+        fields:
+          - label: 收藏卡
+            name: cards
+            widget: list
+            required: false
+            summary: "{{fields.name}}"
+            hint: "拖動排序，第一張啟用卡為預設。可停用或移除；已選該卡的學生會顯示下一張可用卡，學生資料不變。"
+            fields:
+              - label: 永久識別碼
+                name: id
+                widget: string
+                pattern: ['^[A-Za-z0-9_-]{3,80}$', '請用3至80個英文字母、數字、連字號或底線。']
+                hint: "每張必須不同，建立後不要修改，例如 nile-explorer-03。"
+              - { label: 卡片名稱, name: name, widget: string }
+              - label: 無字卡片底圖
+                name: image
+                widget: image
+                choose_url: false
+                hint: "上載2:3直式無字底圖（建議1024×1536）。保留與首批卡相同位置的頂部及底部空白名牌；暱稱和學生資料由網站加入，請勿把示範文字畫進圖片。"
+              - { label: 可供學生選用, name: enabled, widget: boolean, default: true }
   - name: settings
     label: 網站與首頁設定
     editor: { preview: false }

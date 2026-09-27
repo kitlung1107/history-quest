@@ -18,11 +18,15 @@ import {
 } from "@/lib/firebase";
 import { CLASS_OPTIONS, type StudentProfile } from "@/lib/historyQuest";
 import { characterKey, type CharacterKey } from "@/lib/characters";
-import CharacterPicker from "@/components/CharacterPicker";
+import CardPicker from "@/components/CardPicker";
+import ExplorerCard from "@/components/ExplorerCard";
+import { EXPLORER_CARDS } from "@/lib/cards";
+import { resolveCard } from "@/lib/cardModel";
 
 export type CloudProfile = StudentProfile & {
   nickname: string;
   avatar: CharacterKey;
+  cardId?: string;
   configured: boolean;
 };
 type Account = {
@@ -271,6 +275,7 @@ export function ProfileForm({ onDone }: { onDone?: () => void }) {
         await updateDoc(doc(db, "profiles", account.studentId), {
           nickname: profile.nickname,
           avatar: profile.avatar,
+          ...(profile.cardId ? { cardId: profile.cardId } : {}),
           configured: true,
         });
         await account.refresh();
@@ -299,12 +304,13 @@ export function ProfileEditor({
     ...initialProfile,
     avatar: characterKey(initialProfile.avatar),
     nickname: initialProfile.nickname || "歷史小探員",
+    cardId: resolveCard(EXPLORER_CARDS, initialProfile.cardId)?.id,
   }));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   return (
     <section className="profile-page mx-auto min-h-screen max-w-5xl p-5 md:p-8">
-      <h1 className="display-title text-3xl">我的角色</h1>
+      <h1 className="display-title text-3xl">我的卡片</h1>
       <p className="my-3">{email}</p>
       <form
         className="grid gap-5"
@@ -320,10 +326,11 @@ export function ProfileEditor({
               nickname: profile.nickname.trim(),
             };
             if (!next.nickname || next.name.length < 2)
-              throw new Error("請填寫姓名及角色暱稱。");
+              throw new Error("請填寫姓名及暱稱。");
             await onSave({ ...next, configured: true });
           } catch (err) {
-            setError(err instanceof Error ? err.message : "未能儲存");
+            const permissionDenied = typeof err === "object" && err !== null && "code" in err && err.code === "permission-denied";
+            setError(permissionDenied ? "暫時未能儲存卡片，請稍後再試或聯絡老師。你的修改仍保留在此頁。" : err instanceof Error ? err.message : "未能儲存，請重試。");
           } finally {
             setBusy(false);
           }
@@ -380,7 +387,7 @@ export function ProfileEditor({
           </label>
         </div>
         <label>
-          角色暱稱
+          卡片暱稱
           <input
             required
             maxLength={20}
@@ -389,13 +396,14 @@ export function ProfileEditor({
             onChange={e => setProfile({ ...profile, nickname: e.target.value })}
           />
         </label>
-        <CharacterPicker
-          value={profile.avatar}
-          onChange={avatar => setProfile({ ...profile, avatar })}
+        <div className="card-editor-preview"><ExplorerCard card={resolveCard(EXPLORER_CARDS, profile.cardId)} profile={profile} /></div>
+        <CardPicker
+          value={profile.cardId}
+          onChange={cardId => setProfile({ ...profile, cardId })}
         />
         {error && <p role="alert">{error}</p>}
         <button disabled={busy} className="pixel-button pixel-button-gold">
-          {busy ? "儲存中…" : "儲存角色"}
+          {busy ? "儲存中…" : "儲存卡片"}
         </button>
       </form>
       {onCancel ? (
