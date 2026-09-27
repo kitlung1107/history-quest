@@ -1,23 +1,89 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { availableCards, resolveCard, cardIdentity } from "./cardModel.ts";
-const cards = [
-  { id: "first", name: "第一張", image: "/one.webp", enabled: true },
-  { id: "hidden", name: "停用", image: "/two.webp", enabled: false },
-  { id: "second", name: "第二張", image: "/three.webp", enabled: true },
-];
-test("missing, disabled, removed and invalid choices resolve to first enabled card", () => {
-  for (const id of [undefined, "hidden", "deleted", "__proto__"]) assert.equal(resolveCard(cards, id)?.id, "first");
-  assert.equal(resolveCard(cards, "second")?.id, "second");
-  assert.deepEqual(availableCards(cards).map(c => c.id), ["first", "second"]);
+import {
+  availableCards,
+  resolveCard,
+  cardIdentity,
+  giftCards,
+  isStudentRole,
+  type ExplorerCard,
+} from "./cardModel.ts";
+const cards: ExplorerCard[] = ["boy", "girl"].flatMap(sex =>
+  ["starter", "nile"].map(
+    edition =>
+      ({
+        id: `${edition}-explorer-${sex}`,
+        name: edition,
+        image: "/image.png",
+        enabled: true,
+        role: sex === "boy" ? "studentBoy" : "studentGirl",
+        edition,
+      }) as ExplorerCard
+  )
+);
+test("all six grades receive own starter; only form one receives own Nile", () => {
+  for (const role of ["studentBoy", "studentGirl"] as const)
+    for (const c of [
+      "1A",
+      "1E",
+      "2A",
+      "3E",
+      "S4",
+      "S5",
+      "S6",
+      "4A",
+      "5B",
+      "6E",
+    ]) {
+      const gifts = giftCards(role, c);
+      assert.equal(gifts.length, c.startsWith("1") ? 2 : 1);
+      assert.ok(
+        gifts.every(id => id.endsWith(role === "studentBoy" ? "boy" : "girl"))
+      );
+    }
+  for (const c of ["Other", "S1", "1F", "11A", ""])
+    assert.equal(giftCards("studentBoy", c).length, 1);
 });
-test("CMS ordering controls fallback; no enabled cards yields null", () => {
-  assert.equal(resolveCard([...cards].reverse())?.id, "second");
-  assert.equal(resolveCard([]), null);
-  assert.equal(resolveCard(cards.map(c => ({ ...c, enabled: false }))), null);
+test("selection fails closed for unselected, cross-role, disabled and unowned cards", () => {
+  const collection = {
+    role: "studentBoy" as const,
+    ownedCardIds: ["starter-explorer-boy", "nile-explorer-girl"],
+  };
+  assert.deepEqual(
+    availableCards(cards, collection).map(c => c.id),
+    ["starter-explorer-boy"]
+  );
+  for (const id of [
+    undefined,
+    "missing",
+    "nile-explorer-boy",
+    "nile-explorer-girl",
+    "__proto__",
+  ])
+    assert.equal(resolveCard(cards, id, collection), null);
+  assert.equal(
+    resolveCard(cards, "starter-explorer-boy", collection)?.id,
+    "starter-explorer-boy"
+  );
+  assert.equal(resolveCard(cards, "starter-explorer-boy"), null);
+  assert.equal(
+    resolveCard(
+      cards.map(c => ({ ...c, enabled: false })),
+      "starter-explorer-boy",
+      collection
+    ),
+    null
+  );
 });
-test("identity remains exact for legacy classes and multilingual names", () => {
-  assert.equal(cardIdentity({ className: "1A", studentNo: "12", name: "鄧小明" }), "1A(12)鄧小明");
-  assert.equal(cardIdentity({ className: "4B", studentNo: "02", name: "陳 Alex" }), "4B(02)陳 Alex");
-  assert.equal(cardIdentity({ className: "Other", studentNo: "A12", name: "A".repeat(50) }), `Other(A12)${"A".repeat(50)}`);
+test("old avatars never count as role selection; card shows only student name", () => {
+  assert.equal(isStudentRole("explorer"), false);
+  assert.equal(isStudentRole(undefined), false);
+  assert.equal(
+    cardIdentity({ className: "1A", studentNo: "12", name: "可豪" }),
+    "可豪"
+  );
+  assert.equal(
+    cardIdentity({ name: "陳 Alex".repeat(10) }),
+    "陳 Alex".repeat(10)
+  );
 });

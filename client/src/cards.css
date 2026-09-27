@@ -23,3 +23,5 @@
 .card-choice img { display: block; width: 100%; height: 220px; object-fit: contain; }
 .card-choice span { overflow-wrap: anywhere; }
 .card-editor-preview { width: min(100%, 280px); margin: 0 auto; }
+.explorer-card-starter .explorer-card-nickname { left: 22%; top: 3.7%; width: 56%; height: 6.4%; }
+.explorer-card-starter .explorer-card-identity { left: 29%; top: 87%; width: 42%; height: 4.8%; }

@@ -20,7 +20,7 @@ function FittedLabel({
   const measureRef = useRef<HTMLSpanElement>(null);
   const maximum = kind === "nickname" ? 21 : 14;
   const minimum = kind === "nickname" ? 11 : 10;
-  const label = kind === "nickname" ? "暱稱" : "學生資料";
+  const label = kind === "nickname" ? "暱稱" : "姓名";
   const [fit, setFit] = useState({ size: maximum, lines: 1, truncated: false });
 
   useLayoutEffect(() => {
@@ -154,7 +154,7 @@ export default function ExplorerCard({
     );
   return (
     <figure className="explorer-card-figure">
-      <div className="explorer-card" aria-label={card.name}>
+      <div className={`explorer-card explorer-card-${card.edition}`} aria-label={card.name}>
         <img
           src={mediaUrl(card.image)}
           alt={card.name}

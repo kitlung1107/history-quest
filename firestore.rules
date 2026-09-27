@@ -14,14 +14,41 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.enabled == true);
     }
     function profileOK(d) {
-      return d.keys().hasOnly(['className', 'studentNo', 'name', 'nickname', 'avatar', 'configured', 'cardId'])
+      return d.keys().hasOnly(['className', 'studentNo', 'name', 'nickname', 'avatar', 'configured', 'cardId', 'role', 'ownedCardIds', 'legacyCardId'])
         && (!('cardId' in d) || (d.cardId is string && d.cardId.matches('[A-Za-z0-9_-]{3,80}')))
+        && (!('role' in d) || collectionOK(d))
+        && (!('ownedCardIds' in d) || 'role' in d)
+        && (!('legacyCardId' in d) || d.legacyCardId is string)
         && d.configured is bool
         && d.className is string && d.className.matches('([1-6][A-E]|S[4-6]|Other)')
         && d.studentNo is string && d.studentNo.matches('[A-Z0-9-]{1,12}')
         && d.name is string && d.name.size() >= 2 && d.name.size() <= 50
         && d.nickname is string && d.nickname.size() >= 1 && d.nickname.size() <= 20
         && d.avatar in ['explorer', 'scholar', 'archaeologist', 'navigator', 'studentBoy', 'studentGirl', 'detective', 'conservator', 'ancientScholar', 'cartographer'];
+    }
+    function starter(d) { return d.role == 'studentBoy' ? 'starter-explorer-boy' : 'starter-explorer-girl'; }
+    function nile(d) { return d.role == 'studentBoy' ? 'nile-explorer-boy' : 'nile-explorer-girl'; }
+    function gifts(d) { return d.className.matches('1[A-E]') ? [starter(d), nile(d)] : [starter(d)]; }
+    function collectionOK(d) {
+      return d.role in ['studentBoy', 'studentGirl']
+        && d.ownedCardIds is list
+        && d.ownedCardIds.size() == d.ownedCardIds.toSet().size()
+        && d.ownedCardIds.hasOnly([starter(d), nile(d)])
+        && d.ownedCardIds.hasAll([starter(d)])
+        && d.cardId in d.ownedCardIds;
+    }
+    function studentCollectionUpdate() {
+      let old = resource.data;
+      let next = request.resource.data;
+      return next.configured == true && collectionOK(next)
+        && ((!('role' in old)
+          && next.ownedCardIds.toSet() == gifts(next).toSet()
+          && ((!('cardId' in old) && !('legacyCardId' in next)) || next.legacyCardId == old.cardId))
+        || ('role' in old && next.role == old.role
+          && next.ownedCardIds.hasAll(old.ownedCardIds)
+          && next.ownedCardIds.hasAll(gifts(next))
+          && next.ownedCardIds.hasOnly(old.ownedCardIds.concat(gifts(next)))
+          && !next.diff(old).affectedKeys().hasAny(['legacyCardId'])));
     }
     match /access/{email} {
       allow get: if teacher() || (signed() && request.auth.token.email == email);
@@ -76,7 +103,8 @@ service cloud.firestore {
       allow read: if teacher() || owns(sid);
       allow create: if teacher() && profileOK(request.resource.data) && request.resource.data.className.matches('([1-3][A-E]|S[4-6]|Other)');
       allow update: if profileOK(request.resource.data) && (request.resource.data.className.matches('([1-3][A-E]|S[4-6]|Other)') || request.resource.data.className == resource.data.className) && (teacher() || (owns(sid)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nickname', 'avatar', 'configured', 'cardId'])));
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nickname', 'configured', 'cardId', 'role', 'ownedCardIds', 'legacyCardId'])
+        && studentCollectionUpdate()));
     }
     match /submissions/{attempt} {
       allow get: if teacher() || (resource == null && signed()) || owns(resource.data.studentId);

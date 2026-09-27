@@ -29,19 +29,21 @@ collections:
             widget: list
             required: false
             summary: "{{fields.name}}"
-            hint: "拖動排序，第一張啟用卡為預設。可停用或移除；已選該卡的學生會顯示下一張可用卡，學生資料不變。"
+            hint: "只展示固定角色已擁有的卡。停用卡不會自動換成其他卡；新增卡款需同步安全規則與發放模型。"
             fields:
               - label: 永久識別碼
                 name: id
                 widget: string
                 pattern: ['^[A-Za-z0-9_-]{3,80}$', '請用3至80個英文字母、數字、連字號或底線。']
                 hint: "每張必須不同，建立後不要修改，例如 nile-explorer-03。"
+              - { label: 所屬角色, name: role, widget: select, options: [studentBoy, studentGirl] }
+              - { label: 卡面版型, name: edition, widget: select, options: [starter, nile] }
               - { label: 卡片名稱, name: name, widget: string }
               - label: 無字卡片底圖
                 name: image
                 widget: image
                 choose_url: false
-                hint: "上載2:3直式無字底圖（建議1024×1536）。保留與首批卡相同位置的頂部及底部空白名牌；暱稱和學生資料由網站加入，請勿把示範文字畫進圖片。"
+                hint: "上載2:3直式無字底圖（建議1024×1536）。保留與首批卡相同位置的頂部及底部空白名牌；暱稱和姓名由網站加入，請勿把示範文字畫進圖片。"
               - { label: 可供學生選用, name: enabled, widget: boolean, default: true }
   - name: settings
     label: 網站與首頁設定

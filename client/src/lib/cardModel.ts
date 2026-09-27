@@ -1,12 +1,50 @@
-export type ExplorerCard = { id: string; name: string; image: string; enabled: boolean };
-export function availableCards(cards: readonly ExplorerCard[]) {
-  return cards.filter(card => card.enabled);
+export const STUDENT_ROLES = ["studentBoy", "studentGirl"] as const;
+export type StudentRole = (typeof STUDENT_ROLES)[number];
+export type CardCollection = { role?: StudentRole; ownedCardIds?: string[] };
+export type ExplorerCard = {
+  id: string;
+  name: string;
+  image: string;
+  enabled: boolean;
+  role: StudentRole;
+  edition: "starter" | "nile";
+};
+export function isStudentRole(value: unknown): value is StudentRole {
+  return value === "studentBoy" || value === "studentGirl";
 }
-/** Selection is independent of legacy avatar and never inferred from identity. */
-export function resolveCard(cards: readonly ExplorerCard[], cardId?: string): ExplorerCard | null {
-  const available = availableCards(cards);
-  return available.find(card => card.id === cardId) || available[0] || null;
+export function giftCards(role: StudentRole, className: string): string[] {
+  const suffix = role === "studentBoy" ? "boy" : "girl";
+  return [
+    `starter-explorer-${suffix}`,
+    ...(/^1[A-E]$/.test(className) ? [`nile-explorer-${suffix}`] : []),
+  ];
 }
-export function cardIdentity(profile: { className: string; studentNo: string; name: string }) {
-  return `${profile.className}(${profile.studentNo})${profile.name}`;
+export function availableCards(
+  cards: readonly ExplorerCard[],
+  collection?: CardCollection | null
+) {
+  return cards.filter(
+    card =>
+      card.enabled &&
+      isStudentRole(collection?.role) &&
+      card.role === collection.role &&
+      collection.ownedCardIds?.includes(card.id)
+  );
+}
+/** Fail closed: never substitute a different or unowned card. */
+export function resolveCard(
+  cards: readonly ExplorerCard[],
+  cardId?: string,
+  collection?: CardCollection | null
+): ExplorerCard | null {
+  return (
+    availableCards(cards, collection).find(card => card.id === cardId) || null
+  );
+}
+export function cardIdentity(profile: {
+  name: string;
+  className?: string;
+  studentNo?: string;
+}) {
+  return profile.name;
 }

@@ -63,7 +63,7 @@ function SidebarBody({
   const settings = previewSettings || defaults;
   const account = useOptionalStudentAccount();
   const profile = previewProfile || account?.profile;
-  const card = resolveCard(EXPLORER_CARDS, profile?.cardId);
+  const card = resolveCard(EXPLORER_CARDS, profile?.cardId, profile);
   return (
     <div className="flex h-full flex-col">
       <div className="collection-card-area">

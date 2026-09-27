@@ -5,7 +5,6 @@ import AccessRequestForm from "@/components/AccessRequestForm";
 import {
   doc,
   getDoc,
-  updateDoc,
   runTransaction,
   serverTimestamp,
 } from "firebase/firestore";
@@ -21,12 +20,21 @@ import { characterKey, type CharacterKey } from "@/lib/characters";
 import CardPicker from "@/components/CardPicker";
 import ExplorerCard from "@/components/ExplorerCard";
 import { EXPLORER_CARDS } from "@/lib/cards";
-import { resolveCard } from "@/lib/cardModel";
+import {
+  giftCards,
+  isStudentRole,
+  STUDENT_ROLES,
+  type StudentRole,
+  resolveCard,
+} from "@/lib/cardModel";
 
 export type CloudProfile = StudentProfile & {
   nickname: string;
   avatar: CharacterKey;
   cardId?: string;
+  role?: StudentRole;
+  ownedCardIds?: string[];
+  legacyCardId?: string;
   configured: boolean;
 };
 type Account = {
@@ -81,7 +89,25 @@ export function AccountGate({
       }
       const result = await getDoc(doc(db, "profiles", studentId));
       if (auth.currentUser?.uid !== user.uid) return;
-      const profile = result.exists() ? (result.data() as CloudProfile) : null;
+      let profile = result.exists() ? (result.data() as CloudProfile) : null;
+      if (!teacher && isStudentRole(profile?.role)) {
+        profile = await runTransaction(db, async tx => {
+          const ref = doc(db, "profiles", studentId);
+          const latest = await tx.get(ref);
+          const current = latest.data() as CloudProfile;
+          if (!isStudentRole(current?.role)) return current;
+          const ownedCardIds = Array.from(
+            new Set([
+              ...(current.ownedCardIds || []),
+              ...giftCards(current.role, current.className),
+            ])
+          );
+          if (ownedCardIds.length !== current.ownedCardIds?.length)
+            tx.update(ref, { ownedCardIds });
+          return { ...current, ownedCardIds };
+        });
+        if (auth.currentUser?.uid !== user.uid) return;
+      }
       if (!teacher && profile) {
         await runTransaction(db, async tx => {
           const ref = doc(db, "studentLogins", studentId);
@@ -257,7 +283,9 @@ export function AccountGate({
     );
   return (
     <Context.Provider value={account}>
-      {account.profile && !account.profile.configured && !teacherPage ? (
+      {account.profile &&
+      (!account.profile.configured || !isStudentRole(account.profile.role)) &&
+      !teacherPage ? (
         <ProfileForm />
       ) : (
         children
@@ -272,11 +300,37 @@ export function ProfileForm({ onDone }: { onDone?: () => void }) {
       initialProfile={account.profile!}
       email={account.user.email || ""}
       onSave={async profile => {
-        await updateDoc(doc(db, "profiles", account.studentId), {
-          nickname: profile.nickname,
-          avatar: profile.avatar,
-          ...(profile.cardId ? { cardId: profile.cardId } : {}),
-          configured: true,
+        await runTransaction(db, async tx => {
+          const ref = doc(db, "profiles", account.studentId);
+          const snapshot = await tx.get(ref);
+          if (!snapshot.exists()) throw new Error("找不到學生帳戶。");
+          const current = snapshot.data() as CloudProfile;
+          if (!isStudentRole(profile.role)) throw new Error("請選擇角色。");
+          if (current.role && current.role !== profile.role)
+            throw new Error("角色已鎖定，請重新載入。");
+          const ownedCardIds = Array.from(
+            new Set([
+              ...(current.role ? current.ownedCardIds || [] : []),
+              ...giftCards(profile.role, current.className),
+            ])
+          );
+          if (
+            !resolveCard(EXPLORER_CARDS, profile.cardId, {
+              role: profile.role,
+              ownedCardIds,
+            })
+          )
+            throw new Error("只能展示自己角色已擁有的卡片。");
+          tx.update(ref, {
+            nickname: profile.nickname,
+            role: profile.role,
+            ownedCardIds,
+            cardId: profile.cardId,
+            configured: true,
+            ...(!current.role && current.cardId
+              ? { legacyCardId: current.cardId }
+              : {}),
+          });
         });
         await account.refresh();
         onDone?.();
@@ -304,7 +358,8 @@ export function ProfileEditor({
     ...initialProfile,
     avatar: characterKey(initialProfile.avatar),
     nickname: initialProfile.nickname || "歷史小探員",
-    cardId: resolveCard(EXPLORER_CARDS, initialProfile.cardId)?.id,
+    cardId: resolveCard(EXPLORER_CARDS, initialProfile.cardId, initialProfile)
+      ?.id,
   }));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -327,10 +382,26 @@ export function ProfileEditor({
             };
             if (!next.nickname || next.name.length < 2)
               throw new Error("請填寫姓名及暱稱。");
+            if (!isStudentRole(next.role))
+              throw new Error("請先選擇男學生或女學生。");
+            if (initialProfile.role && initialProfile.role !== next.role)
+              throw new Error("角色已鎖定。");
+            if (!resolveCard(EXPLORER_CARDS, next.cardId, next))
+              throw new Error("請選擇已擁有的同角色卡片。");
             await onSave({ ...next, configured: true });
           } catch (err) {
-            const permissionDenied = typeof err === "object" && err !== null && "code" in err && err.code === "permission-denied";
-            setError(permissionDenied ? "暫時未能儲存卡片，請稍後再試或聯絡老師。你的修改仍保留在此頁。" : err instanceof Error ? err.message : "未能儲存，請重試。");
+            const permissionDenied =
+              typeof err === "object" &&
+              err !== null &&
+              "code" in err &&
+              err.code === "permission-denied";
+            setError(
+              permissionDenied
+                ? "暫時未能儲存卡片，請稍後再試或聯絡老師。你的修改仍保留在此頁。"
+                : err instanceof Error
+                  ? err.message
+                  : "未能儲存，請重試。"
+            );
           } finally {
             setBusy(false);
           }
@@ -396,8 +467,51 @@ export function ProfileEditor({
             onChange={e => setProfile({ ...profile, nickname: e.target.value })}
           />
         </label>
-        <div className="card-editor-preview"><ExplorerCard card={resolveCard(EXPLORER_CARDS, profile.cardId)} profile={profile} /></div>
+        {!isStudentRole(initialProfile.role) ? (
+          <fieldset className="card-picker">
+            <legend>首次選擇角色</legend>
+            <p className="my-3">
+              儲存後角色永久固定。所有年級獲贈新手卡，中一另獲贈同角色尼羅河卡。
+            </p>
+            <div className="card-picker-grid">
+              {STUDENT_ROLES.map(role => (
+                <label
+                  className={`card-choice ${profile.role === role ? "selected" : ""}`}
+                  key={role}
+                >
+                  <input
+                    type="radio"
+                    name="role"
+                    required
+                    checked={profile.role === role}
+                    onChange={() => {
+                      const ownedCardIds = giftCards(role, profile.className);
+                      setProfile({
+                        ...profile,
+                        role,
+                        ownedCardIds,
+                        cardId: ownedCardIds[0],
+                      });
+                    }}
+                  />
+                  <span>{role === "studentBoy" ? "男學生" : "女學生"}</span>
+                  <img
+                    src={`${import.meta.env.BASE_URL}uploads/starter-explorer-${role === "studentBoy" ? "boy" : "girl"}-v1.png`}
+                    alt="新手卡"
+                  />
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
+        <div className="card-editor-preview">
+          <ExplorerCard
+            card={resolveCard(EXPLORER_CARDS, profile.cardId, profile)}
+            profile={profile}
+          />
+        </div>
         <CardPicker
+          collection={profile}
           value={profile.cardId}
           onChange={cardId => setProfile({ ...profile, cardId })}
         />

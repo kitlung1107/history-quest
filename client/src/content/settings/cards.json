@@ -1,6 +1,36 @@
 {
   "cards": [
-    { "id": "nile-explorer-boy", "name": "尼羅河探險・少年", "image": "/history-quest/uploads/nile-explorer-boy-v1.webp", "enabled": true },
-    { "id": "nile-explorer-girl", "name": "尼羅河探險・少女", "image": "/history-quest/uploads/nile-explorer-girl-v1.webp", "enabled": true }
+    {
+      "id": "starter-explorer-girl",
+      "name": "新手探索者・女學生",
+      "image": "/history-quest/uploads/starter-explorer-girl-v1.png",
+      "enabled": true,
+      "role": "studentGirl",
+      "edition": "starter"
+    },
+    {
+      "id": "starter-explorer-boy",
+      "name": "新手探索者・男學生",
+      "image": "/history-quest/uploads/starter-explorer-boy-v1.png",
+      "enabled": true,
+      "role": "studentBoy",
+      "edition": "starter"
+    },
+    {
+      "id": "nile-explorer-boy",
+      "name": "尼羅河探險 (男)",
+      "image": "/history-quest/uploads/nile-explorer-boy-v1.webp",
+      "enabled": true,
+      "role": "studentBoy",
+      "edition": "nile"
+    },
+    {
+      "id": "nile-explorer-girl",
+      "name": "尼羅河探險 (女)",
+      "image": "/history-quest/uploads/nile-explorer-girl-v1.webp",
+      "enabled": true,
+      "role": "studentGirl",
+      "edition": "nile"
+    }
   ]
 }

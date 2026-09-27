@@ -7,14 +7,27 @@ let env;
 const claims=email=>({email,email_verified:true,firebase:{sign_in_provider:'google.com'}});
 const profile={className:'1A',studentNo:'01',name:'測試學生',nickname:'探險家',avatar:'explorer',configured:false};
 const student=()=>env.authenticatedContext('uid-a',claims('student@ctshkpcc.edu.hk')).firestore();
-test('card choice persists independently while identity and other accounts remain protected',async()=>{
+const choose=(role='studentBoy',className='1A')=>{const suffix=role==='studentBoy'?'boy':'girl';return {role,ownedCardIds:[`starter-explorer-${suffix}`,...(/^1[A-E]$/.test(className)?[`nile-explorer-${suffix}`]:[])],cardId:`starter-explorer-${suffix}`,configured:true};};
+test('one-time role, deterministic gifts and immutable cross-role collection',async()=>{
  const db=student(),ref=doc(db,'profiles','s1');
- for(const cardId of ['nile-explorer-boy','nile-explorer-girl','future-cms-card']) await assertSucceeds(updateDoc(ref,{cardId}));
+ await assertFails(updateDoc(ref,{cardId:'nile-explorer-boy'}));
+ await assertFails(updateDoc(ref,{...choose(),ownedCardIds:['starter-explorer-boy']}));
+ await assertSucceeds(updateDoc(ref,choose()));
+ await assertSucceeds(updateDoc(ref,choose()));
+ await assertSucceeds(updateDoc(ref,{cardId:'nile-explorer-boy',nickname:'新暱稱'}));
+ for(const patch of [choose('studentGirl'),{role:'explorer'},{avatar:'studentBoy'},{ownedCardIds:['starter-explorer-boy','nile-explorer-boy','nile-explorer-girl']},{ownedCardIds:['starter-explorer-boy']},{ownedCardIds:['starter-explorer-boy','nile-explorer-boy','nile-explorer-boy']},{cardId:'nile-explorer-girl'},{cardId:'future-card'},{configured:false},{name:'冒認同學'},{className:'2A'},{legacyCardId:'fake'},{role:null}])await assertFails(updateDoc(ref,patch));
+ await assertFails(updateDoc(doc(db,'profiles','s2'),choose()));
  assert.equal((await getDoc(ref)).data().avatar,'explorer');
- for(const cardId of ['',null,42,'../x','a'.repeat(81)]) await assertFails(updateDoc(ref,{cardId}));
- await assertFails(updateDoc(ref,{cardId:'nile-explorer-boy',name:'冒認同學'}));
- await assertFails(updateDoc(doc(db,'profiles','s2'),{cardId:'nile-explorer-boy'}));
- await assertFails(updateDoc(ref,{cardId:'nile-explorer-boy',teacher:true}));
+});
+test('all grades and both roles receive exact gifts; legacy choice is archived without inference',async()=>{
+ for(const className of ['1A','2A','3A','S4','S5','S6','4A'])for(const role of ['studentBoy','studentGirl']){
+ await env.withSecurityRulesDisabled(async c=>setDoc(doc(c.firestore(),'profiles','s1'),{...profile,className,configured:true,cardId:'nile-explorer-girl'}));
+ const ref=doc(student(),'profiles','s1');
+ await assertFails(updateDoc(ref,choose(role,className)));
+ await assertSucceeds(updateDoc(ref,{...choose(role,className),legacyCardId:'nile-explorer-girl'}));
+ if(className!=='1A')await assertFails(updateDoc(ref,{ownedCardIds:[...choose(role,className).ownedCardIds,role==='studentBoy'?'nile-explorer-boy':'nile-explorer-girl']}));
+ assert.equal((await getDoc(ref)).data().name,profile.name);
+ }
 });
 test('first login is owned, server-timed and immutable',async()=>{
  const db=student();const ref=doc(db,'studentLogins','s1');
@@ -42,7 +55,7 @@ test('approved student can read own profile but not another student or account l
  const db=student();await assertSucceeds(getDoc(doc(db,'profiles','s1')));await assertFails(getDoc(doc(db,'profiles','s2')));await assertFails(getDocs(collection(db,'access')));
 });
 test('students can customise role but cannot change identity or approve accounts',async()=>{
- const db=student();await assertSucceeds(updateDoc(doc(db,'profiles','s1'),{nickname:'新角色',configured:true}));
+ const db=student();await assertSucceeds(updateDoc(doc(db,'profiles','s1'),{...choose(),nickname:'新角色'}));
  await assertFails(updateDoc(doc(db,'profiles','s1'),{studentNo:'02'}));await assertFails(setDoc(doc(db,'profiles','uid-a'),profile));
  await assertFails(setDoc(doc(db,'access','other@gmail.com'),{studentId:'s1',enabled:true}));
 });
@@ -93,15 +106,8 @@ test('unapproved verified Google account can submit and read own application onl
  await assertFails(getDoc(doc(applicant(),'profiles','s1')));
 });
 
-test('all ten character keys persist while invalid keys and identity edits are denied',async()=>{
- const db=student();const ref=doc(db,'profiles','s1');
- for(const avatar of ['explorer','scholar','archaeologist','navigator','studentBoy','studentGirl','detective','conservator','ancientScholar','cartographer']) {
-  await assertSucceeds(updateDoc(ref,{avatar,nickname:'歷史小探員',configured:true}));
-  assert.equal((await getDoc(ref)).data().avatar,avatar);
- }
- for(const avatar of ['boat','compass','unknown','',null]) await assertFails(updateDoc(ref,{avatar}));
- await assertFails(updateDoc(ref,{avatar:'studentBoy',name:'冒認同學'}));
- await assertFails(updateDoc(doc(db,'profiles','s2'),{avatar:'studentGirl'}));
+test('legacy avatar cannot be changed by students',async()=>{
+ for(const avatar of ['explorer','scholar','studentBoy','studentGirl','unknown']) await assertFails(updateDoc(doc(student(),'profiles','s1'),{avatar,configured:true}));
 });
 test('application rejects impersonation, invalid identity, extra privileges and invalid providers',async()=>{
  const db=applicant();
@@ -154,9 +160,30 @@ test('new applications and profiles accept grouped senior classes and Other only
 });
 test('legacy senior profile retains identity and can still customise and link',async()=>{
  await env.withSecurityRulesDisabled(async c=>setDoc(doc(c.firestore(),'profiles','s1'),{...profile,className:'4A'}));
- await assertSucceeds(updateDoc(doc(student(),'profiles','s1'),{nickname:'新暱稱',configured:true}));
+ await assertSucceeds(updateDoc(doc(student(),'profiles','s1'),{...choose('studentBoy','4A'),nickname:'新暱稱'}));
  await apply();await assertSucceeds(approve('s1'));
  assert.equal((await getDoc(doc(applicant(),'profiles','s1'))).data().className,'4A');
  await assertFails(updateDoc(doc(teacher(),'profiles','s1'),{className:'5B'}));
  await assertSucceeds(updateDoc(doc(teacher(),'profiles','s1'),{className:'S4'}));
+});
+
+test('gift top-up uses current trusted class and retains collection after promotion',async()=>{
+ const ref=doc(student(),'profiles','s1');
+ await assertSucceeds(updateDoc(doc(teacher(),'profiles','s1'),{className:'2A'}));
+ await assertSucceeds(updateDoc(ref,choose('studentBoy','2A')));
+ await assertFails(updateDoc(ref,{className:'1A',ownedCardIds:choose().ownedCardIds}));
+ await assertSucceeds(updateDoc(doc(teacher(),'profiles','s1'),{className:'1A'}));
+ await assertSucceeds(updateDoc(ref,{ownedCardIds:choose().ownedCardIds}));
+ await assertSucceeds(updateDoc(ref,{ownedCardIds:choose().ownedCardIds}));
+ await assertSucceeds(updateDoc(doc(teacher(),'profiles','s1'),{className:'2A'}));
+ await assertSucceeds(updateDoc(ref,{cardId:'nile-explorer-boy'}));
+ assert.equal((await getDoc(ref)).data().ownedCardIds.length,2);
+});
+test('simultaneous first choices cannot leave both roles or both Nile cards',async()=>{
+ const ref=doc(student(),'profiles','s1');
+ const results=await Promise.allSettled([updateDoc(ref,choose('studentBoy')),updateDoc(ref,choose('studentGirl'))]);
+ assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+ const stored=(await getDoc(ref)).data();
+ assert.deepEqual(stored.ownedCardIds,choose(stored.role).ownedCardIds);
+ assert.equal(stored.name,profile.name);
 });

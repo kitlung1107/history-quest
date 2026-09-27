@@ -28,6 +28,10 @@ const LocalHomeDemo = import.meta.env.DEV
   ? lazy(() => import("./pages/LocalHomeDemo"))
   : null;
 
+const RolePreview = import.meta.env.DEV
+  ? lazy(() => import("./pages/RolePreview"))
+  : null;
+
 function SessionContent({ children }: { children: React.ReactNode }) {
   const account = useOptionalStudentAccount();
   return (
@@ -53,6 +57,15 @@ function StudentArea({
 function Routes() {
   return (
     <Switch>
+      {RolePreview && (
+        <Route path="/__role-preview">
+          <Suspense fallback={<p>載入預覽…</p>}>
+            <ScoreSyncProvider>
+              <RolePreview />
+            </ScoreSyncProvider>
+          </Suspense>
+        </Route>
+      )}
       {LocalHomeDemo && (
         <Route path="/__home-demo">
           <Suspense fallback={<p>載入本機預覽…</p>}>
