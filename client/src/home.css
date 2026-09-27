@@ -22,6 +22,35 @@
   overflow-y: auto;
   scrollbar-width: thin;
 }
+.manga-home .sidebar-toolbar {
+  order: -2;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 8px 16px;
+  background: #fffaf0;
+  border-bottom: 1px solid #dfd2b5;
+}
+.manga-home .sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #b58b30;
+  border-radius: 8px;
+  background: #fff9e9;
+  color: #142b43;
+  font-weight: 700;
+  cursor: pointer;
+}
+.manga-home .sidebar-toggle:hover {
+  background: #ffedbb;
+}
+.manga-home .sidebar-toggle:focus-visible {
+  outline: 3px solid #147b80;
+  outline-offset: 3px;
+}
 .manga-home .pixel-label,
 .manga-sidebar .pixel-label {
   font-family: inherit;

@@ -154,11 +154,19 @@ function SidebarBody({
   );
 }
 
-export default function HistorySidebar(props: SidebarProps) {
+export default function HistorySidebar({
+  desktopOpen,
+  desktopId,
+  ...props
+}: SidebarProps & { desktopOpen: boolean; desktopId: string }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <aside className="history-sidebar hidden md:block">
+      <aside
+        id={desktopId}
+        aria-label="學生與年級選單"
+        className={`history-sidebar hidden ${desktopOpen ? "md:block" : ""}`}
+      >
         <SidebarBody {...props} />
       </aside>
       <div className="fixed left-4 top-4 z-50 md:hidden">
