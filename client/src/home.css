@@ -15,41 +15,82 @@
   border-right: 1px solid #dfd2b5;
   padding: 22px 20px;
 }
-.manga-home .history-sidebar {
-  position: sticky;
-  top: 0;
-  height: 100dvh;
-  overflow-y: auto;
-  scrollbar-width: thin;
+.desktop-sidebar-shell {
+  display: none;
 }
-.manga-home .sidebar-toolbar {
-  order: -2;
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  padding: 8px 16px;
-  background: #fffaf0;
-  border-bottom: 1px solid #dfd2b5;
+@media (min-width: 48rem) {
+  .manga-home .site-frame {
+    --desktop-sidebar-width: 260px;
+    display: grid;
+    grid-template-columns: 0px minmax(0, 1fr);
+    transition: grid-template-columns 300ms ease-in-out;
+  }
+  .manga-home .site-frame[data-sidebar-open="true"] {
+    grid-template-columns: var(--desktop-sidebar-width) minmax(0, 1fr);
+  }
+  .desktop-sidebar-shell {
+    display: block;
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    min-width: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: visibility 0s 300ms;
+  }
+  .manga-home .desktop-sidebar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: var(--desktop-sidebar-width);
+    height: 100%;
+    padding: 0;
+    transform: translateX(-100%);
+    transition: transform 300ms ease-in-out;
+  }
+  .desktop-sidebar-scroll {
+    min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+    padding: 22px 20px;
+  }
+  [data-sidebar-open="true"] .desktop-sidebar-shell {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  [data-sidebar-open="true"] .desktop-sidebar {
+    transform: translateX(0);
+  }
 }
-.manga-home .sidebar-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 8px 12px;
-  border: 1px solid #b58b30;
-  border-radius: 8px;
-  background: #fff9e9;
-  color: #142b43;
-  font-weight: 700;
+@media (min-width: 64rem) {
+  .manga-home .site-frame {
+    --desktop-sidebar-width: 280px;
+  }
+}
+.desktop-sidebar-close {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  z-index: 1;
+  display: grid;
+  align-items: start;
+  justify-items: end;
+  padding: 1px 2px;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
+  border-radius: 4px;
 }
-.manga-home .sidebar-toggle:hover {
-  background: #ffedbb;
+.desktop-sidebar-close:hover {
+  color: #147b80;
 }
-.manga-home .sidebar-toggle:focus-visible {
+.desktop-sidebar-close:focus-visible,
+.manga-home .mobile-menu:focus-visible {
   outline: 3px solid #147b80;
-  outline-offset: 3px;
+  outline-offset: -3px;
 }
 .manga-home .pixel-label,
 .manga-sidebar .pixel-label {

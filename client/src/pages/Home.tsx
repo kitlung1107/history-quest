@@ -6,7 +6,7 @@ import {
 } from "@/lib/siteSettings";
 import { filterTasks } from "@/lib/contentModel";
 import { imagePosition } from "@/lib/imagePosition";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   CalendarDays,
@@ -15,8 +15,6 @@ import {
   Flame,
   Gamepad2,
   Newspaper,
-  PanelLeftClose,
-  PanelLeftOpen,
   Sparkles,
   Trophy,
 } from "lucide-react";
@@ -52,8 +50,7 @@ export default function Home({
   const [activeGrade, setActiveGrade] = useState<number | null>(null);
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
-  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
-  const desktopSidebarId = useId();
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
   useEffect(() => {
     document.title = settings.title;
   }, [settings.title]);
@@ -91,11 +88,12 @@ export default function Home({
     <div className="manga-home min-h-screen">
       {student && (
         <div
-          className={`site-frame mx-auto min-h-screen max-w-[1600px] md:grid ${desktopSidebarOpen ? "md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[280px_minmax(0,1fr)]" : "md:grid-cols-1"}`}
+          className="site-frame mx-auto min-h-screen max-w-[1600px]"
+          data-sidebar-open={desktopSidebarOpen}
         >
           <HistorySidebar
             desktopOpen={desktopSidebarOpen}
-            desktopId={desktopSidebarId}
+            onDesktopOpenChange={setDesktopSidebarOpen}
             previewSettings={previewSettings}
             previewProfile={previewProfile}
             onChangeCharacter={onChangeCharacter}
@@ -115,22 +113,6 @@ export default function Home({
             }}
           />
           <main className="home-main min-w-0 pb-20 md:pb-6">
-            <div className="sidebar-toolbar hidden md:flex">
-              <button
-                type="button"
-                className="sidebar-toggle"
-                aria-expanded={desktopSidebarOpen}
-                aria-controls={desktopSidebarId}
-                onClick={() => setDesktopSidebarOpen(open => !open)}
-              >
-                {desktopSidebarOpen ? (
-                  <PanelLeftClose aria-hidden="true" className="h-5 w-5" />
-                ) : (
-                  <PanelLeftOpen aria-hidden="true" className="h-5 w-5" />
-                )}
-                {desktopSidebarOpen ? "收起側欄" : "顯示側欄"}
-              </button>
-            </div>
             <div className="home-status" role="status">
               {previewSettings ? (
                 "預覽模式 · 不儲存成績"

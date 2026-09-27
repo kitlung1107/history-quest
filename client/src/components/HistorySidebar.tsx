@@ -9,6 +9,7 @@ import {
   Menu,
   ShieldCheck,
   UserRoundCog,
+  X,
 } from "lucide-react";
 import { Link } from "wouter";
 import {
@@ -33,7 +34,7 @@ import {
 import ExplorerCard from "@/components/ExplorerCard";
 import { EXPLORER_CARDS } from "@/lib/cards";
 import { resolveCard } from "@/lib/cardModel";
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 type SidebarProps = {
   previewSettings?: typeof defaults;
@@ -66,7 +67,10 @@ function SidebarBody({
   return (
     <div className="flex h-full flex-col">
       <div className="collection-card-area">
-        <ExplorerCard card={card} profile={{ ...student, nickname: profile?.nickname }} />
+        <ExplorerCard
+          card={card}
+          profile={{ ...student, nickname: profile?.nickname }}
+        />
         {onChangeCharacter ? (
           <button className="change-character" onClick={onChangeCharacter}>
             更換卡片
@@ -156,29 +160,105 @@ function SidebarBody({
 
 export default function HistorySidebar({
   desktopOpen,
-  desktopId,
+  onDesktopOpenChange,
   ...props
-}: SidebarProps & { desktopOpen: boolean; desktopId: string }) {
+}: SidebarProps & {
+  desktopOpen: boolean;
+  onDesktopOpenChange: (open: boolean) => void;
+}) {
   const [open, setOpen] = useState(false);
+  const desktopId = useId();
+  const desktopTrigger = useRef<HTMLButtonElement>(null);
+  const mobileTrigger = useRef<HTMLButtonElement>(null);
+  const desktopPanel = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const wideScreen = window.matchMedia("(min-width: 48rem)");
+    const handleResize = () => {
+      // A mobile modal must release its overlay and scroll lock on wider screens.
+      if (wideScreen.matches) setOpen(false);
+      else if (desktopPanel.current?.contains(document.activeElement)) {
+        mobileTrigger.current?.focus();
+      }
+    };
+    wideScreen.addEventListener("change", handleResize);
+    return () => wideScreen.removeEventListener("change", handleResize);
+  }, []);
+
+  const closeDesktop = () => {
+    onDesktopOpenChange(false);
+    requestAnimationFrame(() => desktopTrigger.current?.focus());
+  };
+
   return (
     <>
-      <aside
-        id={desktopId}
-        aria-label="學生與年級選單"
-        className={`history-sidebar hidden ${desktopOpen ? "md:block" : ""}`}
+      <div className="desktop-sidebar-shell" inert={!desktopOpen}>
+        <aside
+          id={desktopId}
+          ref={desktopPanel}
+          className="history-sidebar desktop-sidebar"
+          aria-label="學生與年級選單"
+          onKeyDown={event => {
+            if (event.key === "Escape") {
+              event.stopPropagation();
+              closeDesktop();
+            }
+          }}
+        >
+          <button
+            type="button"
+            className="desktop-sidebar-close"
+            aria-label="關閉年級選單"
+            onClick={closeDesktop}
+          >
+            <X aria-hidden="true" className="h-5 w-5" />
+          </button>
+          <div className="desktop-sidebar-scroll">
+            <SidebarBody {...props} />
+          </div>
+        </aside>
+      </div>
+      <div
+        className={`fixed left-4 top-4 z-40 hidden ${desktopOpen ? "" : "md:block"}`}
       >
-        <SidebarBody {...props} />
-      </aside>
+        <button
+          ref={desktopTrigger}
+          type="button"
+          className="mobile-menu"
+          aria-label="開啟年級選單"
+          aria-expanded={desktopOpen}
+          aria-controls={desktopId}
+          onClick={() => onDesktopOpenChange(true)}
+        >
+          <Menu aria-hidden="true" />
+        </button>
+      </div>
       <div className="fixed left-4 top-4 z-50 md:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <button className="mobile-menu" aria-label="開啟年級選單">
-              <Menu />
+            <button
+              ref={mobileTrigger}
+              type="button"
+              className="mobile-menu"
+              aria-label="開啟年級選單"
+            >
+              <Menu aria-hidden="true" />
             </button>
           </SheetTrigger>
           <SheetContent
             side="left"
             className="history-sidebar manga-sidebar w-[88vw] max-w-sm p-0"
+            onCloseAutoFocus={event => {
+              if (window.matchMedia("(min-width: 48rem)").matches) {
+                event.preventDefault();
+                const target = desktopOpen
+                  ? desktopPanel.current?.querySelector<HTMLButtonElement>(
+                      "button"
+                    )
+                  : desktopTrigger.current;
+                target?.focus();
+              }
+            }}
           >
             <SheetTitle className="sr-only">學生與年級選單</SheetTitle>
             <SheetDescription className="sr-only">
