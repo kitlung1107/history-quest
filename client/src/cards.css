@@ -1,10 +1,19 @@
 .explorer-card-figure { margin: 0; min-width: 0; }
 .explorer-card { position: relative; width: 100%; color: #10243c; }
 .explorer-card > img { display: block; width: 100%; height: auto; border-radius: 10px; }
-.explorer-card-nickname, .explorer-card-identity { position: absolute; display: flex; align-items: center; justify-content: center; font-family: "Microsoft JhengHei", sans-serif; font-weight: 800; text-align: center; overflow: hidden; line-height: 1.12; overflow-wrap: anywhere; }
+.explorer-card-label { position: absolute; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: transparent; color: inherit; font-family: "Microsoft JhengHei", sans-serif; font-weight: 800; text-align: center; overflow: hidden; line-height: 1; overflow-wrap: anywhere; cursor: pointer; }
+.explorer-card-label-text { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; width: 100%; max-height: 100%; }
+.explorer-card-label-measure { position: absolute; top: 0; left: 0; width: 100%; height: auto; visibility: hidden; pointer-events: none; }
+.explorer-card-label[data-truncated="true"] .explorer-card-label-text { text-decoration: underline dotted; text-underline-offset: 2px; }
+.explorer-card-label:focus-visible { outline: 2px solid #147b80; outline-offset: -2px; border-radius: 3px; }
 .explorer-card-nickname { left: 14%; top: 3.6%; width: 47%; height: 6.7%; }
-.explorer-card-identity { left: 27%; top: 90.3%; width: 45%; height: 4.8%; display: block; align-content: center; white-space: nowrap; text-overflow: ellipsis; }
-.explorer-card-full-text, .explorer-card-unavailable { padding: 10px; background: #fff7df; border: 1px solid #ddc994; border-radius: 8px; overflow-wrap: anywhere; font-size: 13px; }
+.explorer-card-identity { left: 27%; top: 90.3%; width: 45%; height: 4.8%; }
+.explorer-card-unavailable { padding: 10px; background: #fff7df; border: 1px solid #ddc994; border-radius: 8px; overflow-wrap: anywhere; font-size: 13px; }
+.explorer-card-text-popover { max-width: calc(100vw - 24px); background: #fff9e9; color: #142b43; border-color: #dfd2b5; }
+.explorer-card-text-value { margin-top: 8px; max-height: min(50dvh, 320px); overflow-y: auto; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
+.explorer-card-text-close { display: block; margin: 12px 0 0 auto; min-width: 44px; min-height: 44px; padding: 8px 12px; border: 1px solid #b58b30; border-radius: 6px; cursor: pointer; }
+.explorer-card-text-close:focus-visible { outline: 2px solid #147b80; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .explorer-card-text-popover { animation: none !important; transition: none !important; } }
 .explorer-card-unavailable { min-height: 160px; display: grid; align-content: center; gap: 12px; }
 .collection-card-area { margin-bottom: 8px; text-align: center; }
 .collection-card-area .change-character { margin-top: 12px; }

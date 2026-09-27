@@ -18,6 +18,15 @@ const example: CloudProfile = {
 /** Dev-only route, no AccountGate/provider and no cloud writes. Production excludes this module. */
 export default function LocalHomeDemo() {
   const [profile, setProfile] = useState<CloudProfile>(() => {
+    // Explicit, synthetic text samples for the development-only preview.
+    const sample = new URLSearchParams(location.search).get("labels");
+    if (sample === "short") return { ...example, nickname: "小探員", name: "示範生" };
+    if (sample === "long") return { ...example, nickname: "星海航路歷史探索小隊", name: "示範學生甲乙丙丁" };
+    if (sample === "extreme") return {
+      ...example,
+      nickname: "星海航路歷史探索小隊".repeat(6),
+      name: "示範學生甲乙丙丁".repeat(6),
+    };
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
       return saved
