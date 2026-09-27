@@ -49,7 +49,6 @@ export default function Home({
     : account?.profile || null;
   const [activeGrade, setActiveGrade] = useState<number | null>(null);
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
   useEffect(() => {
     document.title = settings.title;
@@ -57,7 +56,6 @@ export default function Home({
   const changeGrade = (grade: number | null) => {
     setActiveGrade(grade);
     setActiveTopic(null);
-    setShowAll(grade === null);
   };
   const [selectedTask, setSelectedTask] = useState<HistoryTask | null>(null);
   const { progress, syncing, syncError, retry } = useScoreSync();
@@ -66,18 +64,15 @@ export default function Home({
       filterTasks(
         previewTasks || HISTORY_TASKS,
         activeGrade,
-        activeTopic,
-        showAll
+        activeTopic
       ),
-    [activeGrade, activeTopic, showAll, previewTasks]
+    [activeGrade, activeTopic, previewTasks]
   );
   const sectionTitle = activeTopic
     ? PUBLIC_TOPICS.find(topic => topic.id === activeTopic)?.title
     : activeGrade !== null
       ? gradeTitle(activeGrade)
-      : showAll
-        ? settings.allHeading
-        : settings.featuredHeading;
+      : settings.allHeading;
   const completed = completedTaskCount(progress);
   const points = Object.values(progress).reduce(
     (total, item) => total + Math.round(item.score * 1.28),
@@ -100,12 +95,6 @@ export default function Home({
             student={student}
             activeGrade={activeGrade}
             onGradeChange={changeGrade}
-            showAll={showAll}
-            onFeatured={() => {
-              setActiveGrade(null);
-              setActiveTopic(null);
-              setShowAll(false);
-            }}
             activeTopic={activeTopic}
             onTopicChange={(grade, topic) => {
               setActiveGrade(grade);

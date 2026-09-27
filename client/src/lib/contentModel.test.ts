@@ -52,7 +52,7 @@ test("renaming or moving a topic preserves task and score identity", () => {
   assert.equal(tasks[0].grade, 3);
 });
 
-test("featured homepage, all tasks, grade and specific topic are distinct", () => {
+test("homepage includes all tasks regardless of featured flag; grade and topic filters still apply", () => {
   const tasks = publicTasks(
     [entry("a", "ancient", 20, true), entry("b", "modern", 10)],
     publicTopics(topics, grades)
@@ -62,14 +62,13 @@ test("featured homepage, all tasks, grade and specific topic are distinct", () =
     ["b", "a"]
   );
   assert.deepEqual(
-    filterTasks(tasks, null, null, false).map(t => t.id),
-    ["a"]
+    filterTasks(tasks, null, null).map(t => t.id),
+    ["b", "a"]
   );
-  assert.equal(filterTasks(tasks, null, null, true).length, 2);
   assert.deepEqual(
-    filterTasks(tasks, 1, "modern", false).map(t => t.id),
+    filterTasks(tasks, 1, "modern").map(t => t.id),
     ["b"]
   );
-  assert.equal(filterTasks(tasks, 1, null, false).length, 2);
-  assert.equal(filterTasks(tasks, 2, null, false).length, 0);
+  assert.equal(filterTasks(tasks, 1, null).length, 2);
+  assert.equal(filterTasks(tasks, 2, null).length, 0);
 });

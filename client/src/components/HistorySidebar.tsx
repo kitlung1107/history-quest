@@ -43,8 +43,6 @@ type SidebarProps = {
   student: StudentProfile;
   activeGrade: number | null;
   activeTopic: string | null;
-  showAll: boolean;
-  onFeatured: () => void;
   onGradeChange: (grade: number | null) => void;
   onTopicChange: (grade: number, topic: string) => void;
 };
@@ -54,13 +52,10 @@ function SidebarBody({
   activeTopic,
   onGradeChange,
   onTopicChange,
-  showAll,
-  onFeatured,
   previewSettings,
   previewProfile,
   onChangeCharacter,
 }: SidebarProps) {
-  const settings = previewSettings || defaults;
   const account = useOptionalStudentAccount();
   const profile = previewProfile || account?.profile;
   const card = resolveCard(EXPLORER_CARDS, profile?.cardId, profile);
@@ -119,13 +114,7 @@ function SidebarBody({
         })}
       </Accordion>
       <button
-        className={`all-button ${activeGrade === null && !showAll ? "is-active" : ""}`}
-        onClick={onFeatured}
-      >
-        {settings.featuredHeading}
-      </button>
-      <button
-        className={`all-button ${activeGrade === null && showAll ? "is-active" : ""}`}
+        className={`all-button ${activeGrade === null ? "is-active" : ""}`}
         onClick={() => onGradeChange(null)}
       >
         <Grid2X2 className="h-5 w-5" />
@@ -271,9 +260,9 @@ export default function HistorySidebar({
                   props.onTopicChange(grade, topic);
                   setOpen(false);
                 }}
-                onFeatured={() => {
-                  props.onFeatured();
-                  setOpen(false);
+                onGradeChange={grade => {
+                  props.onGradeChange(grade);
+                  if (grade === null) setOpen(false);
                 }}
                 onChangeCharacter={
                   props.onChangeCharacter

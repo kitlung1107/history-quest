@@ -55,7 +55,6 @@ export function validateContent() {
       heroPosition: imagePosition,
       heroAlt: text,
       studentHeading: text,
-      featuredHeading: text,
       allHeading: text,
       emptyMessage: text,
       showTopicCards: z.boolean(),

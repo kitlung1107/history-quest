@@ -40,13 +40,13 @@ export function publicTasks<T extends TaskEntry>(tasks: T[], topics: Topic[]) {
 }
 
 export function filterTasks<
-  T extends { topicId: string; grade: number; featured: boolean },
->(tasks: T[], grade: number | null, topic: string | null, showAll: boolean) {
+  T extends { topicId: string; grade: number },
+>(tasks: T[], grade: number | null, topic: string | null) {
   return tasks.filter(task =>
     topic
       ? task.topicId === topic
       : grade !== null
         ? task.grade === grade
-        : showAll || task.featured
+        : true
   );
 }

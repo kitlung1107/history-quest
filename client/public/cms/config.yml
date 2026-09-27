@@ -86,7 +86,6 @@ collections:
               hint: "供讀屏工具使用，簡單描述圖片內容。",
             }
           - { label: 學生報到區標題, name: studentHeading, widget: string }
-          - { label: 首頁精選標題, name: featuredHeading, widget: string }
           - { label: 全部任務標題, name: allHeading, widget: string }
           - { label: 沒有任務時的提示, name: emptyMessage, widget: text }
           - {

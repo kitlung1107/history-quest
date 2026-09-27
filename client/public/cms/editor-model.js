@@ -72,7 +72,6 @@
         "subtitle",
         "englishTitle",
         "studentHeading",
-        "featuredHeading",
         "allHeading",
         "emptyMessage",
         "dailyLabel",
