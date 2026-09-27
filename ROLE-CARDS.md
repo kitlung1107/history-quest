@@ -41,3 +41,17 @@
 - 啟動 Firestore emulator 後設定 `FIRESTORE_EMULATOR_HOST=127.0.0.1:8181`，執行 `node --test --test-isolation=none scripts/cloud-rules.test.mjs`
 - `node scripts/role-ui-check.cjs`（需 Playwright 及 Edge；可設定 PLAYWRIGHT_MODULE）
 - `npm run check`、`npm run build`
+
+## 2026-09-27 雲端規則部署前檢查
+
+本次使用者授權只部署 Firestore 規則；沒有授權此輪部署網站前端。檢查結果：**因已確認的前端相容性阻礙，沒有部署，也沒有改動任何雲端規則或學生資料。**
+
+- Firebase 設定專案：`history-discovery-center`；CLI 登入：`kitlung1107@gmail.com`，與網站設定一致。
+- 現行 release：`projects/history-discovery-center/releases/cloud.firestore`。
+- 現行 ruleset：`projects/history-discovery-center/rulesets/c4f121c8-99ce-40df-867b-21c7e3fde8c7`。
+- 備份目錄：`tmp/rules-backup-2026-09-27T06-19-58-734Z/`，含 `firestore.rules`、`source.json`、`release.json` 及讀取的線上前端檔案。舊規則 SHA-256：`2a1c4cd3c7a6c914a27ea88743e8163d95def98dcac366ca509c162d8a238815`。備份位於 git-ignored tmp，留在本機供回復，不會混入提交。
+- 線上前端仍為 `assets/index-D36ADmTn.js`，不含 `ownedCardIds`、首次選角或新手卡。其實際儲存 payload 為 nickname、avatar、cardId、configured，沒有角色及收藏清單。
+- 模擬器重現：上述舊版 payload 在現行規則成功，在本次新規則得到 permission-denied；2 項相容性檢查通過。另重新執行 21 項規則測試全部通過。證據：`tmp/role-deploy-compatibility.log`、`tmp/role-rules-test.log`。
+- 因此不可單獨先部署本次嚴格規則而保持現行網站不變。應安排前端及規則同一上線窗口，處理舊頁面重載；單純放行舊版任意 avatar/cardId 寫入會繼續繞過新選角及收藏要求，不作為正式方案。
+
+最終學生可見尼羅河卡名稱為「尼羅河探險 (女)」與「尼羅河探險 (男)」，ID 不變。選角後不顯示固定角色欄，底層限制仍然保留。
