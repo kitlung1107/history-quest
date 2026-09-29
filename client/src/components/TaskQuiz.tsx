@@ -118,7 +118,7 @@ export default function TaskQuiz({
               {result[index].awarded === null
                 ? "待老師批改"
                 : `本題 ${result[index].awarded} / ${q.points} 分`}{" "}
-              · {q.explanation}
+              {q.explanation && <> · {q.explanation}</>}
             </p>
           )}
         </fieldset>

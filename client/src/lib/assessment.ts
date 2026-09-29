@@ -6,7 +6,7 @@ export type Question = {
   points: number;
   options?: string[];
   answer?: number;
-  explanation: string;
+  explanation?: string;
 };
 export type Answer = { question_id: string; value: string | number };
 export type AnswerRecord = {
@@ -49,7 +49,7 @@ export function getQuestions(task: {
     explanation: string;
   };
 }): Question[] {
-  if (task.questions?.length) return task.questions;
+  if (Array.isArray(task.questions)) return task.questions;
   return task.question
     ? [{ ...task.question, id: "q1", type: "choice", points: 100 }]
     : [];
@@ -95,7 +95,7 @@ export function markAnswers(
         q.type === "choice" ? q.options![Number(value)] : String(value).trim(),
       points: q.points,
       awarded: q.type === "short" ? null : value === q.answer ? q.points : 0,
-      explanation: q.explanation,
+      explanation: q.explanation || "",
       feedback: "",
     };
   });

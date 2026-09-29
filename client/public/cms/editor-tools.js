@@ -170,6 +170,14 @@
               {},
               `中${topic.grade} · ${topic.title}${!topic.visible || !topic.gradeVisible ? "（課題或年級已隱藏，學生不會看到此任務）" : ""}`
             ),
+          kind === "tasks" &&
+            d.type === "game" &&
+            (d.questions?.length || d.question) &&
+            h(
+              "p",
+              {},
+              `已保留 ${d.questions?.length || 1} 題舊版測驗供歷史成績核算；學生遊戲頁不會顯示這些題目。`
+            ),
           h(
             "p",
             {},

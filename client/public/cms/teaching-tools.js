@@ -78,7 +78,13 @@
       },
     });
   }
-  CMS.registerPreviewTemplate("tasks", template("tasks"));
+  for (const collection of [
+    "tasks",
+    "tasks_article",
+    "tasks_game",
+    "tasks_quiz",
+  ])
+    CMS.registerPreviewTemplate(collection, template("tasks"));
   CMS.registerPreviewTemplate("site", template("site"));
   // A normal same-origin iframe also works in browsers that cannot load the
   // CMS preview pane's blob document. This control never changes saved data.
@@ -118,18 +124,28 @@
   CMS.registerEventListener({
     name: "preSave",
     handler: ({ entry }) => {
-      const kind =
-        entry.get("collection") === "tasks"
-          ? "tasks"
-          : entry.get("data").get("hero") !== undefined
-            ? "site"
-            : null;
+      const kind = [
+        "tasks",
+        "tasks_article",
+        "tasks_game",
+        "tasks_quiz",
+      ].includes(entry.get("collection"))
+        ? "tasks"
+        : entry.get("data").get("hero") !== undefined
+          ? "site"
+          : null;
       if (!kind) return;
       let data = entry.get("data");
       const raw = data.toJS();
       let flat = raw._tools?.restore
         ? HQEditor.restore(raw, raw._tools.restore, kind)
         : HQEditor.flatten(raw);
+      const expectedType = entry.get("collection").replace(/^tasks_/, "");
+      if (
+        ["article", "game", "quiz"].includes(expectedType) &&
+        flat.type !== expectedType
+      )
+        throw new Error("任務類型與目前入口不符，請從正確入口編輯。");
       const errors = HQEditor.issues(flat, kind);
       if (errors.length) throw new Error(errors.join("\n"));
       if (kind === "site") {
@@ -138,20 +154,6 @@
           data = data.set(key, value);
         return data.delete("_tools").delete("_preview");
       }
-      const questions = flat.questions || [];
-      if (
-        !questions.length ||
-        new Set(questions.map(q => q.id)).size !== questions.length
-      )
-        throw new Error("請加入題目，並確保每題識別碼不同。");
-      for (const q of questions)
-        if (
-          q.type === "choice" &&
-          (!Number.isInteger(q.answer) ||
-            q.answer < 0 ||
-            q.answer >= (q.options?.length || 0))
-        )
-          throw new Error("選擇題的正確答案序號超出選項範圍。");
       if (entry.get("newRecord")) {
         // Native Duplicate creates a new record. Give it a distinct score identity,
         // and keep the first save hidden until the teacher explicitly publishes it.

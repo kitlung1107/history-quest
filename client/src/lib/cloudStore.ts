@@ -31,6 +31,7 @@ export async function syncCatalogue() {
   const batch = writeBatch(db);
   for (const task of HISTORY_TASKS) {
     const questions = getQuestions(task);
+    if (!questions.length) continue;
     batch.set(doc(db,"catalogue",`${task.id}--${assessmentVersion(questions)}`), {questions,title:task.title});
   }
   await batch.commit();

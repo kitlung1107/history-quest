@@ -1,4 +1,6 @@
 import TaskQuiz from "./TaskQuiz";
+import TaskTypeLabel from "./TaskTypeLabel";
+import { getQuestions } from "@/lib/assessment";
 import { mediaUrl } from "@/lib/siteSettings";
 /**
  * 閱讀體驗是一張可展開的報紙漫畫內頁；測驗完成後一次提交全部答案。
@@ -63,6 +65,7 @@ export default function TaskModal({
   const completed = progress[task.id]?.progress === 100;
   const videoEmbed = toEmbedUrl(task.videoUrl);
   const gameEmbed = toEmbedUrl(task.gameUrl);
+  const hasQuiz = task.type !== "game" && getQuestions(task).length > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -76,8 +79,7 @@ export default function TaskModal({
           />
           <div className="relative z-10 p-6 md:p-9">
             <span className="comic-kicker inline-flex items-center gap-2">
-              <Gamepad2 className="h-4 w-4" />
-              {task.label}
+              <TaskTypeLabel type={task.type} />
             </span>
             <DialogHeader className="mt-4 text-left">
               <DialogTitle className="display-title max-w-2xl text-4xl text-ink md:text-5xl">
@@ -98,7 +100,7 @@ export default function TaskModal({
               {completed && (
                 <span className="meta-chip bg-teal text-white">
                   <CheckCircle2 className="h-4 w-4" />
-                  {gameEmbed ? "網站快問已完成" : "已完成"}
+                  {task.type === "game" ? "舊版測驗已完成" : "已完成"}
                 </span>
               )}
             </div>
@@ -112,9 +114,11 @@ export default function TaskModal({
                 史料已準備好
               </h3>
               <p className="mx-auto mt-3 max-w-xl text-ink/70">
-                {gameEmbed
-                  ? "進入互動遊戲探索，再完成網站快問。網站只記錄快問成績及任務進度，遊戲內表現不會傳送至教師後台。"
-                  : "閱讀資料後完成測驗，再提交全部答案。短答題由老師批改。"}
+                {task.type === "game"
+                  ? "進入互動遊戲探索。遊戲內表現不會傳送至教師後台。"
+                  : hasQuiz
+                    ? "完成測驗後提交全部答案。短答題由老師批改。"
+                    : "開啟文章，閱讀資料與觀看影片。"}
               </p>
               <button
                 className={`pixel-button mt-7 ${task.accent === "red" ? "pixel-button-red" : task.accent === "gold" ? "pixel-button-gold" : "pixel-button-teal"}`}
@@ -128,9 +132,11 @@ export default function TaskModal({
             <div
               className={`mx-auto ${gameEmbed ? "max-w-none" : "max-w-3xl"}`}
             >
-              <article className="history-prose">
-                <Streamdown>{task.article}</Streamdown>
-              </article>
+              {task.article && (
+                <article className="history-prose">
+                  <Streamdown>{task.article}</Streamdown>
+                </article>
+              )}
               {videoEmbed && (
                 <div className="embed-frame mt-7">
                   <iframe
@@ -170,17 +176,20 @@ export default function TaskModal({
                     />
                   </div>
                   <p className="mt-4 text-sm font-bold text-ink/75">
-                    遊戲成績與下方網站快問分開；教師後台只接收網站快問成績。
+                    遊戲內成績不會傳送至教師後台。
                   </p>
                 </section>
               )}
-              <TaskQuiz
-                key={task.id}
-                task={task}
-                preview={
-                  preview || new URLSearchParams(location.search).has("preview")
-                }
-              />
+              {hasQuiz && (
+                <TaskQuiz
+                  key={task.id}
+                  task={task}
+                  preview={
+                    preview ||
+                    new URLSearchParams(location.search).has("preview")
+                  }
+                />
+              )}
             </div>
           )}
         </div>

@@ -9,6 +9,7 @@ import {
   assessmentVersion,
   missingStudents,
   filterSubmissions,
+  getQuestions,
 } from "../client/src/lib/assessment.ts";
 import { parseRoster, csvText } from "../client/src/lib/csv.ts";
 
@@ -34,6 +35,20 @@ const answers = [
   { question_id: "q1", value: 0 },
   { question_id: "q2", value: "我的分析" },
 ];
+test("an explicitly removed quiz stays empty and optional explanations produce valid records", () => {
+  assert.deepEqual(getQuestions({ question: questions[0], questions: [] }), []);
+  assert.equal(getQuestions({ question: questions[0] })[0].id, "q1");
+  const withoutExplanation = questions.map(
+    ({ explanation, ...question }) => question
+  );
+  assert.equal(
+    assessmentVersion(withoutExplanation),
+    assessmentVersion(withoutExplanation.map(q => ({ ...q, explanation: "" })))
+  );
+  assert.ok(
+    markAnswers(withoutExplanation, answers).every(a => a.explanation === "")
+  );
+});
 function harness() {
   const props = new Map([
     ["HQ_PIN_SHA256", createHash("sha256").update("123456").digest("hex")],
@@ -164,19 +179,37 @@ test("migrated salted PIN stays valid and legacy clients keep read/write compati
   const { ctx, post, teacher } = harness();
   const properties = ctx.PropertiesService.getScriptProperties();
   properties.setProperty("HQ_PIN_SALT", "legacy-salt:");
-  properties.setProperty("HQ_PIN_SHA256", createHash("sha256").update("legacy-salt:123456").digest("hex"));
+  properties.setProperty(
+    "HQ_PIN_SHA256",
+    createHash("sha256").update("legacy-salt:123456").digest("hex")
+  );
   assert.equal(teacher({ action: "admin" }).ok, true);
   assert.equal(post({ action: "admin", pin: "000000" }).ok, false);
-  const old = { task_id: "test-task", attempt_id: "old-client-attempt", class_name: "3A", student_name: "示範學生", student_no: "01", score: 75, progress: 50 };
-  const submit = () => ctx.doPost({ postData: { contents: JSON.stringify(old) } });
+  const old = {
+    task_id: "test-task",
+    attempt_id: "old-client-attempt",
+    class_name: "3A",
+    student_name: "示範學生",
+    student_no: "01",
+    score: 75,
+    progress: 50,
+  };
+  const submit = () =>
+    ctx.doPost({ postData: { contents: JSON.stringify(old) } });
   assert.equal(submit().ok, true);
   assert.equal(submit().duplicate, true);
   const result = ctx.doGet({ parameter: { action: "admin", pin: "123456" } });
   assert.equal(result.ok, true);
   assert.equal(result.tasks[0].rows[0].progress, 50);
   assert.equal(result.tasks[0].rows[0].status, "legacy");
-  assert.equal(ctx.doGet({ parameter: { action: "admin", pin: "000000" } }).ok, false);
-  assert.equal(ctx.doGet({ parameter: { action: "capabilities" } }).api_version, 2);
+  assert.equal(
+    ctx.doGet({ parameter: { action: "admin", pin: "000000" } }).ok,
+    false
+  );
+  assert.equal(
+    ctx.doGet({ parameter: { action: "capabilities" } }).api_version,
+    2
+  );
 });
 
 test("long short-answer submissions survive Sheets cell limits and grading", () => {
@@ -472,51 +505,137 @@ test("legacy score tabs are read without being overwritten", () => {
   assert.equal(old.cells.length, 2);
 });
 
-test('class options retain junior classes and group senior and external students',async()=>{
- const { CLASS_OPTIONS }=await import('../client/src/lib/classOptions.ts');
- const { parseAccountRoster }=await import('../client/src/lib/csv.ts');
- assert.deepEqual(CLASS_OPTIONS,[...Array.from({length:3},(_,i)=>['A','B','C','D','E'].map(c=>`${i+1}${c}`)).flat(),'S4','S5','S6','Other']);
- for(const className of ['1A','3E','S4','S5','S6','Other']) {
-  assert.equal(parseAccountRoster(`email,班別,學號,姓名\ntest@gmail.com,${className},01,測試學生`)[0].className,className);
- }
- assert.equal(parseAccountRoster('email,班別,學號,姓名\ntest@gmail.com,other,01,測試學生')[0].className,'Other');
- for(const className of ['4A','5B','6E','S3','S7','3F'])assert.throws(()=>parseAccountRoster(`email,班別,學號,姓名\ntest@gmail.com,${className},01,測試學生`));
+test("class options retain junior classes and group senior and external students", async () => {
+  const { CLASS_OPTIONS } = await import("../client/src/lib/classOptions.ts");
+  const { parseAccountRoster } = await import("../client/src/lib/csv.ts");
+  assert.deepEqual(CLASS_OPTIONS, [
+    ...Array.from({ length: 3 }, (_, i) =>
+      ["A", "B", "C", "D", "E"].map(c => `${i + 1}${c}`)
+    ).flat(),
+    "S4",
+    "S5",
+    "S6",
+    "Other",
+  ]);
+  for (const className of ["1A", "3E", "S4", "S5", "S6", "Other"]) {
+    assert.equal(
+      parseAccountRoster(
+        `email,班別,學號,姓名\ntest@gmail.com,${className},01,測試學生`
+      )[0].className,
+      className
+    );
+  }
+  assert.equal(
+    parseAccountRoster(
+      "email,班別,學號,姓名\ntest@gmail.com,other,01,測試學生"
+    )[0].className,
+    "Other"
+  );
+  for (const className of ["4A", "5B", "6E", "S3", "S7", "3F"])
+    assert.throws(() =>
+      parseAccountRoster(
+        `email,班別,學號,姓名\ntest@gmail.com,${className},01,測試學生`
+      )
+    );
 });
 
-test('senior filters include legacy classes without merging same-number students',async()=>{
- const { displayClass, matchesClass }=await import('../client/src/lib/classOptions.ts');
- assert.deepEqual(['3A','4A','4B','S4','5E','6C','Other'].map(displayClass),['3A','S4','S4','S4','S5','S6','Other']);
- const roster=[
-  {class_name:'4A',student_no:'01',student_name:'甲同學'},
-  {class_name:'4B',student_no:'01',student_name:'乙同學'},
-  {class_name:'S4',student_no:'02',student_name:'丙同學'},
-  {class_name:'5A',student_no:'01',student_name:'丁同學'},
-  {class_name:'3A',student_no:'01',student_name:'戊同學'},
- ];
- const rows=roster.map((s,i)=>({...s,attempt_id:`attempt-${i}`,task_id:'task',timestamp:'2026-09-26T01:00:00Z',progress:100}));
- const original=JSON.stringify({roster,rows});
- const filters={task:'',className:'S4',search:'',from:'',to:'',status:''};
- assert.deepEqual(filterSubmissions(rows,filters).map(s=>s.student_name),['甲同學','乙同學','丙同學']);
- assert.deepEqual(roster.filter(s=>matchesClass(s.class_name,'S4')).map(s=>s.student_name),['甲同學','乙同學','丙同學']);
- assert.deepEqual(missingStudents(roster,[rows[0]],'task','S4').map(s=>s.student_name),['乙同學','丙同學']);
- assert.equal(filterSubmissions(rows,{...filters,className:'S5'}).length,1);
- assert.equal(filterSubmissions(rows,{...filters,className:'3B'}).length,0);
- assert.equal(filterSubmissions(rows,{...filters,className:''}).length,5);
- assert.equal(JSON.stringify({roster,rows}),original);
+test("senior filters include legacy classes without merging same-number students", async () => {
+  const { displayClass, matchesClass } = await import(
+    "../client/src/lib/classOptions.ts"
+  );
+  assert.deepEqual(
+    ["3A", "4A", "4B", "S4", "5E", "6C", "Other"].map(displayClass),
+    ["3A", "S4", "S4", "S4", "S5", "S6", "Other"]
+  );
+  const roster = [
+    { class_name: "4A", student_no: "01", student_name: "甲同學" },
+    { class_name: "4B", student_no: "01", student_name: "乙同學" },
+    { class_name: "S4", student_no: "02", student_name: "丙同學" },
+    { class_name: "5A", student_no: "01", student_name: "丁同學" },
+    { class_name: "3A", student_no: "01", student_name: "戊同學" },
+  ];
+  const rows = roster.map((s, i) => ({
+    ...s,
+    attempt_id: `attempt-${i}`,
+    task_id: "task",
+    timestamp: "2026-09-26T01:00:00Z",
+    progress: 100,
+  }));
+  const original = JSON.stringify({ roster, rows });
+  const filters = {
+    task: "",
+    className: "S4",
+    search: "",
+    from: "",
+    to: "",
+    status: "",
+  };
+  assert.deepEqual(
+    filterSubmissions(rows, filters).map(s => s.student_name),
+    ["甲同學", "乙同學", "丙同學"]
+  );
+  assert.deepEqual(
+    roster
+      .filter(s => matchesClass(s.class_name, "S4"))
+      .map(s => s.student_name),
+    ["甲同學", "乙同學", "丙同學"]
+  );
+  assert.deepEqual(
+    missingStudents(roster, [rows[0]], "task", "S4").map(s => s.student_name),
+    ["乙同學", "丙同學"]
+  );
+  assert.equal(
+    filterSubmissions(rows, { ...filters, className: "S5" }).length,
+    1
+  );
+  assert.equal(
+    filterSubmissions(rows, { ...filters, className: "3B" }).length,
+    0
+  );
+  assert.equal(
+    filterSubmissions(rows, { ...filters, className: "" }).length,
+    5
+  );
+  assert.equal(JSON.stringify({ roster, rows }), original);
 });
 
-test('report exports group senior classes and preserve original identity and columns',async()=>{
- const { submissionExport }=await import('../client/src/lib/teachingExport.ts');
- const source=['3A','4A','4B','S5','Other'].map((class_name,i)=>({class_name,student_no:'01',student_name:`學生${i}`,timestamp:'2026-09-26',task_id:'task',score:0,status:'pending',answers:[{prompt:'問題',response:'答案',awarded:0,points:10,feedback:''}]}));
- const before=JSON.stringify(source);
- for(const detailed of [false,true]) {
-  const [header,...rows]=submissionExport(source,detailed);
-  assert.equal(rows.length,5);
-  assert.deepEqual(rows.map(r=>r[1]),['3A','S4','S4','S5','Other']);
-  assert.deepEqual(rows.map(r=>r[2]),['3A','4A','4B','S5','Other']);
-  assert.ok(rows.every(r=>r.length===header.length));
-  assert.ok(rows.every(r=>r[3]==='01'));
-  assert.equal(rows[0][detailed?8:6],0);
- }
- assert.equal(JSON.stringify(source),before);
+test("report exports group senior classes and preserve original identity and columns", async () => {
+  const { submissionExport } = await import(
+    "../client/src/lib/teachingExport.ts"
+  );
+  const source = ["3A", "4A", "4B", "S5", "Other"].map((class_name, i) => ({
+    class_name,
+    student_no: "01",
+    student_name: `學生${i}`,
+    timestamp: "2026-09-26",
+    task_id: "task",
+    score: 0,
+    status: "pending",
+    answers: [
+      {
+        prompt: "問題",
+        response: "答案",
+        awarded: 0,
+        points: 10,
+        feedback: "",
+      },
+    ],
+  }));
+  const before = JSON.stringify(source);
+  for (const detailed of [false, true]) {
+    const [header, ...rows] = submissionExport(source, detailed);
+    assert.equal(rows.length, 5);
+    assert.deepEqual(
+      rows.map(r => r[1]),
+      ["3A", "S4", "S4", "S5", "Other"]
+    );
+    assert.deepEqual(
+      rows.map(r => r[2]),
+      ["3A", "4A", "4B", "S5", "Other"]
+    );
+    assert.ok(rows.every(r => r.length === header.length));
+    assert.ok(rows.every(r => r[3] === "01"));
+    assert.equal(rows[0][detailed ? 8 : 6], 0);
+  }
+  assert.equal(JSON.stringify(source), before);
 });

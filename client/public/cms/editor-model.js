@@ -16,6 +16,15 @@
   };
   function flatten(input) {
     const data = { ...input };
+    // Clearing an optional assessment must not revive the legacy single question.
+    if (Object.hasOwn(data, "assessment") && data.assessment === null)
+      data.questions = [];
+    else if (
+      data.assessment &&
+      Object.hasOwn(data.assessment, "questions") &&
+      data.assessment.questions == null
+    )
+      data.assessment = { ...data.assessment, questions: [] };
     for (const [group, keys] of Object.entries(groups)) {
       if (data[group])
         for (const key of keys) {
@@ -88,9 +97,9 @@
       errors.push("任務識別碼須為 3–80 個英文字母、數字、底線或連字號。");
     need("topicId", "所屬課題");
     need("description", "卡片簡介");
-    need("article", "教材內容");
+    if (d.type === "article") need("article", "文章正文");
+    if (d.type === "game") need("gameUrl", "遊戲連結");
     image("image", "封面圖片");
-    need("label", "漫畫標籤");
     if (!["teal", "red", "gold"].includes(d.accent))
       errors.push("請選擇功能色。");
     if (typeof d.visible !== "boolean" || typeof d.featured !== "boolean")
@@ -128,8 +137,14 @@
       (d.question
         ? [{ ...d.question, id: "q1", type: "choice", points: 10 }]
         : []);
-    if (!Array.isArray(qs) || !qs.length || qs.length > 30)
-      errors.push("請加入 1–30 題測驗。");
+    if (
+      !Array.isArray(qs) ||
+      (d.type === "quiz" && !qs.length) ||
+      qs.length > 30
+    )
+      errors.push(
+        d.type === "quiz" ? "請加入 1–30 題測驗。" : "測驗最多可有 30 題。"
+      );
     else {
       if (new Set(qs.map(q => q.id)).size !== qs.length)
         errors.push("每題識別碼必須不同。");
@@ -137,8 +152,7 @@
         const prefix = `第 ${i + 1} 題：`;
         if (!/^[A-Za-z0-9_-]{1,40}$/.test(q.id || ""))
           errors.push(prefix + "題目識別碼不正確。");
-        if (!present(q.prompt) || !present(q.explanation))
-          errors.push(prefix + "請填寫題目與解說。");
+        if (!present(q.prompt)) errors.push(prefix + "請填寫題目。");
         if (!Number.isInteger(q.points) || q.points < 1 || q.points > 100)
           errors.push(prefix + "分數須為 1–100。");
         if (!["choice", "short"].includes(q.type))
@@ -162,8 +176,10 @@
     if (!backup || typeof backup !== "object" || Array.isArray(backup))
       throw new Error("備份不是有效的內容 JSON。");
     const d = flatten(backup);
-    if (kind === "tasks" && d.task_id !== flatten(current).task_id)
+    if (kind !== "site" && d.task_id !== flatten(current).task_id)
       throw new Error("只能還原相同任務識別碼的備份。");
+    if (kind !== "site" && d.type !== flatten(current).type)
+      throw new Error("只能還原相同任務類型的備份。");
     const errors = issues(d, kind);
     if (errors.length) throw new Error(errors.join("\n"));
     return d;

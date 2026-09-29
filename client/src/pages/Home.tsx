@@ -24,6 +24,7 @@ import {
   type CloudProfile,
 } from "@/contexts/StudentAccount";
 import TaskModal from "@/components/TaskModal";
+import TaskTypeLabel from "@/components/TaskTypeLabel";
 import { useScoreSync, completedTaskCount } from "@/contexts/ScoreSyncContext";
 import {
   HISTORY_TASKS,
@@ -152,8 +153,7 @@ export default function Home({
                             }}
                           />
                           <span className="comic-kicker">
-                            <Newspaper className="h-4 w-4" />
-                            {task.label}
+                            <TaskTypeLabel type={task.type} />
                           </span>
                         </div>
                         <div className="flex flex-1 flex-col p-5">

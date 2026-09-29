@@ -28,8 +28,22 @@ const unique = (values, label) => {
 };
 
 export function validateContent() {
-  const explorerCards = z.array(z.object({ id, name: text.max(80), image: media, enabled: z.boolean(), role: z.enum(["studentBoy", "studentGirl"]), edition: z.enum(["starter", "nile"]) })).parse(read("settings/cards.json").cards ?? []);
-  unique(explorerCards.map(card => card.id), "收藏卡識別碼");
+  const explorerCards = z
+    .array(
+      z.object({
+        id,
+        name: text.max(80),
+        image: media,
+        enabled: z.boolean(),
+        role: z.enum(["studentBoy", "studentGirl"]),
+        edition: z.enum(["starter", "nile"]),
+      })
+    )
+    .parse(read("settings/cards.json").cards ?? []);
+  unique(
+    explorerCards.map(card => card.id),
+    "收藏卡識別碼"
+  );
   const grades = z
     .array(z.object({ grade, title: text, visible: z.boolean() }))
     .length(6)
@@ -83,6 +97,9 @@ export function validateContent() {
       z
         .object({
           task_id: id,
+          type: z.enum(["article", "game", "quiz"]),
+          article: z.string().optional(),
+          gameUrl: z.string().optional(),
           imagePosition,
           topicId: id,
           title: text,
@@ -94,7 +111,7 @@ export function validateContent() {
               prompt: text,
               options: z.array(text).min(2).max(6),
               answer: z.number().int().min(0),
-              explanation: text,
+              explanation: z.string().optional(),
             })
             .refine(q => q.answer < q.options.length, "答案序號超出選項範圍")
             .optional(),
@@ -106,7 +123,7 @@ export function validateContent() {
                   type: z.enum(["choice", "short"]),
                   prompt: text.max(2000),
                   points: z.number().int().min(1).max(100),
-                  explanation: text.max(4000),
+                  explanation: z.string().max(4000).optional(),
                   options: z.array(text.max(1000)).optional(),
                   answer: z.number().int().optional(),
                 })
@@ -120,13 +137,22 @@ export function validateContent() {
                   "選擇題須有 2 至 6 個選項及有效答案序號"
                 )
             )
-            .min(1)
             .max(30)
             .optional(),
         })
         .refine(
-          t => Boolean(t.questions?.length || t.question),
-          "每個任務須至少一題"
+          t =>
+            t.type !== "quiz" ||
+            Boolean(t.questions ? t.questions.length : t.question),
+          "小測驗須至少一題"
+        )
+        .refine(
+          t => t.type !== "article" || Boolean(t.article?.trim()),
+          "文章正文必填"
+        )
+        .refine(
+          t => t.type !== "game" || /^https:\/\//.test(t.gameUrl || ""),
+          "遊戲連結必須使用 HTTPS"
         )
     )
     .parse(entries("tasks"));

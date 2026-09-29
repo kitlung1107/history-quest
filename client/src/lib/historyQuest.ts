@@ -48,7 +48,7 @@ export type HistoryTask = {
   grade: number;
   topic: string;
   type: "article" | "game" | "quiz";
-  label: string;
+  label?: string;
   title: string;
   description: string;
   duration: number;
@@ -56,7 +56,7 @@ export type HistoryTask = {
   image: string;
   imagePosition?: ImagePosition;
   accent: "teal" | "red" | "gold";
-  article: string;
+  article?: string;
   videoUrl?: string;
   gameUrl?: string;
   question?: QuizQuestion;

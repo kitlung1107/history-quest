@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { mediaUrl } from "@/lib/siteSettings";
 import index from "../../public/cms/content-index.json";
 type Entry = {
+  type: "article" | "game" | "quiz";
   task_id: string;
   title: string;
   topicId: string;
@@ -209,7 +210,7 @@ export default function ContentLibrary() {
                     </p>
                     <a
                       className="pixel-button pixel-button-paper mt-3"
-                      href={`${cms}#/collections/tasks/entries/${encodeURIComponent(t.slug)}`}
+                      href={`${cms}#/collections/tasks_${t.type}/entries/${encodeURIComponent(t.slug)}`}
                     >
                       編輯教材
                     </a>

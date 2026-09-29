@@ -3,6 +3,7 @@ import Home from "./Home";
 import TaskModal from "@/components/TaskModal";
 import { SITE_SETTINGS, PUBLIC_TOPICS } from "@/lib/siteSettings";
 import type { HistoryTask } from "@/lib/historyQuest";
+import { getQuestions } from "@/lib/assessment";
 
 export default function ContentPreview() {
   const [draft, setDraft] = useState<{
@@ -49,7 +50,6 @@ export default function ContentPreview() {
     title: "未命名任務",
     description: "",
     article: "",
-    label: "教材預覽",
     image: "",
     duration: 10,
     accent: "gold",
@@ -61,17 +61,18 @@ export default function ContentPreview() {
     topic: topic?.title || "未選課題",
     grade: topic?.grade || 1,
     difficulty: Math.max(1, Math.min(5, Number(data.difficulty) || 1)),
-    questions: (Array.isArray(data.questions) ? data.questions : []).map(
-      (q: any, i: number) => ({
-        id: q.id || `draft-${i}`,
-        prompt: q.prompt || "未填題目",
-        type: q.type || "choice",
-        points: Number(q.points) || 10,
-        options: q.options || [],
-        answer: q.answer ?? 0,
-        explanation: q.explanation || "",
-      })
-    ),
+    questions: getQuestions({
+      questions: data.questions,
+      question: data.question,
+    }).map((q: any, i: number) => ({
+      id: q.id || `draft-${i}`,
+      prompt: q.prompt || "未填題目",
+      type: q.type || "choice",
+      points: Number(q.points) || 10,
+      options: q.options || [],
+      answer: q.answer ?? 0,
+      explanation: q.explanation || "",
+    })),
   } as HistoryTask;
   return (
     <div>
