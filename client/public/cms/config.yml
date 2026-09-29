@@ -323,7 +323,7 @@ collections:
       - name: cover
         label: 封面與取景
         widget: object
-        collapsed: true
+        collapsed: false
         fields:
           - {
               label: 封面圖片,
@@ -331,6 +331,7 @@ collections:
               widget: image,
               multiple: false,
               choose_url: true,
+              hint: "在此選擇或上載新相片，亦可貼上 HTTPS 圖片網址。上載上限為 5 MiB；完成後按儲存，待網站發佈完成才會更新任務相片。",
             }
           - {
               label: 封面取景調整,
