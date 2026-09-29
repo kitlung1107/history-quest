@@ -245,7 +245,7 @@ export function AccountGate({
             </div>
           )}
           <p className="login-footer">
-            共用電腦使用完畢請登出。
+            登入會保留並共用至其他分頁；共用電腦使用完畢請登出。
             <br />
             網站不會取得你的 Google 密碼。
           </p>

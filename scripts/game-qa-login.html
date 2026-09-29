@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>本機遊戲整合測試</title>
+<h1>Firebase 本機模擬器測試登入</h1><p>僅使用測試身分；不連接正式帳戶。</p>
+<button id="one">測試學生一</button><button id="two">測試學生二</button><button id="teacher">測試教師</button><button id="logout">測試登出</button>
+<button id="offline">暫停本機資料庫網絡</button><button id="online">恢復本機資料庫網絡</button><p id="status"></p>
+<script type="module">
+import {auth,db} from '/src/lib/firebase.ts';
+import {signInWithCredential,GoogleAuthProvider,signOut} from 'firebase/auth';
+import {disableNetwork,enableNetwork} from 'firebase/firestore';
+if(!auth.emulatorConfig)throw Error('Test login requires emulator');
+async function login(sub,email,teacher=false){
+ await auth.authStateReady();
+ const encode=x=>btoa(JSON.stringify(x)).replaceAll('=','').replaceAll('+','-').replaceAll('/','_');
+ const token=encode({alg:'none',typ:'JWT'})+'.'+encode({sub,email,email_verified:true,name:sub,iss:'https://accounts.google.com',aud:'demo-game-sync'})+'.';
+ try{await signInWithCredential(auth,GoogleAuthProvider.credential(token)); location.href=teacher?'/?gameRecords=teacher':'/?game=cold-war-maze';}catch(e){document.querySelector('#status').textContent=e.message;}
+}
+document.querySelector('#one').onclick=()=>login('qa-one','qa-one@example.test');
+document.querySelector('#two').onclick=()=>login('qa-two','qa-two@example.test');
+document.querySelector('#teacher').onclick=()=>login('qa-teacher','kitlung1107@gmail.com',true);
+document.querySelector('#logout').onclick=async()=>{await signOut(auth);document.querySelector('#status').textContent='已登出';};
+document.querySelector('#offline').onclick=async()=>{await disableNetwork(db);document.querySelector('#status').textContent='已暫停此頁 SDK';};
+document.querySelector('#online').onclick=async()=>{await enableNetwork(db);document.querySelector('#status').textContent='已恢復此頁 SDK';};
+</script>

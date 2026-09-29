@@ -1,3 +1,5 @@
+import ConnectedGame from "./ConnectedGame";
+import { gameForTask } from "@/lib/games/registry";
 import TaskQuiz from "./TaskQuiz";
 import TaskTypeLabel from "./TaskTypeLabel";
 import { getQuestions } from "@/lib/assessment";
@@ -64,6 +66,7 @@ export default function TaskModal({
   if (!task) return null;
   const completed = progress[task.id]?.progress === 100;
   const videoEmbed = toEmbedUrl(task.videoUrl);
+  const connectedGame = gameForTask(task.id);
   const gameEmbed = toEmbedUrl(task.gameUrl);
   const hasQuiz = task.type !== "game" && getQuestions(task).length > 0;
 
@@ -115,7 +118,7 @@ export default function TaskModal({
               </h3>
               <p className="mx-auto mt-3 max-w-xl text-ink/70">
                 {task.type === "game"
-                  ? "進入互動遊戲探索。遊戲內表現不會傳送至教師後台。"
+                  ? connectedGame ? "登入後開始遊戲；成功完成每局會保存作答摘要與錯題庫。" : "進入互動遊戲探索。遊戲內表現不會傳送至教師後台。"
                   : hasQuiz
                     ? "完成測驗後提交全部答案。短答題由老師批改。"
                     : "開啟文章，閱讀資料與觀看影片。"}
@@ -148,7 +151,8 @@ export default function TaskModal({
                   />
                 </div>
               )}
-              {gameEmbed && (
+              {connectedGame && <ConnectedGame game={connectedGame} />}
+              {gameEmbed && !connectedGame && (
                 <section className="mt-7" aria-label="互動遊戲">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                     <p className="comic-kicker">HTML5 互動關卡</p>

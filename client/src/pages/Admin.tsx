@@ -113,6 +113,7 @@ export default function Admin() {
     {catalogueNotice && <p role="status" className="my-4 border-2 p-3">{catalogueNotice}</p>}
     {data && <TeachingWorkspace pin="" initial={data} onDataChange={setData} loading={busy} />}
     {more && <button disabled={busy} className="pixel-button pixel-button-paper my-4" onClick={() => void refreshWorkspace(true)}>載入更早的 100 份</button>}
+    <a className="pixel-button pixel-button-teal my-4" href={`${import.meta.env.BASE_URL}?gameRecords=teacher`}>學生遊戲場次與錯題庫</a>
     <AccountManager onChanged={() => refreshWorkspace()} />
   </div></main>;
 }

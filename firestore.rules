@@ -130,6 +130,83 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data.studentId == sid
         && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data.taskId == taskId);
     }
+    // Shared game protocol v1: raw answers are immutable and grading is rule-checked.
+    function gameOwner(s) {
+      return owns(s.studentId) && request.auth.uid == s.uid;
+    }
+    function gameVersion(s) {
+      return get(/databases/$(database)/documents/gameCatalog/$(s.gameId)/versions/$(s.version)).data.enabled == true;
+    }
+    function answerIndex(a, q, i) {
+      return a.size() <= i || (a[i] is int && a[i] >= 0 && a[i] <= q.maxIndex[i]);
+    }
+    function gameAnswerOK(a, q) {
+      return q.validator == 'index-array/1' && a is list && a.size() == q.answer.size()
+        && a.size() >= 1 && a.size() <= 8
+        && answerIndex(a,q,0) && answerIndex(a,q,1) && answerIndex(a,q,2) && answerIndex(a,q,3)
+        && answerIndex(a,q,4) && answerIndex(a,q,5) && answerIndex(a,q,6) && answerIndex(a,q,7)
+        && (!q.distinct || a.toSet().size() == a.size());
+    }
+    match /gameCatalog/{game}/versions/{version} {
+      allow read: if signed();
+      allow create: if teacher() && request.resource.data.keys().hasOnly(['enabled','title','taskId','questionCount'])
+        && request.resource.data.enabled == true;
+      allow update: if teacher() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['enabled'])
+        && request.resource.data.enabled is bool;
+      match /questions/{question} {
+        allow read: if signed();
+        allow create: if teacher()
+          && !exists(/databases/$(database)/documents/gameCatalog/$(game)/versions/$(version));
+        // Identical writes permit a interrupted catalogue upload to retry.
+        allow update: if teacher() && request.resource.data == resource.data;
+      }
+    }
+    match /gameSessions/{session} {
+      allow get: if teacher() || (resource == null && signed()) || owns(resource.data.studentId);
+      allow list: if teacher() || owns(resource.data.studentId);
+      allow create: if session.matches('[a-zA-Z0-9-]{1,80}') && gameOwner(request.resource.data)
+        && gameVersion(request.resource.data)
+        && exists(/databases/$(database)/documents/profiles/$(request.resource.data.studentId))
+        && request.resource.data.keys().hasOnly(['uid','studentId','gameId','version','status','attempts','correct','lastEventId','createdAt'])
+        && request.resource.data.status == 'open' && request.resource.data.attempts == 0
+        && request.resource.data.correct == 0 && request.resource.data.lastEventId == ''
+        && request.resource.data.createdAt == request.time;
+      function appendAnswer() {
+        let next = request.resource.data;
+        let path = /databases/$(database)/documents/gameSessions/$(session)/answers/$(next.lastEventId);
+        let answer = getAfter(path).data;
+        return next.diff(resource.data).affectedKeys().hasOnly(['attempts','correct','lastEventId'])
+          && !exists(path) && next.lastEventId.matches('[a-zA-Z0-9-]{1,80}')
+          && next.attempts == resource.data.attempts + 1 && answer.sequence == next.attempts
+          && next.correct == resource.data.correct + (answer.correct ? 1 : 0);
+      }
+      function finishGame() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','completedAt'])
+          && request.resource.data.status in ['completed','abandoned']
+          && request.resource.data.completedAt == request.time;
+      }
+      allow update: if gameOwner(resource.data) && gameVersion(resource.data) && resource.data.status == 'open'
+        && (finishGame() || appendAnswer());
+      match /answers/{event} {
+        function sessionData() { return get(/databases/$(database)/documents/gameSessions/$(session)).data; }
+        function validGameAnswer() {
+          let s = sessionData();
+          let d = request.resource.data;
+          let q = get(/databases/$(database)/documents/gameCatalog/$(s.gameId)/versions/$(s.version)/questions/$(d.questionId)).data;
+          let next = getAfter(/databases/$(database)/documents/gameSessions/$(session)).data;
+          return gameOwner(s) && gameVersion(s) && s.status == 'open'
+            && event.matches('[a-zA-Z0-9-]{1,80}')
+            && d.keys().hasOnly(['questionId','answer','correct','sequence','createdAt'])
+            && d.questionId is string && gameAnswerOK(d.answer,q)
+            && d.correct == (d.answer == q.answer) && d.createdAt == request.time
+            && d.sequence == s.attempts + 1 && next.attempts == d.sequence
+            && next.lastEventId == event;
+        }
+        allow read: if teacher() || owns(sessionData().studentId);
+        allow create: if validGameAnswer();
+      }
+    }
+
     match /catalogue/{task} { allow read, write: if teacher(); }
     match /roster/{student} { allow read, write: if teacher(); }
     match /metadata/{key} { allow read, write: if teacher(); }

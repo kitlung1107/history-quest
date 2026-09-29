@@ -1,0 +1,9121 @@
+{
+  "gameId": "cold-war-maze",
+  "version": "62338058eeb29cc92e89b0a4149e767a",
+  "title": "冷戰・地下間諜",
+  "taskId": "S5_ColdWar_Maze",
+  "url": "https://kitlung1107.github.io/ColdWarMaze/",
+  "questions": {
+    "1": {
+      "title": "美蘇互不信任",
+      "prompt": "哪一項最能說明意識形態分歧如何加深美蘇敵意？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "兩國都支持同一套政治制度",
+        "兩國擔心對方把其制度和影響力向外擴展",
+        "兩國同意不參與歐洲事務",
+        "兩國決定共同建立一個政府"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "2": {
+      "title": "經濟制度",
+      "prompt": "按筆記對兩大陣營的概括，哪一項最符合蘇聯的傳統經濟模式？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "私人企業主導、政府不作生產規劃",
+        "所有生產完全由外國企業決定",
+        "以國家計劃指導生產及資源分配",
+        "只依靠國際慈善援助維持經濟"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "3": {
+      "title": "冷戰特徵",
+      "prompt": "美蘇分別支援地區衝突中的不同勢力，主要反映哪一項冷戰特徵？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "透過地區性衝突間接對抗",
+        "建立統一的世界政府",
+        "完全停止軍事競爭",
+        "取消各自的勢力範圍"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "4": {
+      "title": "鐵幕演說",
+      "prompt": "1946 年「鐵幕演說」由誰發表？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "杜魯門",
+        "史太林",
+        "赫魯曉夫",
+        "邱吉爾"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "5": {
+      "title": "杜魯門主義",
+      "prompt": "1947 年杜魯門主義最主要表達哪一項政策方向？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "美國退出所有歐洲事務",
+        "美國支援受到共產主義擴張威脅的國家",
+        "美國加入蘇聯領導的經濟組織",
+        "美國承諾不再提供對外援助"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "6": {
+      "title": "馬歇爾計劃",
+      "prompt": "美國推行馬歇爾計劃的主要目的，是透過甚麼方式減低共產主義的吸引力？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "在西歐全面禁止工業生產",
+        "把西歐納入蘇聯的貿易體系",
+        "援助歐洲經濟復甦",
+        "解散所有西歐政府"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "7": {
+      "title": "柏林封鎖",
+      "prompt": "柏林封鎖期間，西方主要以甚麼方式向西柏林居民供應生活物資？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "空運",
+        "興建柏林圍牆",
+        "撤走全部居民",
+        "把西柏林交由華約管理"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "8": {
+      "title": "華約成立",
+      "prompt": "哪一項最直接促使蘇聯在 1955 年成立華沙公約組織？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "古巴導彈危機爆發",
+        "柏林圍牆開始興建",
+        "尼克遜訪華",
+        "西德加入北約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "9": {
+      "title": "高峰會受挫",
+      "prompt": "哪一事件直接破壞了 1960 年巴黎高峰會的進行？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "馬歇爾計劃提出",
+        "U-2 型戰機事件",
+        "蘇聯解體",
+        "波蘭團結工會遭鎮壓"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "10": {
+      "title": "柏林圍牆",
+      "prompt": "1961 年興建柏林圍牆的一項主要目的，是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "方便東德居民經西柏林前往西方",
+        "把整個柏林變成非軍事區",
+        "阻止東德居民經柏林逃往西方",
+        "讓東德加入北約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "11": {
+      "title": "古巴危機後的溝通",
+      "prompt": "古巴導彈危機後，美蘇設立直接通訊「熱線」，主要是為了甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "在危機中迅速溝通，減低誤判風險",
+        "共同指揮華約所有軍隊",
+        "取消兩國之間的一切外交接觸",
+        "令兩國使用同一貨幣"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "12": {
+      "title": "核試驗條約",
+      "prompt": "1963 年《部分禁止核試驗條約》沒有禁止哪一類核試驗？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "大氣層核試驗",
+        "外太空核試驗",
+        "水下核試驗",
+        "地下核試驗"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "13": {
+      "title": "中美接觸",
+      "prompt": "1971 年中美透過哪一種活動重新接觸，成為關係改善的象徵？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "聯合軍事演習",
+        "乒乓球交流",
+        "共同成立華約",
+        "共同封鎖柏林"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "14": {
+      "title": "中蘇交惡",
+      "prompt": "中蘇關係惡化如何為中美關係改善創造條件？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "中國因此加入北約",
+        "美國因此停止所有外交活動",
+        "中國更有動機改善與美國的關係，減輕外交壓力",
+        "蘇聯因此成為中美共同政府的成員"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "15": {
+      "title": "阿富汗與冷戰再起",
+      "prompt": "哪一事件是 1979 年美蘇關係再度惡化的重要原因？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "蘇聯入侵阿富汗",
+        "《中程導彈裁撤條約》簽署",
+        "馬耳他高峰會舉行",
+        "柏林圍牆開放"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "16": {
+      "title": "星球大戰計劃",
+      "prompt": "列根在 1983 年提出的「星球大戰」計劃，主要涉及甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "以體育交流代替外交",
+        "建立共同農業市場",
+        "取消所有導彈防禦研究",
+        "發展包括太空技術的導彈防禦系統"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "17": {
+      "title": "戈巴卓夫上台",
+      "prompt": "戈巴卓夫在哪一年成為蘇聯領導人？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "1979 年",
+        "1985 年",
+        "1989 年",
+        "1991 年"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "18": {
+      "title": "不干預東歐",
+      "prompt": "戈巴卓夫減少干預東歐國家內政，對當地政局有甚麼重要影響？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "確保各國共產黨永遠維持執政",
+        "令東歐全部立即加入蘇聯",
+        "為各國政治變革提供更大空間",
+        "令華約的軍事控制必然加強"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "19": {
+      "title": "冷戰後格局",
+      "prompt": "按筆記對冷戰剛結束後格局的概括，蘇聯解體最直接改變了哪一局面？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "美蘇兩個超級大國對峙的格局",
+        "所有國家均不再擁有軍隊",
+        "歐洲所有國家立即合併為一國",
+        "世界上所有地區衝突同時結束"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "20": {
+      "title": "美國的經濟援助角色",
+      "prompt": "哪一項最能用來說明美國透過經濟援助支持西歐？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "成立經濟互助委員會",
+        "發動八一九事變",
+        "成立華沙公約組織",
+        "推行馬歇爾計劃"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "21": {
+      "title": "對立逐步形成",
+      "prompt": "把以下事件由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        3,
+        2,
+        0
+      ],
+      "choices": [
+        "北約成立",
+        "鐵幕演說",
+        "柏林封鎖開始",
+        "杜魯門主義提出"
+      ],
+      "items": [
+        "北約成立",
+        "鐵幕演說",
+        "柏林封鎖開始",
+        "杜魯門主義提出"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "22": {
+      "title": "戰爭與結盟",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "choices": [
+        "韓戰停戰",
+        "華約成立",
+        "北約成立",
+        "韓戰爆發"
+      ],
+      "items": [
+        "韓戰停戰",
+        "華約成立",
+        "北約成立",
+        "韓戰爆發"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "23": {
+      "title": "危機的先後",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        3,
+        1,
+        0
+      ],
+      "choices": [
+        "古巴導彈危機",
+        "柏林圍牆開始興建",
+        "柏林封鎖開始",
+        "U-2 型戰機事件"
+      ],
+      "items": [
+        "古巴導彈危機",
+        "柏林圍牆開始興建",
+        "柏林封鎖開始",
+        "U-2 型戰機事件"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "24": {
+      "title": "核武協議",
+      "prompt": "按簽署年份由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        3,
+        2,
+        0
+      ],
+      "choices": [
+        "《第二期限制戰略武器條約》",
+        "《部分禁止核試驗條約》",
+        "《第一期限制戰略武器條約》",
+        "《不擴散核武器條約》"
+      ],
+      "items": [
+        "《第二期限制戰略武器條約》",
+        "《部分禁止核試驗條約》",
+        "《第一期限制戰略武器條約》",
+        "《不擴散核武器條約》"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "25": {
+      "title": "關係再度緊張",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        1,
+        3,
+        0
+      ],
+      "choices": [
+        "星球大戰計劃提出",
+        "西方多國杯葛莫斯科奧運會",
+        "蘇聯入侵阿富汗",
+        "波蘭團結工會遭鎮壓"
+      ],
+      "items": [
+        "星球大戰計劃提出",
+        "西方多國杯葛莫斯科奧運會",
+        "蘇聯入侵阿富汗",
+        "波蘭團結工會遭鎮壓"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "26": {
+      "title": "冷戰邁向終結",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "choices": [
+        "馬耳他高峰會",
+        "蘇聯解體",
+        "戈巴卓夫上台",
+        "《中程導彈裁撤條約》簽署"
+      ],
+      "items": [
+        "馬耳他高峰會",
+        "蘇聯解體",
+        "戈巴卓夫上台",
+        "《中程導彈裁撤條約》簽署"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "27": {
+      "title": "德國與蘇聯的變局",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        1,
+        3,
+        0
+      ],
+      "choices": [
+        "蘇聯解體",
+        "兩德統一",
+        "柏林圍牆開放",
+        "八一九事變"
+      ],
+      "items": [
+        "蘇聯解體",
+        "兩德統一",
+        "柏林圍牆開放",
+        "八一九事變"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "28": {
+      "title": "跨期比較",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        3,
+        0,
+        2
+      ],
+      "choices": [
+        "尼克遜訪華",
+        "馬歇爾計劃提出",
+        "《中程導彈裁撤條約》簽署",
+        "古巴導彈危機"
+      ],
+      "items": [
+        "尼克遜訪華",
+        "馬歇爾計劃提出",
+        "《中程導彈裁撤條約》簽署",
+        "古巴導彈危機"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "29": {
+      "title": "冷戰對抗的方式",
+      "prompt": "把例子配對至其主要表現：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1
+      ],
+      "choices": [
+        "宣傳及罵戰",
+        "經濟競爭",
+        "軍備競賽"
+      ],
+      "items": [
+        "美蘇競相研製核武器",
+        "使用電台攻擊對方制度",
+        "馬歇爾計劃與莫洛托夫計劃"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "30": {
+      "title": "事件與年份",
+      "prompt": "把事件配對至年份：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "1950 年",
+        "1947 年",
+        "1949 年"
+      ],
+      "items": [
+        "杜魯門主義提出",
+        "北約成立",
+        "韓戰爆發"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "31": {
+      "title": "措施與功能",
+      "prompt": "把措施配對至其功能：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1
+      ],
+      "choices": [
+        "在封鎖期間維持西柏林物資供應",
+        "以集體防禦方式維繫美國與西歐盟國的軍事合作",
+        "以美國援助促進歐洲經濟復甦"
+      ],
+      "items": [
+        "馬歇爾計劃",
+        "柏林空運",
+        "北約"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "32": {
+      "title": "人物與行動",
+      "prompt": "把人物配對至行動：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "U-2 事件期間擔任美國總統",
+        "古巴導彈危機期間下令海上封鎖／隔離",
+        "古巴導彈危機期間同意撤走蘇聯部署的導彈"
+      ],
+      "items": [
+        "甘迺迪",
+        "赫魯曉夫",
+        "艾森豪威爾"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "33": {
+      "title": "中美關係的三個階段",
+      "prompt": "把事件配對至年份：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "1979 年",
+        "1971 年",
+        "1972 年"
+      ],
+      "items": [
+        "乒乓外交",
+        "尼克遜訪華",
+        "中美正式建交"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "34": {
+      "title": "冷戰再起的事件",
+      "prompt": "把事件配對至年份：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "1983 年",
+        "1979 年",
+        "1981 年"
+      ],
+      "items": [
+        "蘇聯入侵阿富汗",
+        "波蘭團結工會遭鎮壓",
+        "星球大戰計劃提出"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "35": {
+      "title": "戈巴卓夫的政策",
+      "prompt": "按主要政策方向配對：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "改善對外關係",
+        "經濟「重建」",
+        "政治與社會「開放」"
+      ],
+      "items": [
+        "放寬對企業經營的限制",
+        "容許較大言論及出版空間",
+        "與美國商討及簽署裁軍協議"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "36": {
+      "title": "危機與後續措施",
+      "prompt": "把事件配對至相關後續措施：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        0,
+        2
+      ],
+      "choices": [
+        "西方展開大規模空運",
+        "蘇聯推出莫洛托夫計劃回應",
+        "美蘇建立直接通訊熱線"
+      ],
+      "items": [
+        "美國提出馬歇爾計劃",
+        "蘇聯封鎖西柏林陸路通道",
+        "古巴導彈危機"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "37": {
+      "title": "經濟合作還是軍事同盟？",
+      "prompt": "按主要性質，把以下四項分入「經濟援助／合作」或「軍事同盟」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "choices": [
+        "經濟援助／合作",
+        "軍事同盟"
+      ],
+      "items": [
+        "馬歇爾計劃",
+        "華約",
+        "經濟互助委員會",
+        "北約"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "38": {
+      "title": "由哪個大國主導？",
+      "prompt": "把措施或組織分入「美國主導」或「蘇聯主導」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        0,
+        0,
+        1
+      ],
+      "choices": [
+        "美國主導",
+        "蘇聯主導"
+      ],
+      "items": [
+        "莫洛托夫計劃",
+        "北約",
+        "馬歇爾計劃",
+        "華約"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "39": {
+      "title": "當時的關係走向",
+      "prompt": "按事件當時的直接作用，分入「促進接觸」或「加劇緊張」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "choices": [
+        "促進接觸",
+        "加劇緊張"
+      ],
+      "items": [
+        "1955 年日內瓦高峰會",
+        "1960 年 U-2 事件",
+        "1959 年赫魯曉夫訪美",
+        "1961 年柏林圍牆興建"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "40": {
+      "title": "緩和的不同方式",
+      "prompt": "按主要內容，分入「軍備／核武限制」或「外交與民間接觸」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "choices": [
+        "軍備／核武限制",
+        "外交與民間接觸"
+      ],
+      "items": [
+        "尼克遜訪華",
+        "《不擴散核武器條約》",
+        "乒乓外交",
+        "《第一期限制戰略武器條約》"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "41": {
+      "title": "蘇聯內部還是對外政策？",
+      "prompt": "把戈巴卓夫時期措施分入「蘇聯內部改革」或「對外政策調整」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "choices": [
+        "蘇聯內部改革",
+        "對外政策調整"
+      ],
+      "items": [
+        "放寬言論限制",
+        "從阿富汗撤軍",
+        "容許合營企業投資",
+        "減少干預東歐內政"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "42": {
+      "title": "舊格局與新變化",
+      "prompt": "按筆記比較，分入「冷戰期間的主要格局」或「冷戰結束後的變化」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "choices": [
+        "冷戰期間",
+        "冷戰結束後"
+      ],
+      "items": [
+        "美蘇兩極對峙",
+        "東歐國家陸續加入歐盟",
+        "歐洲分屬兩大對立陣營",
+        "蘇聯解體後核武遺留於多個原加盟共和國"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "43": {
+      "title": "擴大對抗還是推動和解？",
+      "prompt": "按措施的直接作用，分入「擴大對抗」或「推動和解」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "choices": [
+        "擴大對抗",
+        "推動和解"
+      ],
+      "items": [
+        "簽署《中程導彈裁撤條約》",
+        "透過電台中傷對方",
+        "召開 1989 年馬耳他高峰會",
+        "推動新一輪軍備競賽"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "44": {
+      "title": "經濟制度找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        2
+      ],
+      "choices": [
+        "第一次世界大戰期間，",
+        "強調由市場價格自行調節生產。",
+        "以計劃經濟為主，",
+        "美國的傳統經濟模式"
+      ],
+      "items": [
+        "冷戰時期，",
+        "蘇聯的傳統經濟模式",
+        "以自由市場經濟為主，",
+        "強調由國家制定生產計劃。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "45": {
+      "title": "經濟援助找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        1
+      ],
+      "choices": [
+        "旨在限制美蘇核武的數量。",
+        "由美國提出，",
+        "1949年，",
+        "杜魯門主義"
+      ],
+      "items": [
+        "1947年，",
+        "馬歇爾計劃",
+        "由蘇聯提出，",
+        "旨在援助歐洲經濟復甦。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "46": {
+      "title": "兩次柏林事件找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        3
+      ],
+      "choices": [
+        "以鼓勵東德居民",
+        "西方在柏林進行大規模空運，",
+        "經柏林前往東歐。",
+        "1961年，"
+      ],
+      "items": [
+        "1948年，",
+        "東德在柏林興建圍牆，",
+        "以限制東德居民",
+        "經柏林前往西方。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "47": {
+      "title": "中美建交找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        1
+      ],
+      "choices": [
+        "1968年，",
+        "兩國於1979年正式建交。",
+        "列根於1972年訪華，",
+        "中蘇展開乒乓外交；"
+      ],
+      "items": [
+        "1971年，",
+        "中美展開乒乓外交；",
+        "尼克遜於1972年訪華，",
+        "兩國亦於1972年正式建交。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "48": {
+      "title": "星球大戰計劃找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        2
+      ],
+      "choices": [
+        "於1987年",
+        "尼克遜",
+        "以發展導彈防禦系統為重點。",
+        "提出馬歇爾計劃，"
+      ],
+      "items": [
+        "列根",
+        "於1983年",
+        "提出星球大戰計劃，",
+        "以擴大農業援助為重點。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "49": {
+      "title": "兩德統一找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        1
+      ],
+      "choices": [
+        "完成蘇聯解體。",
+        "於1990年",
+        "北韓與南韓",
+        "柏林圍牆於1961年開放後，"
+      ],
+      "items": [
+        "柏林圍牆於1989年開放後，",
+        "東德與西德",
+        "於1991年",
+        "完成德國統一。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "50": {
+      "title": "核武風險找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        2
+      ],
+      "choices": [
+        "全部集中在北約總部，",
+        "部分常規坦克",
+        "仍需處理核武管理與擴散風險。",
+        "第二次世界大戰結束後，"
+      ],
+      "items": [
+        "蘇聯解體後，",
+        "部分核武器",
+        "遺留在原加盟共和國，",
+        "核武管理與擴散風險已完全消失。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "51": {
+      "title": "雅爾塔會議",
+      "prompt": "按筆記，1945 年雅爾塔會議上，西方與蘇聯對東歐的主要分歧是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "是否在東歐部署古巴導彈",
+        "西方主張民主選舉，蘇聯希望建立親蘇政權",
+        "是否讓東歐加入歐盟",
+        "是否拆除柏林圍牆"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "52": {
+      "title": "波茨坦會議",
+      "prompt": "按筆記，史太林希望在戰後永久削弱德國，主要出於哪一考慮？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "避免德國再次威脅蘇聯安全",
+        "協助德國加入北約",
+        "促成德國與蘇聯合併",
+        "令德國成為西歐軍事領袖"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "53": {
+      "title": "東歐的作用",
+      "prompt": "蘇聯在戰後支持東歐建立親蘇政府，最有助達到哪一目的？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "讓美國主導東歐軍事政策",
+        "放棄全部歐洲影響力",
+        "建立有利蘇聯安全及影響力的周邊地帶",
+        "令東歐與西歐立即政治統一"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "54": {
+      "title": "經濟互助委員會",
+      "prompt": "經濟互助委員會成立於哪一年？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "1946 年",
+        "1947 年",
+        "1948 年",
+        "1949 年"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "55": {
+      "title": "希臘與杜魯門主義",
+      "prompt": "筆記把杜魯門主義的提出，與哪一國的內戰及共產主義擴張威脅直接連結？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "羅馬尼亞",
+        "希臘",
+        "東德",
+        "捷克斯洛伐克"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "56": {
+      "title": "韓戰的分界",
+      "prompt": "第二次世界大戰後，朝鮮半島最初以哪一條緯線劃分南北佔領區？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "北緯 17 度線",
+        "赤道",
+        "北緯 38 度線",
+        "北緯 49 度線"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "57": {
+      "title": "中國內戰的結果",
+      "prompt": "1949 年中國內戰局勢的哪一變化，使美國更憂慮共產主義在亞洲擴張？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "中華人民共和國成立",
+        "中國加入北約",
+        "中美正式建交",
+        "中國放棄共產主義制度"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "58": {
+      "title": "越南的分界",
+      "prompt": "1954 年日內瓦協議後，越南的臨時軍事分界大致位於哪裏？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "北緯 38 度線",
+        "柏林市中心",
+        "台灣海峽",
+        "北緯 17 度線"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "59": {
+      "title": "骨牌理論",
+      "prompt": "美國以「骨牌理論」解釋介入越南，主要擔心哪一情況？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "越南統一後所有亞洲國家必定加入北約",
+        "一國落入共產主義陣營，可能帶動鄰國出現類似變化",
+        "只要增加貿易，就能立即消除全部戰爭",
+        "共產主義只能在歐洲發展"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "60": {
+      "title": "古巴危機的妥協",
+      "prompt": "以下哪一項屬古巴導彈危機解決安排的一部分？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "美國同意加入華約",
+        "蘇聯吞併古巴",
+        "美國承諾不入侵古巴",
+        "兩國同意在柏林部署更多古巴導彈"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "61": {
+      "title": "限制戰略武器",
+      "prompt": "《第一期限制戰略武器條約》於哪一年簽署？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "1972 年",
+        "1963 年",
+        "1968 年",
+        "1979 年"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "62": {
+      "title": "四國協議：筆記記載年份",
+      "prompt": "根據本筆記，《四國協議》被列作哪一年簽署？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "1968 年",
+        "1970 年",
+        "1971 年",
+        "1972 年"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "63": {
+      "title": "太空合作",
+      "prompt": "1975 年美蘇太空船對接及太空人合作，最能用作哪一方面的例子？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "兩國完全結束一切競爭",
+        "緩和時期增加科技交流與合作",
+        "華約吞併北約",
+        "蘇聯已於當年解體"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "64": {
+      "title": "邪惡帝國：筆記記載年份",
+      "prompt": "根據本筆記第 6 頁，列根批評蘇聯為「邪惡帝國」被列在哪一年？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "1979 年",
+        "1980 年",
+        "1981 年",
+        "1983 年"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "65": {
+      "title": "奧運杯葛",
+      "prompt": "美國等國為抗議蘇聯入侵阿富汗而杯葛哪一屆奧運會？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "1980 年莫斯科奧運會",
+        "1984 年洛杉磯奧運會",
+        "1972 年慕尼黑奧運會",
+        "1988 年漢城奧運會"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "66": {
+      "title": "馬耳他高峰會",
+      "prompt": "1989 年馬耳他高峰會由戈巴卓夫與哪位美國總統會面？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "甘迺迪",
+        "尼克遜",
+        "列根",
+        "布殊（老布殊）"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "67": {
+      "title": "八一九事變",
+      "prompt": "1991 年八一九事變期間，哪位俄羅斯領導人號召反對政變？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "赫魯曉夫",
+        "葉利欽",
+        "布里茲尼夫",
+        "史太林"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "68": {
+      "title": "新國際秩序與歐洲",
+      "prompt": "冷戰結束後，東歐國家陸續加入歐盟，最能反映哪一趨勢？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "東西歐的經濟及政治交流必然完全停止",
+        "華約持續吸收所有西歐國家",
+        "歐洲統合的範圍向東擴展",
+        "東歐全部重新成為蘇聯加盟共和國"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "69": {
+      "title": "核武遺產",
+      "prompt": "筆記以哪個前蘇聯加盟共和國為例，說明蘇聯解體後核武遺留於不同地區？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "烏克蘭",
+        "日本",
+        "法國",
+        "古巴"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "70": {
+      "title": "蘇聯領導陣營的方式",
+      "prompt": "哪一組組織最能說明蘇聯在經濟及軍事兩方面領導東歐盟國？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "歐盟與北約",
+        "歐洲經濟合作組織與北約",
+        "聯合國與歐盟",
+        "經濟互助委員會與華約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "71": {
+      "title": "會議與政策的先後",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "馬歇爾計劃提出",
+        "雅爾塔會議",
+        "鐵幕演說"
+      ],
+      "items": [
+        "馬歇爾計劃提出",
+        "雅爾塔會議",
+        "鐵幕演說"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "72": {
+      "title": "經濟合作組織",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "經濟互助委員會成立",
+        "馬歇爾計劃提出",
+        "歐洲經濟合作組織成立"
+      ],
+      "items": [
+        "經濟互助委員會成立",
+        "馬歇爾計劃提出",
+        "歐洲經濟合作組織成立"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "73": {
+      "title": "接觸與外交挫折",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "U-2 型戰機事件",
+        "1955 年日內瓦高峰會",
+        "赫魯曉夫訪美"
+      ],
+      "items": [
+        "U-2 型戰機事件",
+        "1955 年日內瓦高峰會",
+        "赫魯曉夫訪美"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "74": {
+      "title": "中美關係正常化",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "中美正式建交",
+        "乒乓外交",
+        "尼克遜訪華"
+      ],
+      "items": [
+        "中美正式建交",
+        "乒乓外交",
+        "尼克遜訪華"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "75": {
+      "title": "從緩和到再度緊張",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        3,
+        1
+      ],
+      "choices": [
+        "蘇聯入侵阿富汗",
+        "星球大戰計劃提出",
+        "美蘇太空船對接合作",
+        "波蘭團結工會遭鎮壓"
+      ],
+      "items": [
+        "蘇聯入侵阿富汗",
+        "星球大戰計劃提出",
+        "美蘇太空船對接合作",
+        "波蘭團結工會遭鎮壓"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "76": {
+      "title": "東歐反抗與變局",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        3,
+        1
+      ],
+      "choices": [
+        "布拉格之春",
+        "柏林圍牆開放",
+        "匈牙利革命",
+        "波蘭團結工會遭鎮壓"
+      ],
+      "items": [
+        "布拉格之春",
+        "柏林圍牆開放",
+        "匈牙利革命",
+        "波蘭團結工會遭鎮壓"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "77": {
+      "title": "核武問題與冷戰結束",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "蘇聯解體",
+        "《不擴散核武器條約》簽署",
+        "《中程導彈裁撤條約》簽署"
+      ],
+      "items": [
+        "蘇聯解體",
+        "《不擴散核武器條約》簽署",
+        "《中程導彈裁撤條約》簽署"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "78": {
+      "title": "美蘇領導人的會面",
+      "prompt": "由早至晚排列：",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        1,
+        0,
+        3
+      ],
+      "choices": [
+        "1985 年日內瓦高峰會",
+        "尼克遜訪問莫斯科",
+        "赫魯曉夫訪美",
+        "馬耳他高峰會"
+      ],
+      "items": [
+        "1985 年日內瓦高峰會",
+        "尼克遜訪問莫斯科",
+        "赫魯曉夫訪美",
+        "馬耳他高峰會"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "79": {
+      "title": "冷戰成因的類別",
+      "prompt": "把例子配對至最直接的成因類別：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1
+      ],
+      "choices": [
+        "戰時積怨與互不信任",
+        "戰後擴張勢力",
+        "意識形態分歧"
+      ],
+      "items": [
+        "對私有制及公有制的不同主張",
+        "蘇聯不滿西方遲遲未在西歐開闢第二戰場",
+        "美蘇在戰後扶植有利自己的外國政府"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "80": {
+      "title": "戰爭與地點",
+      "prompt": "把事件配對至地區：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "東南亞",
+        "歐洲",
+        "朝鮮半島"
+      ],
+      "items": [
+        "希臘內戰",
+        "韓戰",
+        "越戰"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "81": {
+      "title": "危機中的行動",
+      "prompt": "把事件配對至相應行動：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1
+      ],
+      "choices": [
+        "美國偵察機在蘇聯上空被擊落",
+        "美國對古巴實施海上封鎖／隔離",
+        "西方利用空中走廊運送物資"
+      ],
+      "items": [
+        "柏林封鎖",
+        "U-2 型戰機事件",
+        "古巴導彈危機"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "82": {
+      "title": "協議與主要內容",
+      "prompt": "把協議配對至主要內容：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1
+      ],
+      "choices": [
+        "限制核武器向非核武器國家擴散",
+        "裁撤美蘇特定射程的陸基導彈",
+        "禁止大氣層、外太空及水下核試驗"
+      ],
+      "items": [
+        "《部分禁止核試驗條約》",
+        "《不擴散核武器條約》",
+        "《中程導彈裁撤條約》"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "83": {
+      "title": "冷戰再起的具體表現",
+      "prompt": "把行動配對至最直接的表現方式：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1
+      ],
+      "choices": [
+        "軍事科技競爭",
+        "軍事介入地區衝突",
+        "以體育交流施加政治壓力"
+      ],
+      "items": [
+        "杯葛莫斯科奧運會",
+        "提出星球大戰計劃",
+        "蘇聯入侵阿富汗"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "84": {
+      "title": "東歐變局",
+      "prompt": "把事件配對至國家：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "羅馬尼亞",
+        "波蘭",
+        "東德"
+      ],
+      "items": [
+        "團結工會於 1989 年恢復合法地位",
+        "1989 年開放柏林圍牆",
+        "1989 年政變與革命中領導人被捕及處死"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "85": {
+      "title": "冷戰後的三種變化",
+      "prompt": "把例子配對至主要議題：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1
+      ],
+      "choices": [
+        "歐洲統合",
+        "核武管理與擴散風險",
+        "國際權力格局"
+      ],
+      "items": [
+        "美國成為當時唯一超級大國",
+        "東歐國家陸續加入歐盟",
+        "前蘇聯核武遺留在原加盟共和國"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "86": {
+      "title": "組織的角色",
+      "prompt": "把組織配對至主要角色：",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "蘇聯主導的經濟合作組織",
+        "美國與西歐盟國的軍事同盟",
+        "蘇聯與東歐盟國的軍事同盟"
+      ],
+      "items": [
+        "北約",
+        "華約",
+        "經濟互助委員會"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "87": {
+      "title": "積怨發生在何時？",
+      "prompt": "把事件分入「第二次世界大戰前」或「第二次世界大戰期間」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "choices": [
+        "二戰前",
+        "二戰期間"
+      ],
+      "items": [
+        "西方干預俄國內戰",
+        "雅爾塔會議",
+        "波茨坦會議",
+        "1930 年代對納粹德國的綏靖政策"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "88": {
+      "title": "1940 年代還是 1950 年代？",
+      "prompt": "按開始或成立年份，分入「1940 年代」或「1950 年代」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "choices": [
+        "1940 年代",
+        "1950 年代"
+      ],
+      "items": [
+        "韓戰爆發",
+        "杜魯門主義提出",
+        "華約成立",
+        "北約成立"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "89": {
+      "title": "柏林還是古巴？",
+      "prompt": "把措施分入「柏林相關事件」或「古巴導彈危機」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "choices": [
+        "柏林相關事件",
+        "古巴導彈危機"
+      ],
+      "items": [
+        "西方向西柏林大規模空運",
+        "美國承諾不入侵古巴",
+        "1961 年興建圍牆",
+        "蘇聯撤走古巴導彈"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "90": {
+      "title": "中美接觸還是美蘇合作？",
+      "prompt": "按直接參與的雙方，分入「中美」或「美蘇」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "choices": [
+        "中美",
+        "美蘇"
+      ],
+      "items": [
+        "乒乓外交",
+        "1975 年太空船對接",
+        "尼克遜訪華",
+        "第一期限制戰略武器協議"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "91": {
+      "title": "東歐國家還是蘇聯加盟共和國？",
+      "prompt": "按冷戰後期的身分，分入「蘇聯以外的東歐國家」或「蘇聯加盟共和國」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "choices": [
+        "蘇聯以外的東歐國家",
+        "蘇聯加盟共和國"
+      ],
+      "items": [
+        "波蘭",
+        "烏克蘭",
+        "東德",
+        "立陶宛"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "92": {
+      "title": "合作機會與安全問題",
+      "prompt": "按筆記討論的主要意義，分入「增加歐洲合作的機會」或「核安全管理問題」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "choices": [
+        "合作機會",
+        "核安全問題"
+      ],
+      "items": [
+        "東西歐增加經濟交流",
+        "核武分布在不同原加盟共和國",
+        "東歐陸續參與歐洲統合",
+        "防止核技術及核武擴散"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "93": {
+      "title": "支持盟友的不同方式",
+      "prompt": "按行動的直接性質，分入「經濟援助／合作」或「軍事支援／結盟」：",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "choices": [
+        "經濟援助／合作",
+        "軍事支援／結盟"
+      ],
+      "items": [
+        "馬歇爾計劃",
+        "美國軍事支援南韓",
+        "莫洛托夫計劃",
+        "華約的集體防禦安排"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "94": {
+      "title": "鐵幕演說找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        3
+      ],
+      "choices": [
+        "主張蘇聯加強對東歐的控制。",
+        "1985年，",
+        "提出星球大戰計劃，",
+        "邱吉爾"
+      ],
+      "items": [
+        "1946年，",
+        "戈巴卓夫",
+        "發表鐵幕演說，",
+        "批評蘇聯對東歐的控制。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "95": {
+      "title": "華約成立找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2
+      ],
+      "choices": [
+        "用以抗衡經濟互助委員會。",
+        "由美國主導，",
+        "於1955年成立，",
+        "北大西洋公約組織"
+      ],
+      "items": [
+        "華沙公約組織",
+        "於1949年成立，",
+        "由蘇聯主導，",
+        "用以抗衡北約。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "96": {
+      "title": "核試驗限制找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        3
+      ],
+      "choices": [
+        "1968年簽署的",
+        "只限制地下核試驗，",
+        "《不擴散核武器條約》",
+        "未禁止地下核試驗。"
+      ],
+      "items": [
+        "1963年簽署的",
+        "《部分禁止核試驗條約》",
+        "限制大氣層、外太空和水下核試驗，",
+        "亦全面禁止地下核試驗。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "97": {
+      "title": "奧運杯葛找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        3
+      ],
+      "choices": [
+        "杯葛了1984年的",
+        "蘇聯等國",
+        "為抗議波蘭加入北約，",
+        "莫斯科奧運會。"
+      ],
+      "items": [
+        "美國等國",
+        "為抗議蘇聯入侵阿富汗，",
+        "杯葛了1980年的",
+        "洛杉磯奧運會。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "98": {
+      "title": "戈巴卓夫改革找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        2
+      ],
+      "choices": [
+        "維持對所有言論及出版的全面禁止，",
+        "推行星球大戰計劃，",
+        "放寬了對公共討論的控制。",
+        "史太林"
+      ],
+      "items": [
+        "戈巴卓夫",
+        "推行「開放」政策，",
+        "容許較多言論及出版自由，",
+        "加強了對公共討論的全面禁止。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "99": {
+      "title": "兩極格局找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        3
+      ],
+      "choices": [
+        "原有的美中兩極對峙",
+        "1955年蘇聯解體後，",
+        "進一步鞏固，",
+        "美國成為當時唯一的超級大國。"
+      ],
+      "items": [
+        "1991年蘇聯解體後，",
+        "原有的美蘇兩極對峙",
+        "宣告結束，",
+        "蘇聯仍以原有國家身分繼續對峙。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "100": {
+      "title": "經互會的功能找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        2
+      ],
+      "choices": [
+        "1955年成立的",
+        "由美國主導，",
+        "主要是一個經濟合作組織。",
+        "華沙公約組織"
+      ],
+      "items": [
+        "1949年成立的",
+        "經濟互助委員會",
+        "由蘇聯主導，",
+        "主要是一個軍事防禦同盟。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "101": {
+      "title": "政治制度的對照",
+      "prompt": "按筆記的概括，「多黨競爭、人民享有選舉權」與哪項蘇聯制度形成政治上的對照？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "由共產黨一黨專政",
+        "由個人自由選擇生活方式",
+        "由私人持有企業財產",
+        "由市場決定商品價格"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "102": {
+      "title": "財產屬於誰",
+      "prompt": "按筆記，有制度強調生產財產由私人擁有及多勞多得。這組線索指向甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "資本主義的經濟主張",
+        "戈巴卓夫的言論開放措施",
+        "華約的集體防禦安排",
+        "共產主義的財產公有制"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "103": {
+      "title": "社會層面的分歧",
+      "prompt": "若研究美蘇在「社會價值」上的分歧，哪組資料最切題？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "北約與華約的成立年份",
+        "集體主義與個人主義的對照",
+        "兩國導彈基地的數量",
+        "馬歇爾計劃與莫洛托夫計劃的金額"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "104": {
+      "title": "合作前已有矛盾",
+      "prompt": "哪項材料最能支持「美蘇戰時合作之前，雙方已累積不信任」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "美蘇在1975年合作進行太空實驗",
+        "戈巴卓夫與美國商討裁軍",
+        "兩德於1990年統一",
+        "西方曾干預俄國內戰，支援反共勢力"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "105": {
+      "title": "白俄的身分",
+      "prompt": "筆記提及英法支援「白俄」企圖推翻共產政權。這裏的「白俄」指甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "二戰後西德的政府",
+        "俄國內戰中的反共勢力",
+        "參加馬歇爾計劃的西歐國家",
+        "冷戰後烏克蘭的核武管理機構"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "106": {
+      "title": "第二戰場的猜疑",
+      "prompt": "按筆記，蘇聯為何把西方遲遲開闢第二戰場視為不友善？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "希望西方永久放棄對德作戰",
+        "認為西方已接受蘇聯在東歐的全部要求",
+        "懷疑西方想讓德蘇互相消耗",
+        "擔心西方會過早結束與日本的戰爭"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "107": {
+      "title": "猜疑不等於證明",
+      "prompt": "「蘇聯懷疑西方故意延遲反攻。」單憑這句話，哪個結論最穩妥？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "蘇聯對盟友的動機缺乏信任",
+        "蘇聯已同意由西方統治東歐",
+        "盟國從未共同對德作戰",
+        "西方已公開承認借德國消滅蘇聯"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "108": {
+      "title": "科技合作的限制",
+      "prompt": "哪件事最適合說明「同盟關係未能消除敏感科技上的戒心」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "兩國太空人在1975年共同實驗",
+        "美國不向蘇聯分享原子彈技術",
+        "東歐國家增加相互貿易",
+        "西歐接受經濟復甦援助"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "109": {
+      "title": "兩次戰時會議",
+      "prompt": "依筆記，雅爾塔與波茨坦會議的分歧，各自突出哪項問題？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "核武擴散；中美正式建交",
+        "古巴導彈撤走；太空船對接",
+        "東歐政治安排；戰後德國處置",
+        "阿富汗撤軍；東歐加入歐盟"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "110": {
+      "title": "重建德國的立場",
+      "prompt": "按筆記，戰後協助德國恢復經濟、建立民主國家，較接近哪一方在波茨坦會議的立場？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "史太林領導的蘇聯",
+        "美國與英國",
+        "1980年代的波蘭團結工會",
+        "1960年代的北越政府"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "111": {
+      "title": "安全感的矛盾",
+      "prompt": "一方認為建立友好鄰國可保障安全，另一方卻認為這是擴張。這如何惡化冷戰？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "雙方因感到受威脅而進一步擴張",
+        "不同安全觀使經濟競爭失去政治意義",
+        "雙方因此立即接受共同政府",
+        "雙方因追求安全而自動停止結盟"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "112": {
+      "title": "亞洲的勢力競爭",
+      "prompt": "哪組例子最能說明美蘇在中國內戰中支持不同政治力量？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "美國支援國民黨，蘇聯支持共產黨",
+        "美國支援北越，蘇聯支持南越",
+        "美國主導華約，蘇聯主導北約",
+        "美國提出莫洛托夫計劃，蘇聯提出馬歇爾計劃"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "113": {
+      "title": "長期成因與具體事件",
+      "prompt": "哪一組最能區分「長期成因」與「戰後的具體分歧」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "對德國的處置爭議；個人主義與集體主義",
+        "雅爾塔會議；共產主義與資本主義的分歧",
+        "波茨坦會議；俄國內戰留下的積怨",
+        "意識形態對立；對東歐政權安排的爭議"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "114": {
+      "title": "共同敵人消失之後",
+      "prompt": "「美蘇曾共同對抗納粹，所以戰後必然友好。」哪項資料最能反駁這項推論？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "兩國曾有共同的軍事目標",
+        "兩國在戰時會議已對戰後安排出現分歧",
+        "德國在1945年戰敗",
+        "兩國都曾為對德戰爭付出代價"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "115": {
+      "title": "聲音中的冷戰",
+      "prompt": "「美國之音」與「莫斯科電台」在筆記中被用來說明哪種競爭？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "集體防禦",
+        "核武裁減",
+        "宣傳與罵戰",
+        "經濟統合"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "116": {
+      "title": "經濟援助的政治性",
+      "prompt": "為何不能只把冷戰時期兩大援助計劃視為普通商業交易？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "援助主要用來安排太空人互訪",
+        "援助使兩大陣營失去對歐洲的影響",
+        "援助同時用來鞏固受援國的陣營歸屬",
+        "兩項計劃都以裁撤導彈為直接目標"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "117": {
+      "title": "危機與長期競賽",
+      "prompt": "哪組最恰當地把「一次危機」與「持續的軍備競賽」分開？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "經互會成立；西歐經濟復甦",
+        "簽訂核試驗條約；乒乓外交",
+        "古巴導彈危機；競相研製氫彈",
+        "研製洲際導彈；柏林封鎖"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "118": {
+      "title": "戰場以外的對抗",
+      "prompt": "要反駁「冷戰的對抗只出現在軍事戰場」，哪項證據最直接？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "蘇聯入侵阿富汗",
+        "兩大陣營先後杯葛對方主辦的奧運會",
+        "美蘇發展洲際彈道導彈",
+        "韓戰中雙方支持不同陣營"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "119": {
+      "title": "冷戰不是沒有戰爭",
+      "prompt": "哪一句最準確修正「冷戰期間沒有任何戰爭」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "所有地區戰爭都由兩國元首直接指揮",
+        "美蘇未簽訂停戰條約，所以每年都直接交戰",
+        "美蘇未全面直接開戰，但地區戰爭仍然存在",
+        "只有經濟援助存在，軍事行動已停止"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "120": {
+      "title": "導彈基地的位置",
+      "prompt": "筆記列舉美國在土耳其、蘇聯在古巴設立導彈基地，主要說明甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "兩國都把經濟援助交由北約管理",
+        "基地部署代表雙方已消除安全疑慮",
+        "軍事競爭會透過境外部署展開",
+        "兩國的軍事活動只限本土"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "121": {
+      "title": "限制交流的不同手段",
+      "prompt": "柏林圍牆與奧運杯葛在筆記中有甚麼共同特徵？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "以統一貨幣促進跨國貿易",
+        "以減少導彈數量促進軍事透明",
+        "以共同選舉建立單一政權",
+        "以限制人員或活動交流表現政治對立"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "122": {
+      "title": "看到合作如何解讀",
+      "prompt": "出現一項美蘇合作措施，是否足以證明冷戰已結束？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "不足，須同時觀察其他領域及其後發展",
+        "不足，因冷戰期間兩國不能有任何合作",
+        "足以，合作會令所有同盟即時解散",
+        "足以，任何合作都表示兩國制度已相同"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "123": {
+      "title": "經濟集團化",
+      "prompt": "哪項資料最能支持「冷戰對立也促成各自陣營內的經濟組織化」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "古巴危機後兩國設立熱線",
+        "兩國先後研發氫彈",
+        "美蘇分別在境外建立導彈基地",
+        "西歐成立歐洲經濟合作組織，東歐成立經互會"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "124": {
+      "title": "單一原因的不足",
+      "prompt": "若文章把冷戰爆發完全歸因於一次演說，筆記哪些內容最能補充其不足？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "只有演說者的姓名和出生地",
+        "制度分歧、歷史積怨與勢力擴張",
+        "只有兩國太空船的名稱",
+        "只有奧運主辦城市的次序"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "125": {
+      "title": "安全疑慮的惡性循環",
+      "prompt": "按筆記的解釋，將以下環節排成一條因果鏈；從一方擴張開始。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "choices": [
+        "受威脅的一方加緊擴張自己的勢力",
+        "雙方互不信任進一步加深",
+        "一方擴大在其他國家的影響力",
+        "另一方把這種擴張視為自身安全的威脅"
+      ],
+      "items": [
+        "受威脅的一方加緊擴張自己的勢力",
+        "雙方互不信任進一步加深",
+        "一方擴大在其他國家的影響力",
+        "另一方把這種擴張視為自身安全的威脅"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "126": {
+      "title": "材料對應的分歧層面",
+      "prompt": "把每則材料配對至最直接呈現的分歧層面。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "戰後地區安排",
+        "經濟制度",
+        "社會價值",
+        "政治制度"
+      ],
+      "items": [
+        "一黨專政與多黨競爭",
+        "財產公有與財產私有",
+        "集體主義與個人主義",
+        "東歐應由何種政權統治"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "127": {
+      "title": "部署還是宣傳",
+      "prompt": "按主要手段，把以下行動分為軍事競爭或宣傳對抗。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "choices": [
+        "宣傳對抗",
+        "軍事競爭"
+      ],
+      "items": [
+        "研發洲際彈道導彈",
+        "以電台批評對方政治制度",
+        "在盟國境內設立導彈基地",
+        "以演說指責對方建立鐵幕"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "128": {
+      "title": "猜疑的材料與含義",
+      "prompt": "把以下材料配對至筆記強調的直接含義。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        3,
+        1,
+        2
+      ],
+      "choices": [
+        "俄國內戰留下制度敵意",
+        "軍事科技合作受到互不信任限制",
+        "戰後安全安排的利益分歧",
+        "對戰時盟友動機產生猜疑"
+      ],
+      "items": [
+        "西方曾支援白俄反共勢力",
+        "蘇聯不滿盟軍延遲在西歐反攻",
+        "美國拒絕分享原子彈技術",
+        "美英與蘇聯爭論德國應重建還是削弱"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "129": {
+      "title": "鐵幕兩邊的解釋",
+      "prompt": "依筆記，史太林如何回應邱吉爾對蘇聯控制東歐的批評？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "宣布取消蘇聯在東歐的一切影響",
+        "承認東歐應立即由美國管理",
+        "把建立親蘇政府解釋為保障蘇聯安全",
+        "表示已同意讓所有東歐國家加入北約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "130": {
+      "title": "遏止擴張的政策",
+      "prompt": "「聯合盟友，從經濟、外交、軍事等方面遏止蘇聯擴張。」這是筆記對哪項政策的概括？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "圍堵政策",
+        "戈巴卓夫的開放政策",
+        "不擴散核武器政策",
+        "中美關係正常化政策"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "131": {
+      "title": "希臘與西歐安全",
+      "prompt": "按筆記，杜魯門為何把援助希臘視為超出希臘國內的問題？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "認為希臘內戰只影響本國文化交流",
+        "擔心希臘的政治轉向影響西歐安全",
+        "希望藉希臘撤回美國在歐洲的全部責任",
+        "準備讓希臘取代蘇聯成為核武大國"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "132": {
+      "title": "外交政策轉向",
+      "prompt": "哪項證據最能支持「杜魯門主義反映美國更加積極介入國際事務」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "美國把對外援助全部轉為國內投資",
+        "美國停止關心歐洲各國政治走向",
+        "向受共產主義壓力的國家提供援助",
+        "美國承諾只參與文化交流而不作政策介入"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "133": {
+      "title": "由復甦到圍堵",
+      "prompt": "「援助促進西歐復甦 → ＿＿ → 減低共產主義擴張的機會。」哪項最適合填入？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "減少經濟困境帶來的政治不滿",
+        "讓西歐直接改行蘇聯式計劃經濟",
+        "令西歐各國必須取消全部選舉",
+        "使西歐毋須再考慮政府合法性"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "134": {
+      "title": "援助的開放範圍",
+      "prompt": "根據筆記對馬歇爾計劃邀請範圍的描述，哪個判斷較準確？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "計劃從提出起便只准美國本土參加",
+        "計劃曾歡迎東歐參加，蘇聯卻視其為威脅",
+        "計劃由蘇聯命令東歐接受",
+        "計劃以讓西歐退出美國陣營為目標"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "135": {
+      "title": "工業產量的證據",
+      "prompt": "筆記指1952年西歐工業產量較戰前增加35%。這項數字最直接支持甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "西歐經濟復甦取得成果",
+        "東西歐已形成同一軍事陣營",
+        "西歐此後每年都保持35%增長",
+        "西歐的政治分歧已全部消失"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "136": {
+      "title": "莫洛托夫計劃的對象",
+      "prompt": "蘇聯為何把莫洛托夫計劃的援助集中於東歐？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "希望東歐全部成為北約創始成員",
+        "希望東歐保持在蘇聯陣營而不轉向美國",
+        "準備由西歐取代東歐作為其衛星國",
+        "希望東歐停止與蘇聯的一切經濟往來"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "137": {
+      "title": "兩項援助的共同目的",
+      "prompt": "馬歇爾計劃與莫洛托夫計劃雖由不同陣營推行，有哪項相似之處？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "都以解散本陣營軍事組織為條件",
+        "都由聯合國直接統一管理",
+        "都要求受援國加入同一個歐洲組織",
+        "以經濟支援鞏固各自陣營"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "138": {
+      "title": "封鎖前的爭議",
+      "prompt": "依筆記，柏林封鎖前，西方佔領區的哪項措施令蘇聯反對？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "統一貨幣並參與馬歇爾計劃",
+        "退出西柏林並取消經濟復甦",
+        "邀請東德參與1975年太空合作",
+        "拆除柏林圍牆並加入歐盟"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "139": {
+      "title": "封鎖為何影響生活",
+      "prompt": "切斷西柏林陸路交通，為何能對當地居民造成壓力？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "使西柏林必須改用太空船運輸",
+        "使西柏林立即失去所有航空技術",
+        "直接令東德成為聯合國會員",
+        "妨礙食物及日用品的運入"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "140": {
+      "title": "解除封鎖之後",
+      "prompt": "柏林封鎖解除，是否代表美蘇關係已恢復友好？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "是，東西德當年已完成統一",
+        "是，解除封鎖等同兩國簽署永久和平同盟",
+        "不是，因為封鎖從未影響兩國關係",
+        "不是，德國分裂及軍備競爭仍加深對立"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "141": {
+      "title": "集體防禦的承諾",
+      "prompt": "按筆記對北約原則的概括，若一個成員國遭受軍事攻擊，其他成員國應怎樣回應？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "只處理農業貿易而不考慮安全",
+        "自動把受攻擊國交由對方陣營管理",
+        "以退出所有條約作為必然回應",
+        "依同盟承諾向受攻擊成員提供支援"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "142": {
+      "title": "由援助走向結盟",
+      "prompt": "哪項變化最能支持「西方合作從經濟援助延伸至長期軍事保障」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "歐洲國家接受復甦資金",
+        "西歐工業產量回升",
+        "北約成立並建立集體防禦安排",
+        "東歐國家增加與蘇聯貿易"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "143": {
+      "title": "美國對日本的轉變",
+      "prompt": "依筆記，中國內戰後，美國對日本的政策出現甚麼轉變？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "由經濟穩定轉為完全停止與日本往來",
+        "由軍事合作轉為協助日本加入華約",
+        "由嚴懲轉為扶助，以加強亞洲防線",
+        "由扶助轉為讓日本退出所有安全安排"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "144": {
+      "title": "亞洲防線的地圖",
+      "prompt": "若在地圖標示筆記所說美國戰後在亞洲的新防線，哪組地點最適合？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "波蘭、捷克、匈牙利",
+        "古巴、土耳其、意大利",
+        "日本、台灣、南韓",
+        "英國、法國、西德"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "145": {
+      "title": "聯合國決議的條件",
+      "prompt": "依筆記，韓戰初期哪項情況有利於聯合國通過支援南韓的決議？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "蘇聯已解體並失去席位",
+        "蘇聯缺席相關會議",
+        "北約與華約已合併",
+        "中國與美國已正式建交"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "146": {
+      "title": "停戰與統一",
+      "prompt": "韓戰於1953年停戰，最不應由此推論哪項結果？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "朝鮮半島仍存在南北對立",
+        "地區衝突會牽動大國陣營關係",
+        "南北韓已統一為同一國家",
+        "大規模戰事以停戰安排告一段落"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "147": {
+      "title": "援助與反援助的形成",
+      "prompt": "根據筆記，從戰後西歐困境開始排列這條政策回應鏈。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        3,
+        1,
+        2
+      ],
+      "choices": [
+        "西歐經濟受戰爭破壞，美國擔心共產主義吸引力上升",
+        "蘇聯把美國援助視為對其陣營的滲透",
+        "蘇聯以莫洛托夫計劃加強東歐的經濟聯繫",
+        "美國提出馬歇爾計劃協助經濟復甦"
+      ],
+      "items": [
+        "西歐經濟受戰爭破壞，美國擔心共產主義吸引力上升",
+        "蘇聯把美國援助視為對其陣營的滲透",
+        "蘇聯以莫洛托夫計劃加強東歐的經濟聯繫",
+        "美國提出馬歇爾計劃協助經濟復甦"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "148": {
+      "title": "亞洲政策與對象",
+      "prompt": "把美國在亞洲的措施配對至筆記所述的主要對象。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "南韓",
+        "日本",
+        "台灣"
+      ],
+      "items": [
+        "由嚴懲轉為扶助，推動經濟穩定",
+        "支援退守當地的國民黨政權",
+        "在1950年代初戰爭中提供軍事支持"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "149": {
+      "title": "直接救急與長期安排",
+      "prompt": "按主要作用，把下列措施分為危機期間的直接供應，或較長期的復甦／安全安排。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "choices": [
+        "較長期的復甦／安全安排",
+        "危機期間的直接供應"
+      ],
+      "items": [
+        "把食物經空中走廊運入西柏林",
+        "空運西柏林居民所需日用品",
+        "提供馬歇爾計劃的復甦資金",
+        "建立北約成員間的集體防禦承諾"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "150": {
+      "title": "中國內戰後的局勢",
+      "prompt": "按筆記的解釋，由中國內戰結果開始，排列美國調整亞洲政策的推理鏈。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        2,
+        1
+      ],
+      "choices": [
+        "共產黨在中國內戰勝出並建立中華人民共和國",
+        "美國加強日本、台灣與南韓所構成的防線",
+        "美國更憂慮共產主義在亞洲擴張"
+      ],
+      "items": [
+        "共產黨在中國內戰勝出並建立中華人民共和國",
+        "美國加強日本、台灣與南韓所構成的防線",
+        "美國更憂慮共產主義在亞洲擴張"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "151": {
+      "title": "同盟原則的相似性",
+      "prompt": "按筆記，北約與華約雖屬對立陣營，組織原則有何共同之處？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "以取消全部成員國軍隊為宗旨",
+        "成員受攻擊時由其他成員提供軍事支援",
+        "由美蘇共同出任唯一指揮國",
+        "主要負責分配歐洲農產品"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "152": {
+      "title": "華約的控制作用",
+      "prompt": "哪項材料最能支持「華約除對外抗衡，亦成為蘇聯維持東歐勢力的工具」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "美蘇簽署限制核試驗條約",
+        "筆記以鎮壓東歐改革運動說明其作用",
+        "尼克遜與赫魯曉夫先後互訪",
+        "中國與美國開始乒乓外交"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "153": {
+      "title": "沒有協議仍有意義",
+      "prompt": "1955年日內瓦高峰會未有重大實質成果，筆記為何仍視之為破冰？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "會議當日已完成全部核武裁撤",
+        "蘇聯在會後立即加入北約",
+        "美蘇開始就安全與裁軍問題接觸",
+        "會議使所有東歐國家轉為多黨制"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "154": {
+      "title": "破冰後的外交變化",
+      "prompt": "筆記以哪項後續發展，作為1955年日內瓦高峰會後關係改善的例子？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "蘇聯與西德建立外交關係",
+        "柏林圍牆正式開放",
+        "美蘇完成1975年太空對接",
+        "北約與華約宣布合併"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "155": {
+      "title": "1959年的訪客",
+      "prompt": "1959年到訪莫斯科的尼克遜，當時在美國政府擔任何職？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "副總統",
+        "總統",
+        "駐蘇聯大使",
+        "國務卿"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "156": {
+      "title": "互訪中的承諾",
+      "prompt": "依筆記，1959年的美蘇接觸中，雙方同意用甚麼方式處理分歧？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "透過取消所有外交渠道解決",
+        "以和平手段協商解決",
+        "由一方全權決定另一方內政",
+        "先發動全面戰爭再議和"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "157": {
+      "title": "被擊落飛機的任務",
+      "prompt": "筆記指出U-2型飛機在蘇聯上空執行甚麼任務？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "運送西柏林日用品",
+        "載運參加乒乓外交的球員",
+        "刺探軍事情報",
+        "執行美蘇共同太空實驗"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "158": {
+      "title": "道歉要求與會議",
+      "prompt": "U-2事件發生後，哪個外交互動令巴黎高峰會進一步陷入困局？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "布殊要求德國統一，東德拒絕",
+        "戈巴卓夫要求裁軍，列根接受",
+        "赫魯曉夫要求道歉，艾森豪威爾拒絕",
+        "尼克遜要求訪華，毛澤東接受"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "159": {
+      "title": "東德居民外流",
+      "prompt": "按筆記，促使不少東德居民前往西方的一項生活因素是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "西德已取消所有就業機會",
+        "希望參加東歐經互會的集體農場",
+        "期望改善經濟及生活條件",
+        "東德要求所有居民搬往西柏林"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "160": {
+      "title": "圍牆危機的連鎖反應",
+      "prompt": "哪項材料最能支持「1961年柏林危機的影響超出人口流動」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "柏林位於歐洲",
+        "東德居民尋求更好的生活",
+        "柏林圍牆由建築材料組成",
+        "筆記指出美蘇軍事支出與核試競爭升溫"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "161": {
+      "title": "越戰的國內壓力",
+      "prompt": "按筆記，哪組因素促使美國國內反戰壓力上升？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "北越宣布加入美國陣營",
+        "長期軍費負擔及人員傷亡",
+        "美蘇同意共同統治越南",
+        "貿易盈餘大增及軍費持續下降"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "162": {
+      "title": "美軍撤離後",
+      "prompt": "根據筆記，美軍撤離後，越南局勢出現哪項結果？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "南越在1975年加入華約並統治北方",
+        "越南恢復為日本殖民地",
+        "南北越立即成為歐盟會員",
+        "北越在1975年完成對越南的統一"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "163": {
+      "title": "由介入到調整",
+      "prompt": "筆記以越戰說明美國外交取向的哪項調整？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "把所有外交協商改成全面軍事介入",
+        "降低承擔並尋求與蘇聯改善關係",
+        "由支援南越改為支援北約解散",
+        "因戰費低廉而永久擴大同等規模戰爭"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "164": {
+      "title": "骨牌理論的使用",
+      "prompt": "用骨牌理論解釋美國介入越南時，應把它理解為甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "北約成員遭攻擊時的法律程序",
+        "證明每個鄰國必定在同一年改變政體的定律",
+        "越南南北分界線的正式名稱",
+        "美國對共產主義可能向鄰國擴散的判斷"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "165": {
+      "title": "甘迺迪的施壓方式",
+      "prompt": "古巴導彈危機中，甘迺迪以哪項措施直接阻止相關物資繼續進入古巴？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "退出聯合國全部會議",
+        "建立西柏林空中走廊",
+        "推行莫洛托夫計劃",
+        "實施海上封鎖"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "166": {
+      "title": "土耳其與古巴",
+      "prompt": "筆記把古巴的蘇聯導彈與哪項美國部署相連？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "美國在土耳其的導彈",
+        "美國向東歐提供的農業設備",
+        "美國在中國的乒乓球隊",
+        "美國在西柏林的食品倉庫"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "167": {
+      "title": "雙方妥協的辨認",
+      "prompt": "哪組安排最能顯示古巴導彈危機不是只有一方退讓？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "美國拆除柏林圍牆；蘇聯加入北約",
+        "古巴加入華約；土耳其退出聯合國",
+        "蘇聯撤走古巴導彈；美國承諾不入侵古巴",
+        "蘇聯留置所有導彈；美國接受永久封鎖"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "168": {
+      "title": "核危機與合作",
+      "prompt": "「幾乎爆發核戰 → ＿＿ → 增加溝通與協商。」哪個環節最符合筆記？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "美國與蘇聯決定結束一切外交接觸",
+        "雙方確認對方不再擁有核武",
+        "兩國立即擁有完全一致的政治制度",
+        "雙方認識到核戰可能造成共同毀滅"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "169": {
+      "title": "熱線與裁軍",
+      "prompt": "設立美蘇熱線，與限制核武的協議在功能上有何分別？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "熱線直接銷毀導彈，協議只安排球隊互訪",
+        "熱線改善危機溝通，協議規範軍備或核試",
+        "兩者都主要用來分配西歐援助",
+        "熱線統一政治制度，協議統一貨幣"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "170": {
+      "title": "起伏不定的證明",
+      "prompt": "哪組先後發展最能支持1950年代後期至1960年代初關係「有改善也有倒退」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "1959年互訪，1960年U-2事件破壞會談",
+        "1947年兩項援助計劃同時出現",
+        "1971年乒乓外交，1979年中美建交",
+        "1989年馬耳他會談，1991年蘇聯解體"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "171": {
+      "title": "合作與對抗並存",
+      "prompt": "1955年既有華約成立，也有日內瓦高峰會。這提醒我們分析冷戰時應注意甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "高峰會一開始，軍事同盟便必須解散",
+        "同一時期可同時出現結盟對抗與外交接觸",
+        "每一年只能被界定為完全和平或完全戰爭",
+        "成立同盟代表雙方從此不能會面"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "172": {
+      "title": "巴黎會談受挫的過程",
+      "prompt": "由偵察事件開始，依筆記排列會談破裂的過程。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        3,
+        1
+      ],
+      "choices": [
+        "赫魯曉夫要求美國為偵察行動道歉",
+        "赫魯曉夫退出會議，原定協商受挫",
+        "美國U-2飛機在蘇聯上空被擊落",
+        "艾森豪威爾拒絕道歉"
+      ],
+      "items": [
+        "赫魯曉夫要求美國為偵察行動道歉",
+        "赫魯曉夫退出會議，原定協商受挫",
+        "美國U-2飛機在蘇聯上空被擊落",
+        "艾森豪威爾拒絕道歉"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "173": {
+      "title": "危機中的問題與回應",
+      "prompt": "把古巴危機及其後的措施配對至最直接處理的問題。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        2,
+        1
+      ],
+      "choices": [
+        "阻止導彈部署繼續擴大並向蘇聯施壓",
+        "改善兩國領導人的危機溝通",
+        "移除危機中的直接軍事威脅"
+      ],
+      "items": [
+        "美國實施海上封鎖",
+        "蘇聯同意撤走古巴導彈",
+        "美蘇建立直接通訊熱線"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "174": {
+      "title": "越戰代價的層面",
+      "prompt": "把筆記提及的越戰問題分為財政／經濟負擔，或人命／社會壓力。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "choices": [
+        "人命／社會壓力",
+        "財政／經濟負擔"
+      ],
+      "items": [
+        "長期軍事開支增加政府赤字",
+        "戰爭支出加劇通貨膨脹壓力",
+        "美軍傷亡引起民眾關注",
+        "國內出現大規模反戰浪潮"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "175": {
+      "title": "柏林圍牆的背景鏈",
+      "prompt": "依筆記，由東西德生活差距開始排列1961年圍牆興建的背景。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1,
+        3
+      ],
+      "choices": [
+        "不少東德居民希望前往西方改善生活",
+        "人口外流對東德造成壓力",
+        "東西德的經濟及生活條件存在差距",
+        "興建圍牆以限制居民向西流動"
+      ],
+      "items": [
+        "不少東德居民希望前往西方改善生活",
+        "人口外流對東德造成壓力",
+        "東西德的經濟及生活條件存在差距",
+        "興建圍牆以限制居民向西流動"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "176": {
+      "title": "核武轉讓的限制",
+      "prompt": "某核武國向非核武國提供製造核武器的協助。這最直接違背筆記所述哪項協議的原則？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "《四國協議》",
+        "《基礎條約》",
+        "《北大西洋公約》",
+        "《不擴散核武器條約》"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "177": {
+      "title": "核試與擴散不是一回事",
+      "prompt": "《部分禁止核試驗條約》與《不擴散核武器條約》的主要焦點有何分別？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "前者規範核試驗環境，後者限制核武擴散",
+        "前者取消全部導彈，後者只安排領導人互訪",
+        "前者建立華約，後者建立北約",
+        "前者處理東歐選舉，後者處理西歐貨幣"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "178": {
+      "title": "部分禁試的成效",
+      "prompt": "學生說：「簽署部分禁試條約後，世界上便不再有核武器。」錯誤在哪裏？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "把北約成立誤作華約解散",
+        "把經濟合作誤作太空競爭",
+        "把中美會談誤作東德選舉",
+        "把限制某些核試等同消滅既有核武"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "179": {
+      "title": "限制戰略武器的方向",
+      "prompt": "按筆記，第一期限制戰略武器協議的政策方向是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "讓非核武國自由取得核武技術",
+        "要求兩國解散所有常規軍隊",
+        "限制部分核武及相關部署的數量",
+        "建立東西歐共同貨幣"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "180": {
+      "title": "第二期協議的對象",
+      "prompt": "筆記說第二期限制戰略武器協議進一步限制哪組裝備？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "電台和電視轉播站",
+        "農業機械和鐵路車卡",
+        "導彈發射器和重型轟炸機",
+        "商船和民航客機"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "181": {
+      "title": "簽署不等於永續成功",
+      "prompt": "兩國簽署限制軍備協議，最穩妥的推論是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "條約自動令所有地區戰爭終止",
+        "兩國往後必定不會再出現政治危機",
+        "兩國已放棄各自的政治制度",
+        "當時願意透過協商約束部分軍備競爭"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "182": {
+      "title": "莫斯科之行",
+      "prompt": "「1972年，美國總統到訪蘇聯首都，翌年蘇聯領導人回訪。」這組線索指向哪次接觸？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "甘迺迪訪問莫斯科及戈巴卓夫回訪",
+        "尼克遜訪問莫斯科及布里茲尼夫回訪",
+        "杜魯門訪問莫斯科及史太林回訪",
+        "列根訪問莫斯科及毛澤東回訪"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "183": {
+      "title": "出口管制的放寬",
+      "prompt": "1969年美國放寬對蘇聯出口管制，最直接為哪種交流創造條件？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "東西德共同選舉",
+        "美蘇軍隊合併",
+        "中美乒乓球隊互訪",
+        "雙邊貿易"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "184": {
+      "title": "貿易增長的限度",
+      "prompt": "筆記指出1970至1975年間美蘇貿易大幅增加。這能支持哪項判斷？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "美蘇已成為同一個國家",
+        "所有東西歐國家已使用同一貨幣",
+        "緩和包含經濟往來的擴大",
+        "兩國的軍事競爭從此完全消失"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "185": {
+      "title": "太空領域也能合作",
+      "prompt": "把1975年太空船對接與早期太空競賽比較，可得出甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "太空合作代表兩國已不再發展科學",
+        "只要曾經競爭，之後便不能共同研究",
+        "太空船對接主要用來協助西柏林空運",
+        "同一技術領域可以由競爭延伸至合作"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "186": {
+      "title": "四國協議的焦點",
+      "prompt": "不考慮簽署年份，筆記所述《四國協議》主要涉及哪個地方的安全及安排？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "西柏林",
+        "古巴",
+        "朝鮮半島",
+        "阿富汗"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "187": {
+      "title": "承認不等於統一",
+      "prompt": "東西德簽訂《基礎條約》、互相承認主權，與兩德統一有何分別？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "條約只處理核武技術，與兩德關係無關",
+        "相互承認當時兩個政權，不是立即合併為一國",
+        "相互承認就是拆除全部邊界並統一政府",
+        "條約把東西德同時納入蘇聯版圖"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "188": {
+      "title": "德國問題的外交處理",
+      "prompt": "哪組材料最能顯示德國問題在緩和時期透過外交獲得處理？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "美國增加越戰開支，國內出現反戰示威",
+        "四國協商西柏林安排，兩德互相承認",
+        "東西兩方杯葛奧運會",
+        "美蘇在古巴與土耳其部署導彈"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "189": {
+      "title": "赫爾辛基的兩方面",
+      "prompt": "按筆記，《赫爾辛基協定》把哪兩項內容放在緩和框架內？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "承認戰後東歐邊界，以及基本人權與自由的承諾",
+        "統一朝鮮，以及建立越南臨時分界",
+        "美國撤出北約，以及蘇聯加入歐盟",
+        "古巴加入美國，以及東德加入中國"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "190": {
+      "title": "接觸與建交",
+      "prompt": "為何不能把1972年尼克遜訪華直接寫成「當年中美已正式建交」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "因中美在1972年已合併成一個國家",
+        "因1972年訪華的是美國副總統杜魯門",
+        "因兩國在1979年只進行球隊互訪",
+        "高層訪問是關係改善的一步，正式建交在1979年"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "191": {
+      "title": "建交伴隨的改變",
+      "prompt": "按筆記，1979年美國與中華人民共和國正式建交，同時調整了與哪一方的正式外交關係？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "中華民國",
+        "北韓",
+        "法國",
+        "蘇聯"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "192": {
+      "title": "共產陣營也有分歧",
+      "prompt": "哪項資料最能反駁「同屬共產主義陣營便不會有國家利益衝突」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "西柏林經空運取得物資",
+        "中蘇交惡及珍寶島衝突",
+        "美國向西歐提供復甦援助",
+        "美國與英國同屬北約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "193": {
+      "title": "三角關係的變化",
+      "prompt": "按筆記，中國與蘇聯交惡後，改善對美關係可如何影響中國的處境？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "迫使中國停止與所有國家接觸",
+        "使中國立即成為華約領導國",
+        "減輕國際孤立，增加外交活動空間",
+        "令中國毋須處理任何安全問題"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "194": {
+      "title": "邊界上的危機",
+      "prompt": "筆記以哪個地點的衝突，說明中蘇關係惡化不只停留在言論上？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "馬耳他島",
+        "洛杉磯",
+        "西柏林",
+        "珍寶島"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "195": {
+      "title": "恐懼為何促成緩和",
+      "prompt": "美蘇都擁有強大核武，為何仍可能選擇談判？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "認為核武已不能造成任何損害",
+        "因為研發核武後不再需要處理安全問題",
+        "擔心戰爭導致雙方遭受無法承受的毀滅",
+        "因為談判必須由同一政黨執政的國家參與"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "196": {
+      "title": "緩和的多重動機",
+      "prompt": "哪組因素最適合用來解釋美蘇尋求緩和，而不把原因簡化為個人友誼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "全球戰爭已終止及兩國取消國防預算",
+        "同盟全部消失及兩國改用同一憲法",
+        "兩國只關心體育成績而不考慮安全",
+        "核戰風險、軍費負擔及外交形勢變化"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "197": {
+      "title": "緩和的含義",
+      "prompt": "「緩和」最適合如何理解？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "由一方完全吸收另一方的國土",
+        "美蘇政治經濟制度立即完全一致",
+        "兩國決定把所有衝突轉移到太空",
+        "在仍有分歧下增加協商、合作和風險控制"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "198": {
+      "title": "緩和的不同渠道",
+      "prompt": "把措施配對至最直接的合作渠道。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "軍備管制",
+        "科技合作",
+        "高層外交",
+        "貿易往來"
+      ],
+      "items": [
+        "美國放寬對蘇聯出口管制",
+        "1975年太空船對接並共同實驗",
+        "尼克遜訪問莫斯科與蘇聯領導人回訪",
+        "限制導彈發射器及重型轟炸機數量"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "199": {
+      "title": "中蘇分歧與外交轉向",
+      "prompt": "從中蘇關係惡化開始，按筆記排列中國尋求改善對美關係的解釋鏈。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "choices": [
+        "中蘇之間的言論與邊界分歧加深",
+        "中國面對更大的國際孤立壓力",
+        "中美透過民間及高層接觸逐步破冰",
+        "中國希望改善與美國的關係"
+      ],
+      "items": [
+        "中蘇之間的言論與邊界分歧加深",
+        "中國面對更大的國際孤立壓力",
+        "中美透過民間及高層接觸逐步破冰",
+        "中國希望改善與美國的關係"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "200": {
+      "title": "禁試還是不擴散",
+      "prompt": "以下是用來理解條約範圍的假設措施。按主要對象，分為核試驗限制或核武擴散限制。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "choices": [
+        "核武擴散限制",
+        "核試驗限制"
+      ],
+      "items": [
+        "禁止在大氣層進行核爆炸試驗",
+        "禁止在水下進行核爆炸試驗",
+        "禁止把核武器交給非核武國",
+        "禁止協助非核武國研製核武器"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "201": {
+      "title": "協議中的議題",
+      "prompt": "將以下描述配對至筆記涉及的協議，不需判斷簽署年份。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        1,
+        0
+      ],
+      "choices": [
+        "赫爾辛基協定",
+        "基礎條約",
+        "四國協議"
+      ],
+      "items": [
+        "處理西柏林的安全及相關安排",
+        "東西德相互承認主權",
+        "戰後東歐邊界與基本人權承諾"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "202": {
+      "title": "蘇聯對阿富汗的考量",
+      "prompt": "按筆記的解釋，蘇聯出兵阿富汗的一項主要考量是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "擔心當地政局變動使其勢力流失",
+        "希望促成阿富汗加入歐盟",
+        "準備把華約總部遷至阿富汗",
+        "為了執行美蘇共同太空實驗"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "203": {
+      "title": "撤軍要求遭拒後",
+      "prompt": "筆記如何描述美國對蘇聯入侵阿富汗的外交反應？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "宣布停止關注阿富汗局勢",
+        "邀請蘇聯共同管理北約",
+        "同意把西歐防務交由蘇聯",
+        "要求蘇聯撤軍，但未獲接受"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "204": {
+      "title": "地區衝突牽動軍控",
+      "prompt": "哪項資料最能顯示阿富汗事件影響到地區以外的美蘇合作？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "阿富汗位於亞洲",
+        "蘇聯在當地需要交通運輸",
+        "筆記把事件與第二期限制戰略武器協議受挫相連",
+        "阿富汗有不同政治派別"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "205": {
+      "title": "戰爭消耗與經濟",
+      "prompt": "阿富汗戰事如何加重蘇聯的經濟困境？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "使蘇聯停止一切對外貿易並獲得無限收入",
+        "長期投入軍力及資源，增加國家負擔",
+        "立即令蘇聯免除所有國防開支",
+        "讓阿富汗代替蘇聯承擔全部軍費"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "206": {
+      "title": "體育杯葛的政治訊息",
+      "prompt": "美國等國杯葛莫斯科奧運會，當時主要希望表達哪項政治立場？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "支持蘇聯加強控制東歐",
+        "慶祝美蘇軍事同盟成立",
+        "要求取消中美正式外交關係",
+        "抗議蘇聯入侵阿富汗"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "207": {
+      "title": "兩次奧運杯葛",
+      "prompt": "筆記如何把1980年和1984年的奧運杯葛連結起來？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "兩次均直接促成北約解散",
+        "後一次帶有對前一次的報復性質",
+        "兩次都為抗議柏林空運",
+        "兩次都由同一陣營杯葛自己主辦的賽事"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "208": {
+      "title": "杯葛的含義",
+      "prompt": "奧運杯葛最能直接證明甚麼，而不是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "雙方已簽署和平條約，但不等於已建交",
+        "政治對立影響體育交流，但不等於已爆發全面戰爭",
+        "軍事同盟已解散，但不等於退出聯合國",
+        "兩國經濟已合併，但不等於貨幣統一"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "209": {
+      "title": "工人的改革要求",
+      "prompt": "「發動全國性罷工，要求改革並爭取工人權益。」按筆記，這是甚麼組織的行動？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "北大西洋公約組織",
+        "經濟互助委員會",
+        "歐洲經濟合作組織",
+        "波蘭團結工會"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "210": {
+      "title": "為何擔心工會運動",
+      "prompt": "按筆記，蘇聯為何對波蘭團結工會的行動感到不安？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "認為工會即將在古巴部署導彈",
+        "希望所有華約國家同時停止改革",
+        "擔心反抗情緒擴散至其他東歐國家",
+        "擔心波蘭退出西歐的馬歇爾計劃"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "211": {
+      "title": "波蘭問題與美蘇關係",
+      "prompt": "按筆記，波蘭異見人士遭拘捕為何會引起美國不滿？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "使美國失去在波蘭主持華約的職位",
+        "被視為對自由、人權及改革要求的打壓",
+        "使美國不能在波蘭參加1980年奧運",
+        "阻止美國把波蘭納入莫洛托夫計劃"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "212": {
+      "title": "影響與直接出兵",
+      "prompt": "筆記第18頁說蘇聯要求波蘭當局鎮壓。僅憑這一描述，最穩妥的結論是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "蘇軍已親自在波蘭執行每一次拘捕",
+        "蘇聯對波蘭政府施加政治壓力",
+        "波蘭當局已不再具有任何決策機關",
+        "美國已在波蘭直接組織新政府"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "213": {
+      "title": "衛星國體系的脆弱處",
+      "prompt": "哪項資料最適合支持「東歐的本地不滿可能牽動蘇聯陣營整體穩定」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "美蘇太空人共同進行實驗",
+        "蘇聯擔心波蘭工會行動引起其他衛星國反抗",
+        "西柏林在封鎖期間接受空運",
+        "美國與中國乒乓球隊互訪"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "214": {
+      "title": "列根的威脅判斷",
+      "prompt": "按筆記，列根上台初期如何看待共產主義對美國的影響？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "視為美國利益及國家安全的威脅",
+        "認為可用來完全取代美國憲政制度",
+        "視為北約的共同政治綱領",
+        "認為其與美國外交已毫無關係"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "215": {
+      "title": "列根與尼克遜",
+      "prompt": "依筆記對兩人政策重心的比較，列根上台初期相對尼克遜的緩和取向有何不同？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "把美國在亞洲的所有盟友交由蘇聯管理",
+        "更着重立即取消所有國防開支",
+        "主張停止批評蘇聯並加入華約",
+        "更強調反共及增加軍備壓力"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "216": {
+      "title": "言論屬於哪種手段",
+      "prompt": "列根以「邪惡帝國」批評蘇聯，最直接屬於哪一種冷戰手段？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "對軍事目標實施海上封鎖",
+        "帶有價值判斷的政治宣傳",
+        "直接裁撤導彈的軍控措施",
+        "以商品價格協調供需"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "217": {
+      "title": "強硬不只是言辭",
+      "prompt": "哪項證據可補強「列根的強硬取態不只表現在演說」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "他曾使用負面詞語形容蘇聯",
+        "評論者稱其演說語氣強烈",
+        "美國推動大規模擴軍計劃",
+        "筆記記載了其反共言論"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "218": {
+      "title": "五年計劃的金額",
+      "prompt": "筆記列出「為期5年、耗資16000億美元」的擴軍計劃。哪項讀法較準確？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "每一年都確定支出16000億",
+        "這個數字是蘇聯在阿富汗的單年軍費",
+        "16000億是所述五年計劃的總額",
+        "每個北約國家各支出16000億"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "219": {
+      "title": "經濟實力與軍備競爭",
+      "prompt": "按筆記，美國希望「星球大戰」計劃如何對蘇聯形成壓力？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "透過向蘇聯免費提供全部防禦系統",
+        "迫使蘇聯在高成本技術競爭中增加投入",
+        "把兩國太空計劃合併為同一機構",
+        "以取消美國科研開支吸引蘇聯裁軍"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "220": {
+      "title": "防禦名稱與競爭效果",
+      "prompt": "一項計劃以防禦為名，是否表示它不會加劇軍備競賽？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "不是，因為防禦計劃必定等同已發動戰爭",
+        "不是，對手可能因安全疑慮而投入更多資源",
+        "是，防禦技術與國家安全無關",
+        "是，任何防禦計劃都會令對手自動裁軍"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "221": {
+      "title": "計劃與完成部署",
+      "prompt": "筆記說列根「提出」星球大戰計劃。這能否直接證明當年已建成完整太空防禦系統？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "能，因計劃名稱已包含「大戰」",
+        "不能，提出計劃不等於全部技術及部署已完成",
+        "不能，因美國當年沒有任何科研機構",
+        "能，任何宣布都等同立即完工"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "222": {
+      "title": "太空合作與太空競爭",
+      "prompt": "1975年太空船對接與1983年星球大戰計劃，在筆記中的主要意義有何不同？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "前者建立華約，後者解散北約",
+        "前者是奧運杯葛，後者是經濟援助",
+        "前者處理德國主權，後者安排中美建交",
+        "前者象徵合作，後者反映新一輪競爭"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "223": {
+      "title": "1979年的兩面",
+      "prompt": "1979年既有第二期限制戰略武器協議，也有阿富汗事件。這最能說明甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "緩和成果可能被新的衝突削弱",
+        "軍控與地區衝突永遠互不影響",
+        "只要簽署協議，當年便不可能發生衝突",
+        "阿富汗事件直接促成所有核武即時銷毀"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "224": {
+      "title": "再起不是單一事件",
+      "prompt": "哪組因素能較完整說明1979至1985年的緊張再起？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "只有美蘇太空人的科學興趣",
+        "只有奧運會開幕日期的變化",
+        "只有東西德在1990年的統一",
+        "地區軍事衝突、東歐政治壓力及領導人政策轉變"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "225": {
+      "title": "同一工會的兩個處境",
+      "prompt": "比較1981年與1989年的團結工會，筆記呈現甚麼轉變？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "由美國政府機構轉為蘇聯加盟共和國",
+        "由主持太空計劃轉為管理核武",
+        "由遭鎮壓轉為合法參與選舉",
+        "由加入北約轉為成立華約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "226": {
+      "title": "競爭與改革壓力",
+      "prompt": "「軍備及太空競爭增加支出 → ＿＿ → 改革需求上升。」哪一環最合適？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "蘇聯立刻獲得不限額的免費資源",
+        "東歐全部國家同時放棄選舉要求",
+        "蘇聯原有的財政和經濟困難加重",
+        "美國立即接管蘇聯所有企業"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "227": {
+      "title": "不能由緊張推定結果",
+      "prompt": "根據1979至1985年的對抗，哪項結論超出了當時材料能直接支持的範圍？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "蘇聯必定在1991年的指定日期解體",
+        "兩國關係較緩和時期緊張",
+        "軍備競爭可能增加經濟負擔",
+        "地區衝突可妨礙雙邊合作"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "228": {
+      "title": "再起事件的爭議所在",
+      "prompt": "把事件配對至最直接的爭議焦點。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        3,
+        2,
+        0
+      ],
+      "choices": [
+        "以體育退出表達政治抗議",
+        "以軍事力量維持地區影響",
+        "高科技防禦與軍備競爭",
+        "工人改革訴求與政治控制"
+      ],
+      "items": [
+        "蘇聯入侵阿富汗",
+        "波蘭團結工會遭鎮壓",
+        "列根提出星球大戰計劃",
+        "西方國家杯葛莫斯科奧運"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "229": {
+      "title": "競爭成本的壓力鏈",
+      "prompt": "依筆記的分析，從新一輪軍備競爭開始排列這條壓力鏈。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "choices": [
+        "蘇聯既有經濟困境與財政壓力加重",
+        "新領導層面對更強的改革需求",
+        "美蘇展開新一輪軍備及太空技術競爭",
+        "維持競爭需要投入龐大資金"
+      ],
+      "items": [
+        "蘇聯既有經濟困境與財政壓力加重",
+        "新領導層面對更強的改革需求",
+        "美蘇展開新一輪軍備及太空技術競爭",
+        "維持競爭需要投入龐大資金"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "230": {
+      "title": "波蘭與美國的不同政策",
+      "prompt": "按筆記所述，將以下行動分為波蘭工會／當局的行動，或美國政府的行動。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "choices": [
+        "美國政府",
+        "波蘭工會／當局"
+      ],
+      "items": [
+        "團結工會發動全國性罷工",
+        "當局大規模拘捕異見人士",
+        "提出新一輪大規模擴軍計劃",
+        "提出太空防禦的星球大戰計劃"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "231": {
+      "title": "從言辭到政策",
+      "prompt": "把材料配對至最直接支持的判斷。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1
+      ],
+      "choices": [
+        "以持續投入增加軍事壓力",
+        "運用經濟及科技優勢競爭",
+        "運用帶有敵意的政治言辭"
+      ],
+      "items": [
+        "以邪惡帝國形容對方",
+        "展開五年擴軍計劃",
+        "以高成本太空競爭消耗對手"
+      ],
+      "maxIndex": [
+        2,
+        2,
+        2
+      ],
+      "distinct": true
+    },
+    "232": {
+      "title": "增長放緩的含義",
+      "prompt": "筆記指蘇聯經濟增長由1960年代的5%降至1980年代初的2%。哪項解讀最準確？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "經濟總量每年固定下跌5%",
+        "蘇聯在這段期間完全沒有經濟增長",
+        "增長速度放緩，不能直接說經濟總量縮小3%",
+        "所有產業都在同一年停止生產"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "233": {
+      "title": "改革前的財政壓力",
+      "prompt": "哪項材料最能直接顯示軍事負擔擠壓蘇聯資源？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "西德曾建立外交關係",
+        "筆記列出阿富汗戰費和高比例國防開支",
+        "戈巴卓夫曾參與外交會談",
+        "蘇聯國土面積廣大"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "234": {
+      "title": "合營企業的意義",
+      "prompt": "容許外國投資者透過合營企業在蘇聯投資，最直接屬於哪項改革方向？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "撤回與美國所有軍控談判",
+        "放寬經濟經營與對外投資限制",
+        "加強對言論出版的審查",
+        "禁止企業與外國接觸"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "235": {
+      "title": "企業可以決定甚麼",
+      "prompt": "筆記以哪項措施說明戈巴卓夫減少對國營企業的控制？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "要求所有企業只能生產軍火",
+        "容許企業自訂部分物價及工人薪酬",
+        "禁止企業決定任何日常經營事項",
+        "把所有國營企業立即交給北約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "236": {
+      "title": "剩餘產品的出售",
+      "prompt": "依筆記，企業在何種情況下可把剩餘產品放到自由市場出售？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "先達到國家訂立的指標",
+        "先取得華約成員一致投票",
+        "先停止一切國內生產",
+        "先把管理權交予美國政府"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "237": {
+      "title": "外貿渠道的改變",
+      "prompt": "企業不必再一律經外貿部進行貿易，主要反映甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "以軍事同盟取代商業交易",
+        "取消所有對外經濟往來",
+        "放寬中央對外貿渠道的控制",
+        "把企業收入全部改作奧運經費"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "238": {
+      "title": "公共討論空間",
+      "prompt": "哪組資料最能支持「開放政策擴大公共討論空間」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "兩國同意銷毀中程導彈",
+        "企業可以出售達標後的剩餘產品",
+        "獨立媒體開始發展，言論與出版限制放寬",
+        "外國投資者可以設立合營企業"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "239": {
+      "title": "異見者獲准回國",
+      "prompt": "筆記提到戈巴卓夫邀請遭流放的異見者返回莫斯科。這最適合說明哪項變化？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "蘇聯開始增加對東歐的武力干預",
+        "蘇聯停止一切科研活動",
+        "美國正式接管蘇聯司法制度",
+        "對異見及政治壓制的態度有所放寬"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "240": {
+      "title": "多黨制的方向",
+      "prompt": "筆記所述1990年修改憲法、結束一黨專政，最直接涉及哪個層面？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "農產品的出口運輸路線",
+        "導彈發射器的技術規格",
+        "太空船的國際對接標準",
+        "政治權力競爭及代表制度"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "241": {
+      "title": "不願再競賽",
+      "prompt": "1985年日內瓦高峰會中，戈巴卓夫表示無意展開軍備競賽，主要向美國傳遞甚麼訊息？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "拒絕任何軍控接觸",
+        "希望把古巴危機重新推向核戰",
+        "準備要求美國退出全部國際組織",
+        "希望減少對抗並尋求協商"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "242": {
+      "title": "限制數量與實際銷毀",
+      "prompt": "按筆記，《中程導彈裁撤條約》相對早期限制軍備協議，突出哪項進展？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "把全部核武技術交予非核武國",
+        "只安排下一次會議地點",
+        "要求實際銷毀相關中程導彈",
+        "只允許更多地下核試"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "243": {
+      "title": "馬耳他會談的訊息",
+      "prompt": "不考人物姓名，馬耳他高峰會在筆記中的主要意義是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "雙方決定重啟柏林封鎖",
+        "雙方公開表達結束冷戰的方向",
+        "美蘇正式合併成單一國家",
+        "北約與華約共同攻佔古巴"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "244": {
+      "title": "以行動表達降溫",
+      "prompt": "哪項行動最能補強「戈巴卓夫不只以言論改善對外關係」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "蘇聯於1989年全面撤離阿富汗",
+        "蘇聯在1961年支持興建柏林圍牆",
+        "蘇聯在1979年出兵阿富汗",
+        "蘇聯在1955年成立華約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "245": {
+      "title": "不干預與東歐變局",
+      "prompt": "「蘇聯承諾不再出兵干預 → ＿＿ → 東歐政局加速改變。」哪項最適合填入？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "當地改革及反對力量面對的外部軍事壓力減少",
+        "所有國家立即加入蘇聯成為加盟共和國",
+        "東歐各國的內部不滿從此不再重要",
+        "每個東歐國家必須保持同一共產黨執政"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "246": {
+      "title": "民主論壇的勝利",
+      "prompt": "「1990年全國大選，民主論壇獲勝，新政府不包括共產黨人。」筆記這組線索指哪國？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "東德",
+        "羅馬尼亞",
+        "波蘭",
+        "匈牙利"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "247": {
+      "title": "不同的轉型途徑",
+      "prompt": "波蘭的選舉變化與羅馬尼亞1989年的動盪，提醒我們甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "東歐改革都由北約直接任命政府完成",
+        "東歐政權轉變的具體過程並不相同",
+        "所有東歐國家在同一天以同一程序改革",
+        "每個國家都透過加入西德實現變革"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "248": {
+      "title": "東歐變局與華約",
+      "prompt": "東歐共產政權相繼倒台，為何會削弱華約？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "蘇聯失去維繫同盟的政治控制基礎",
+        "所有東歐國家因此更服從蘇聯統一指揮",
+        "華約本來只是貿易組織，沒有政治基礎",
+        "北約在同一天自動改名為華約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "249": {
+      "title": "意圖與結果的落差",
+      "prompt": "筆記列出麵包荒、肥皂荒及通脹，主要用來說明甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "改革未能有效消除經濟困境",
+        "改革已使物資供應毫無短缺",
+        "東歐各國同時改用美元",
+        "蘇聯已不再存在任何價格問題"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "250": {
+      "title": "保守派的不滿",
+      "prompt": "按筆記，蘇共保守派對戈巴卓夫的一項核心不滿是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "認為他拒絕一切市場改革而毫無改變",
+        "認為改革及容許分離削弱蘇聯控制與國家凝聚",
+        "認為他過度堅持出兵鎮壓所有東歐國家",
+        "認為他把華約總部永久遷入美國"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "251": {
+      "title": "政變針對誰",
+      "prompt": "八一九事變中，政變者直接針對戈巴卓夫採取哪項行動？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "解除其職務並將其軟禁",
+        "邀請他主持美國總統選舉",
+        "安排他出任北約秘書長",
+        "派他指揮1975年太空合作"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "252": {
+      "title": "復職不等於復原",
+      "prompt": "八一九政變失敗、戈巴卓夫復職，為何不能推論蘇聯政局已穩定？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "蘇聯在政變前已不存在任何矛盾",
+        "政變失敗必然令所有經濟問題即日解決",
+        "復職等同所有加盟共和國都放棄獨立",
+        "國內問題及分離力量仍未消除"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "253": {
+      "title": "解體的複合原因",
+      "prompt": "哪組因素最能依筆記作多角度解釋蘇聯解體？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "只有古巴的地理位置",
+        "經濟困境、政治開放衝擊、民族分離及保守派反彈",
+        "只有一次奧運會的運動員成績",
+        "只有美蘇之間某次晚宴的安排"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "254": {
+      "title": "改革的兩種效果",
+      "prompt": "按筆記，如何同時理解戈巴卓夫改革對和平與蘇聯政局的影響？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "對外減少對抗，對內卻未能阻止危機及解體",
+        "對外全面恢復冷戰，對內立即解決一切矛盾",
+        "其所有措施都以解體蘇聯為明確唯一目標",
+        "只影響美國經濟，對蘇聯沒有任何作用"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "255": {
+      "title": "改革措施的直接對象",
+      "prompt": "把每項改革配對至最直接調整的對象。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        2,
+        0,
+        1
+      ],
+      "choices": [
+        "政治競爭制度",
+        "對外軍備關係",
+        "信息及公共討論",
+        "投資及企業經營"
+      ],
+      "items": [
+        "允許合營企業引入外資",
+        "容許獨立媒體及較自由出版",
+        "修改一黨專政的憲制安排",
+        "與美國商討中程導彈裁撤"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "256": {
+      "title": "控制放寬與陣營鬆動",
+      "prompt": "依筆記，由蘇聯對東歐的政策轉變開始排列以下解釋鏈。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        2,
+        1,
+        3
+      ],
+      "choices": [
+        "蘇聯放寬控制並承諾不再出兵干預",
+        "多國原有共產政權失去統治地位",
+        "東歐各國的改革與反對力量有更大活動空間",
+        "蘇聯陣營及華約的政治基礎削弱"
+      ],
+      "items": [
+        "蘇聯放寬控制並承諾不再出兵干預",
+        "多國原有共產政權失去統治地位",
+        "東歐各國的改革與反對力量有更大活動空間",
+        "蘇聯陣營及華約的政治基礎削弱"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "257": {
+      "title": "解體危機的兩個層面",
+      "prompt": "將筆記列出的困境分為經濟／民生問題，或政治／國家結構問題。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "choices": [
+        "經濟／民生問題",
+        "政治／國家結構問題"
+      ],
+      "items": [
+        "生活物資供應短缺",
+        "通貨膨脹及貧窮問題",
+        "加盟共和國提出獨立訴求",
+        "保守派以政變反對改革方向"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "258": {
+      "title": "八一九事變的過程",
+      "prompt": "依筆記排列八一九事變及其後的主要發展。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        1,
+        0,
+        2
+      ],
+      "choices": [
+        "政變失敗，戈巴卓夫復職",
+        "葉利欽號召抵抗政變",
+        "戈巴卓夫仍未能解決危機，年底辭職及蘇聯解體",
+        "保守派發動政變，戈巴卓夫遭軟禁"
+      ],
+      "items": [
+        "政變失敗，戈巴卓夫復職",
+        "葉利欽號召抵抗政變",
+        "戈巴卓夫仍未能解決危機，年底辭職及蘇聯解體",
+        "保守派發動政變，戈巴卓夫遭軟禁"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "259": {
+      "title": "唯一超級大國的時限",
+      "prompt": "筆記稱美國成為「唯一超級大國」，閱讀時應把這個概括放在哪個背景？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "1914年第一次世界大戰爆發前",
+        "任何時代均不會改變的永久格局",
+        "1945年美蘇同時崛起時",
+        "蘇聯解體後初期的國際格局"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "260": {
+      "title": "美國戰後崛起",
+      "prompt": "哪組材料最能按筆記支持美國在二戰後成為超級大國？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "只因其有一座大型城市",
+        "只因其曾參與乒乓外交",
+        "戰爭中的重要作用、戰後決策影響及經濟實力",
+        "只因其舉辦一次奧運會"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "261": {
+      "title": "蘇聯戰後崛起",
+      "prompt": "筆記以哪組材料解釋蘇聯在二戰後的大國地位？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "加入歐盟及主持美國選舉",
+        "擁有洛杉磯奧運主辦權",
+        "擊敗德國的貢獻及在東歐擴大的影響",
+        "與美國在1979年正式建交"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "262": {
+      "title": "蘇聯與俄羅斯",
+      "prompt": "分析1991年後局勢時，為何不宜把「蘇聯」和「俄羅斯」當成完全相同的國家單位？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "蘇聯已解體，俄羅斯不是原聯邦全體及全部勢力範圍",
+        "俄羅斯在1991年才首次出現在歐洲",
+        "兩個名稱只分別代表同一國家的海軍和陸軍",
+        "蘇聯在1991年後仍保留全部加盟共和國"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "263": {
+      "title": "失去衛星國的影響",
+      "prompt": "東歐不再作為蘇聯衛星國，最直接削弱了甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "蘇聯原有的地區政治影響與陣營支援",
+        "古巴在1962年的地理位置",
+        "美國在二戰期間的工業產量",
+        "1947年馬歇爾計劃的提出日期"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "264": {
+      "title": "調解中東衝突",
+      "prompt": "筆記以美國促成哪項協議，說明冷戰後其調解地區糾紛的角色？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "《華沙公約》",
+        "以巴《奧斯陸協定》",
+        "《第二期限制戰略武器條約》",
+        "《中蘇友好同盟互助條約》"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "265": {
+      "title": "調解與軍事介入",
+      "prompt": "按筆記，美國促成以巴協議與北約對塞爾維亞的軍事行動，分別代表哪種方式？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "外交調解；軍事介入",
+        "企業改革；選舉改革",
+        "核武擴散；經濟統合",
+        "軍控協商；民間體育交流"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "266": {
+      "title": "世界警察的說法",
+      "prompt": "筆記用「自詡為世界警察」描述美國，這個措辭最需要注意甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "它是聯合國正式授予且永不撤回的職位",
+        "它證明冷戰後不再存在任何國際爭議",
+        "它表示美國已控制每個國家的警察",
+        "它帶有角色評價，不等於所有國家都同意其行動"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "267": {
+      "title": "有調解不等於全無衝突",
+      "prompt": "筆記列出以巴糾紛和南斯拉夫衝突，最能反駁哪個說法？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "國家可以透過外交介入其他地區",
+        "歐洲的政治版圖曾發生變化",
+        "冷戰一結束，所有地區矛盾便已消失",
+        "冷戰後美國仍有國際影響"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "268": {
+      "title": "戰勝國也可能衰弱",
+      "prompt": "筆記把英法與德意同列於戰後歐洲實力衰退的討論，說明甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "英法在二戰中沒有承擔任何成本",
+        "只有戰敗國才需要處理債務",
+        "戰勝身分不保證經濟及國力沒有受損",
+        "戰勝國必定立即成為唯一超級大國"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "269": {
+      "title": "外債的證據用途",
+      "prompt": "筆記提及法國戰後外債，最適合用來支持哪項論點？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "法國已加入蘇聯成為加盟共和國",
+        "法國在冷戰後不再有任何產業",
+        "所有歐洲國家的債務數字完全相同",
+        "戰爭加重了歐洲國家的經濟負擔"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "270": {
+      "title": "分裂阻礙統合",
+      "prompt": "東西歐分屬對立陣營，為何不利於全歐洲的經濟統合？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "所有國家都停止在本陣營內貿易",
+        "政治與制度障礙限制跨陣營合作",
+        "各國在1945年已使用共同貨幣",
+        "地理上歐洲從此成為兩個互不相鄰的洲"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "271": {
+      "title": "東歐政治接軌",
+      "prompt": "按筆記，冷戰後東歐在政治上與西歐接軌的一項變化是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "建立多黨制的民主議會",
+        "所有國家由同一位君主統治",
+        "把本國議會全部交予華約指揮",
+        "恢復蘇聯對每次選舉的軍事干預"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "272": {
+      "title": "由計劃到市場",
+      "prompt": "按筆記，東歐冷戰後經濟取向的重要變化是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "由西歐自由市場轉入蘇聯統一計劃",
+        "由傳統計劃經濟轉向較多市場機制",
+        "各國取消全部商品交易",
+        "把所有企業改由北約直接生產管理"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "273": {
+      "title": "接軌如何幫助統合",
+      "prompt": "「東歐政治經濟制度轉變 → ＿＿ → 歐洲統合的條件改善。」哪項較合適？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "每個東歐國家都改成美國一州",
+        "與西歐合作及交流的障礙減少",
+        "所有國家的主權同時消失",
+        "東西歐重新全面停止往來"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "274": {
+      "title": "歐盟與北約的區分",
+      "prompt": "筆記提到東歐國家加入歐盟和北約，為何不能把兩者當作同一組織？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "歐盟着重歐洲統合，北約屬軍事安全同盟",
+        "兩者只是同一條約的中英文名稱",
+        "兩者都只負責舉辦體育比賽",
+        "歐盟是蘇聯加盟共和國，北約是單一城市"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "275": {
+      "title": "陸續加入的意思",
+      "prompt": "「東歐國家陸續加入歐盟和北約」中的「陸續」，最不支持哪個結論？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "不同國家的參與時間可以不同",
+        "成員擴展是跨越一段時間的過程",
+        "東歐與西方制度的聯繫有所增加",
+        "所有東歐國家在冷戰結束當天同時加入兩者"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "276": {
+      "title": "歐洲地位的改變",
+      "prompt": "哪組資料較能支持筆記「歐洲實力增強」的論點？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "東西歐永久禁止一切經濟接觸",
+        "西歐重新回到1945年的戰爭破壞水平",
+        "跨東西歐合作增加，更多國家參與統合",
+        "歐洲全部國家同時被解除主權"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "277": {
+      "title": "核武管理條件的變化",
+      "prompt": "蘇聯解體前後，核武管理面對的一項結構性變化是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "全部核武在解體當日自然失效",
+        "核武技術從科學上不再可行",
+        "所有原加盟共和國即刻成為同一新聯邦",
+        "原屬同一聯邦的核武分布在不同獨立國家境內"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "278": {
+      "title": "遺留核武的問題",
+      "prompt": "前蘇聯核武遺留在不同地區，最直接引起哪方面的關注？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "保管、控制及防止擴散",
+        "乒乓球外交的比賽規則",
+        "奧運參賽隊伍的服裝",
+        "西柏林空運航線的長度"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "279": {
+      "title": "技術不等於成品武器",
+      "prompt": "筆記提到核技術流向其他國家引起憂慮。哪個閱讀原則最恰當？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "只要提到技術，就能確定沒有任何擴散風險",
+        "要分辨核技術轉移與已取得核武器，不能直接畫等號",
+        "任何核技術交流都證明接收國已有核彈",
+        "核武器與核技術都是奧運比賽名稱"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "280": {
+      "title": "技術輸出的憂慮",
+      "prompt": "筆記舉俄羅斯向哪個國家出售核技術為例，說明西方的安全憂慮？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "波蘭",
+        "伊朗",
+        "日本",
+        "法國"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "281": {
+      "title": "冷戰後為何仍需防擴散",
+      "prompt": "即使美蘇兩極對峙結束，防止核武擴散為何仍有必要？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "因為任何民用科技都等於核武器",
+        "因為冷戰結束代表核武威力增加至無限",
+        "因為所有國家都已簽署永久軍事同盟",
+        "武器及相關技術不會隨政治格局轉變而自動消失"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "282": {
+      "title": "遺留不等於已使用",
+      "prompt": "資料說某國境內有前蘇聯遺留核武，單憑這點不能判斷甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "蘇聯解體帶來管理上的新情況",
+        "該地需要處理核武安全問題",
+        "原有核武部署跨越了新的國界",
+        "該國已在戰爭中使用核武"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "283": {
+      "title": "新秩序的兩面",
+      "prompt": "哪個結論最能同時涵蓋筆記對冷戰後秩序的機會與風險？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "核安全問題存在便代表歐洲沒有任何合作",
+        "政治對立減少便代表所有危險已被消除",
+        "美國影響力增加便表示其他國家全部失去作用",
+        "合作及統合空間增加，但地區衝突與核安全問題仍在"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "284": {
+      "title": "美國獨大與歐洲增強",
+      "prompt": "「美國是當時唯一超級大國」與「歐洲統合後實力增強」是否必然矛盾？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "不必然，因歐洲已完全變成美國領土",
+        "必然，因歐洲統合代表美國立即不存在",
+        "必然，因只有美國可以增加實力",
+        "不必然，前者談全球大國格局，後者談歐洲集體力量變化"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "285": {
+      "title": "改寫過度樂觀的結論",
+      "prompt": "要把「冷戰結束帶來全面永久和平」改成符合筆記的結論，哪項最好？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "冷戰結束改變大國對抗格局，但仍需處理地區衝突與核風險",
+        "冷戰結束表示所有國家失去外交自主",
+        "冷戰結束只影響體育，不影響政治",
+        "冷戰結束令一切國際合作都停止"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "286": {
+      "title": "歐洲接軌的解釋鏈",
+      "prompt": "按筆記的論述，從東歐制度變化開始排列合作增加的解釋鏈。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        1,
+        0,
+        3
+      ],
+      "choices": [
+        "更多東歐國家參與歐洲統合",
+        "東歐與西歐的制度接軌及交流條件改善",
+        "東歐原有共產政權倒台，政治經濟制度轉變",
+        "歐洲整體的合作能力與國際地位提升"
+      ],
+      "items": [
+        "更多東歐國家參與歐洲統合",
+        "東歐與西歐的制度接軌及交流條件改善",
+        "東歐原有共產政權倒台，政治經濟制度轉變",
+        "歐洲整體的合作能力與國際地位提升"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "287": {
+      "title": "結論需要哪些證據",
+      "prompt": "將證據配對至最直接支持的論點。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "choices": [
+        "戰勝國也承受重大戰爭代價",
+        "核安全管理面對新國界及協調問題",
+        "歐洲統合的範圍擴大",
+        "美國運用外交影響參與地區事務"
+      ],
+      "items": [
+        "美國促成以巴奧斯陸協定",
+        "東歐國家參與歐洲聯盟",
+        "前蘇聯核武留在多個原加盟共和國",
+        "英法戰後國力及財政受損"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "288": {
+      "title": "材料說了與沒有說的事",
+      "prompt": "只根據「前蘇聯核武遺留於不同原加盟共和國」，把判斷分為材料支持或材料不足以證明。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "choices": [
+        "材料支持",
+        "材料不足以證明"
+      ],
+      "items": [
+        "核武分布跨越了新的國界",
+        "需要處理不同地區的核武管理問題",
+        "每個原加盟共和國都已使用核武",
+        "蘇聯解體令所有核武立即失去作用"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "289": {
+      "title": "歐洲轉變的分析層面",
+      "prompt": "把筆記所述變化配對至最直接的分析層面。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        0,
+        3,
+        2
+      ],
+      "choices": [
+        "經濟運作",
+        "政治制度",
+        "國際地位",
+        "區域合作"
+      ],
+      "items": [
+        "東歐建立多黨制議會",
+        "東歐增加市場機制",
+        "跨東西歐的統合及交流增加",
+        "統合後歐洲整體影響提升"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "290": {
+      "title": "領導與保護的側重",
+      "prompt": "按筆記，美國「領導資本主義陣營」與「保護盟友」兩種角色，較適合怎樣區分？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "兩者分別指蘇聯的內政與中國的選舉",
+        "前者側重整體圍堵方向，後者側重向有需要盟友提供支援",
+        "前者只關乎體育，後者只關乎藝術",
+        "前者表示美國不參與國際事務，後者表示退出同盟"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "291": {
+      "title": "援助如何保護盟友",
+      "prompt": "按筆記，把經濟援助列作美國「保護者」角色，是基於哪條推理？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "只要收到資金，受援國便不再需要政府",
+        "經濟復甦有助盟友穩定，減少被共產主義吸引的機會",
+        "援助的唯一作用是購買奧運獎牌",
+        "經濟援助必須先把所有盟友變成美國領土"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "292": {
+      "title": "歐洲與亞洲的共同方向",
+      "prompt": "比較美國在西歐的援助與在南韓、南越的支援，哪項共同方向較符合筆記？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "要求各國立即結束一切對外貿易",
+        "遏止共產主義擴張及維繫盟友",
+        "把所有地區問題交由蘇聯決定",
+        "促使所有盟友加入經互會"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "293": {
+      "title": "支持不保證勝利",
+      "prompt": "哪組結果最能提醒我們「得到美國支援不等於必定保住政權」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "美國總統發表演說、派員參加會談",
+        "中國國民黨退守台灣、南越後來被北越擊敗",
+        "美國推行馬歇爾計劃、提出圍堵政策",
+        "西方成立北約、蘇聯成立華約"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "294": {
+      "title": "盟友不只是棋子",
+      "prompt": "筆記強調美蘇支援盟友，是否足以推論各地政治力量都完全沒有自主目標？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "足夠，地方衝突只能由美蘇元首親自發動",
+        "不足，因為大國支援不可能影響局勢",
+        "不足，外援影響不等同本地動機及作用全部消失",
+        "足夠，任何接受援助的力量都沒有本地支持"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "295": {
+      "title": "領導與支配的分別",
+      "prompt": "按筆記對蘇聯的用詞，「領導者」與「支配者」的主要側重有何不同？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "前者組織陣營合作，後者限制盟國自主",
+        "前者只處理美國選舉，後者只處理奧運",
+        "兩者只分別指蘇聯的海軍與空軍",
+        "前者表示從不介入盟國，後者表示沒有任何影響"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "296": {
+      "title": "陣營內的經濟分工",
+      "prompt": "按筆記對赫魯曉夫分工安排的舉例，哪組國家被指向發展工業？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "日本與南韓",
+        "美國與加拿大",
+        "匈牙利與羅馬尼亞",
+        "東德與捷克"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "297": {
+      "title": "分工不等於只有一種產業",
+      "prompt": "筆記說某國在陣營分工中側重農業。單憑這句話，不能得出甚麼結論？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "該國完全沒有任何工業",
+        "筆記把該國放在特定經濟分工之中",
+        "經濟合作可能伴隨中心國的安排",
+        "蘇聯曾嘗試協調東歐的經濟角色"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "298": {
+      "title": "經互會的兩面",
+      "prompt": "經互會既可被視為經濟合作，也可用來分析蘇聯的陣營影響，原因是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "所有成員加入後即失去國家名稱",
+        "合作安排同時加強成員與蘇聯的聯繫",
+        "經互會本來就是美國的軍事總部",
+        "經濟合作必然沒有任何政治效果"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "299": {
+      "title": "由鎮壓到不干預",
+      "prompt": "比較早期鎮壓東歐改革與戈巴卓夫的不干預取向，最能說明甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "蘇聯每一任領導人的政策完全相同",
+        "蘇聯對盟國自主的容忍度隨時期改變",
+        "不干預政策令東歐永遠不能舉行選舉",
+        "所有東歐改革都發生在同一年"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "300": {
+      "title": "控制是否放寬",
+      "prompt": "要判斷蘇聯對東歐的控制是否放寬，哪類證據最有用？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "兩國領導人的服裝款式",
+        "面對當地政局變化時，是否容許自主選擇及避免出兵",
+        "美蘇太空船的外形",
+        "各國奧運獎牌的顏色"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "301": {
+      "title": "被動締造和平的評價",
+      "prompt": "按筆記，美國被形容為冷戰後期「被動的和平締結者」，主要依據是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "在戈巴卓夫釋出善意後作出合作回應",
+        "美國從來沒有參與任何裁軍協議",
+        "美國在1985年後退出所有外交會議",
+        "蘇聯要求美國結束本國全部選舉"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "302": {
+      "title": "被動不等於沒有作用",
+      "prompt": "若依筆記稱美國的和平角色較被動，哪項延伸說法並不成立？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "美國參與中程導彈裁撤協議",
+        "美國對冷戰降溫完全沒有貢獻",
+        "美國曾回應蘇聯的合作訊號",
+        "美國曾調整對蘇聯的經濟措施"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "303": {
+      "title": "合作的經濟表現",
+      "prompt": "哪項材料最能支持「美國在冷戰末期以經濟措施回應蘇聯轉變」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "在1948年開始柏林空運",
+        "在1960年執行U-2偵察",
+        "在1980年杯葛莫斯科奧運",
+        "停止相關經濟制裁並協助建立銀行體系"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "304": {
+      "title": "蘇聯的和平行動組合",
+      "prompt": "哪組最適合支持筆記稱戈巴卓夫時期蘇聯為「積極的和平締結者」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "成立華約、鎮壓匈牙利、興建柏林圍牆",
+        "支援所有地區戰爭、增加軍備、限制言論",
+        "推動裁軍、撤離阿富汗、放寬東歐控制",
+        "封鎖西柏林、擴張導彈基地、拒絕一切會談"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "305": {
+      "title": "同一條約的兩方角色",
+      "prompt": "美蘇共同簽署《中程導彈裁撤條約》，最適合如何分析雙方的和平角色？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "各有動機與主動程度，但成果需要雙方承諾",
+        "一方被稱較主動，就能證明另一方沒有作用",
+        "條約只須一方履行，另一方完全不受影響",
+        "既由兩方簽署，便表示兩國此前沒有任何分歧"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "306": {
+      "title": "核武角色的改變",
+      "prompt": "比較早期競相研製核武與1987年裁撤中程導彈，哪項概括較準確？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "研發核武與銷毀核武屬完全相同的政策目的",
+        "兩國可由增加軍備能力轉向協商減少部分武器",
+        "裁撤中程導彈表示所有常規軍隊同步消失",
+        "早期核武競賽證明後期永遠不能合作"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "307": {
+      "title": "經濟手段隨關係改變",
+      "prompt": "早期以各自援助計劃鞏固陣營，與緩和時期增加美蘇貿易，有何主要差別？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "前者突出陣營競爭，後者擴大對手之間的交流",
+        "前者只是體育活動，後者只是政治演說",
+        "兩者都直接取消所有軍事同盟",
+        "兩者都要求兩國立即使用同一貨幣"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "308": {
+      "title": "分期不等於直線發展",
+      "prompt": "研究冷戰五個階段時，哪種方法最能避免把歷史寫成單向直線？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "把每次會談都視為冷戰結束",
+        "假定每一年的美蘇關係都相同",
+        "比較每階段中的合作與衝突，留意轉折及延續",
+        "只挑選符合一個固定印象的事件"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "309": {
+      "title": "壓力與協商的關係",
+      "prompt": "討論冷戰結束時，軍備競爭與外交協商可如何同時納入解釋？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "只要有外交協商，過往成本便毫無影響",
+        "只要有軍備競爭，領導人便不可能改變政策",
+        "兩者必有一項從未發生",
+        "前者增加成本壓力，後者提供減少對抗的途徑"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "310": {
+      "title": "外部與內部的連結",
+      "prompt": "哪個分析最能把蘇聯的外部壓力與內部困境連起來？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "加盟共和國的訴求與蘇聯內部政治完全無關",
+        "所有經濟問題都由某一次演說即日造成",
+        "只要美國增加軍費，蘇聯便毋須作任何決策",
+        "軍備及戰爭支出加重經濟負擔，改革又引發政治反彈"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "311": {
+      "title": "成因與結果的次序",
+      "prompt": "哪一句避免把冷戰後期結果倒置為冷戰爆發的原因？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "1979年中美建交導致1945年雅爾塔會議召開",
+        "戰後制度與勢力分歧加深對立，後期改革及政局轉變推動結束",
+        "1991年蘇聯解體導致1947年杜魯門主義提出",
+        "1989年柏林圍牆開放導致1948年開始封鎖柏林"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "312": {
+      "title": "對稱的比較標準",
+      "prompt": "比較美蘇在冷戰中的角色，哪種寫法較公平而且清楚？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "用相同的經濟、軍事及外交標準比較雙方",
+        "以其中一國的宣傳口號直接代替兩國全部史實",
+        "比較美國的外交政策與蘇聯領導人的身高",
+        "只列美國的成就和蘇聯的失誤，不交代選材原則"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "313": {
+      "title": "同盟既保護也分裂",
+      "prompt": "如何同時理解北約與華約的安全作用和對冷戰局勢的影響？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "對成員提供保障，同時強化兩大陣營的軍事對立",
+        "軍事結盟只改變商品價格而不影響政治",
+        "成員受保護便表示全世界所有國家都更安全",
+        "只要稱為防禦同盟，就不可能影響對手的安全感"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "314": {
+      "title": "自保與擴張的不同讀法",
+      "prompt": "同一項扶植友好政權的措施，為何可被不同陣營分別稱為保護或擴張？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "只要一方稱為保護，另一方就不可能感到威脅",
+        "雙方從各自安全利益解讀同一行動",
+        "各國對安全的定義在所有時期完全相同",
+        "兩種說法證明該行動根本沒有發生"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "315": {
+      "title": "長期論點需要跨期材料",
+      "prompt": "若要論證「美蘇關係曾多次由對抗轉向接觸，再出現挫折」，哪組材料較合適？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "1959年互訪、1960年U-2事件、1970年代緩和、1979年阿富汗事件",
+        "只列1960年U-2飛機的四項技術資料",
+        "只列同一場演說的四句批評",
+        "只列一個軍事同盟的四個成員"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "316": {
+      "title": "評價角色的最佳寫法",
+      "prompt": "以下哪種答案最適合評估「誰促成冷戰結束」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "只列一位領導人的姓名，不交代政策",
+        "只引用「積極」或「被動」兩個標籤便結束",
+        "把所有合作都視作一方單獨完成",
+        "提出判準，比較雙方措施及蘇聯內部變化，再作有證據的判斷"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "317": {
+      "title": "領導人與政策取向",
+      "prompt": "把這些特定時期的政策線索配對至相應人物；不表示其一生只有這種取向。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        1,
+        0,
+        3
+      ],
+      "choices": [
+        "列根",
+        "尼克遜",
+        "杜魯門",
+        "戈巴卓夫"
+      ],
+      "items": [
+        "1947年提出援助受共產主義威脅國家的政策",
+        "1972年訪華並訪問莫斯科",
+        "1983年提出星球大戰計劃",
+        "1985年上台後推行重建和開放"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "318": {
+      "title": "支援盟友還是約束盟友",
+      "prompt": "按以下描述的直接作用，把行動分為支援盟友能力，或限制盟友自主選擇。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "choices": [
+        "限制盟友自主選擇",
+        "支援盟友能力"
+      ],
+      "items": [
+        "向盟友提供經濟復甦所需資金",
+        "在盟友遭軍事攻擊時提供援助",
+        "禁止盟友接受另一陣營的經濟援助",
+        "以武力阻止盟友改變本國政治制度"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "319": {
+      "title": "從陣營形成到裁減武器",
+      "prompt": "把以下四項不同階段的事件按發生或簽署時間由早至晚排列。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "choices": [
+        "中美正式建交",
+        "簽署中程導彈裁撤條約",
+        "北約成立",
+        "古巴導彈危機"
+      ],
+      "items": [
+        "中美正式建交",
+        "簽署中程導彈裁撤條約",
+        "北約成立",
+        "古巴導彈危機"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "320": {
+      "title": "結束冷戰的不同解釋層面",
+      "prompt": "把材料配對至分析冷戰結束時最直接的解釋層面。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        0,
+        2,
+        3
+      ],
+      "choices": [
+        "蘇聯內部政策調整",
+        "經濟成本壓力",
+        "雙邊外交協商",
+        "陣營結構改變"
+      ],
+      "items": [
+        "軍備及阿富汗戰事耗費龐大資源",
+        "戈巴卓夫放寬言論並改革企業管理",
+        "美蘇就中程導彈達成裁撤協議",
+        "東歐多國政權轉變，蘇聯控制減弱"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "321": {
+      "title": "被排除的外交經驗",
+      "prompt": "筆記把蘇俄未獲邀參與巴黎和會及加入國聯，放在冷戰成因的哪條解釋線索中？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "美國在越南撤軍的考量",
+        "戰前積怨與被孤立的感受",
+        "戰後德國貨幣改革的爭議",
+        "核武競賽造成的財政壓力"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "322": {
+      "title": "綏靖政策的蘇聯視角",
+      "prompt": "按筆記呈現的蘇聯觀點，英法對德綏靖為何會增加蘇聯的不安？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "擔心西方會阻止德國與蘇聯進行任何戰爭",
+        "認為英法準備讓蘇聯主持西歐民主選舉",
+        "懷疑西方希望把德國擴張引向東方",
+        "擔心英法把對德賠款用於支援蘇聯"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "323": {
+      "title": "共同作戰與制度分歧",
+      "prompt": "若要說明美蘇二戰同盟可能是基於共同敵人而非制度認同，哪組材料最有說服力？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "兩國各有首都，同時都參與外交",
+        "共同對德作戰，同時都派出軍隊",
+        "兩國都經歷戰爭，同時都需要運輸物資",
+        "共同對德作戰，同時在戰後安排上持續分歧"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "324": {
+      "title": "短期安排與長期安全",
+      "prompt": "筆記中，美英希望重建德國、蘇聯希望削弱德國。最適合用哪個共同問題比較兩種立場？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "怎樣的戰後德國最符合各自的安全與政治利益",
+        "哪一方在1980年主辦奧運會",
+        "哪一方更支持1979年的中美建交",
+        "哪一方更早發展太空船對接技術"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "325": {
+      "title": "武器與同盟的分別",
+      "prompt": "同屬軍事競爭，「研製氫彈」與「成立軍事同盟」分別較側重甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "協調農業生產；限制企業投資",
+        "提升武器能力；建立國家間安全承諾",
+        "限制核武轉讓；促進民間文化交流",
+        "建立國家間安全承諾；提升武器能力"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "326": {
+      "title": "一件事的多種意義",
+      "prompt": "在古巴建立導彈基地既涉及境外部署，也可能引發危機。分類時應怎樣處理？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "只按事件名稱長短決定所屬類別",
+        "只要導致危機，就不能再討論導彈部署",
+        "只要屬軍備競爭，就不能再分析它的危機效果",
+        "說明採用的判準，一件事可以反映不同特徵"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "327": {
+      "title": "積怨形成的跨期材料",
+      "prompt": "把筆記中的積怨材料按相關事件發生時間由早至晚排列。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "波茨坦會議爭論戰後德國的處置",
+        "1930年代英法對德綏靖引起蘇聯猜疑",
+        "二戰期間蘇聯不滿第二戰場遲遲未開闢",
+        "西方干預俄國內戰"
+      ],
+      "items": [
+        "波茨坦會議爭論戰後德國的處置",
+        "1930年代英法對德綏靖引起蘇聯猜疑",
+        "二戰期間蘇聯不滿第二戰場遲遲未開闢",
+        "西方干預俄國內戰"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "328": {
+      "title": "冷戰手段的作用對象",
+      "prompt": "將行動配對至其最直接作用的對象。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        2,
+        3,
+        1
+      ],
+      "choices": [
+        "公眾對敵對陣營的觀感",
+        "國際體育參與及政治象徵",
+        "受援國的生產及經濟穩定",
+        "對手面對的軍事威脅"
+      ],
+      "items": [
+        "透過電台批評敵對制度",
+        "向盟國提供經濟復甦資金",
+        "在第三國配置導彈",
+        "退出對方主辦的奧運會"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "329": {
+      "title": "原則分歧與行動分歧",
+      "prompt": "按描述的焦點，分為制度／價值原則，或具體政策／行動。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "choices": [
+        "制度／價值原則",
+        "具體政策／行動"
+      ],
+      "items": [
+        "財產應以公有還是私有為主",
+        "社會應重視集體還是個人",
+        "是否向盟友分享原子彈技術",
+        "是否在東歐扶植親己政權"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "330": {
+      "title": "積怨的時間範圍找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        3
+      ],
+      "choices": [
+        "1975年的美蘇太空合作",
+        "表示雙方已完全消除不信任。",
+        "按筆記，美蘇之間的全部合作",
+        "部分在二戰之前已形成，"
+      ],
+      "items": [
+        "按筆記，美蘇陣營之間的積怨",
+        "全部始於二戰結束後，",
+        "俄國內戰期間的西方干預",
+        "也是雙方互不信任的背景。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "331": {
+      "title": "東歐控制與西方憂慮",
+      "prompt": "按筆記，蘇聯在東歐建立親蘇政權，為何會引起美國關注？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "它直接決定了西柏林空運的每日班次",
+        "它只屬蘇聯本國境內的行政調整",
+        "它改變了戰後歐洲的勢力分布",
+        "它使美國取得更多東歐選舉席位"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "332": {
+      "title": "援助規模的正確比較",
+      "prompt": "筆記分別列出援助希臘的4億美元與馬歇爾計劃的130億美元。比較時最應先留意甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "援助對象及範圍不同，不能只用總額判斷每國所得",
+        "金額較小就必然表示沒有政治目的",
+        "金額較大就必然表示軍事支援比例較高",
+        "兩項金額都必然代表每一個國家的平均所得"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "333": {
+      "title": "貿易比例說明甚麼",
+      "prompt": "筆記以東歐與蘇聯之間的貿易比重，說明莫洛托夫計劃的效果。這類資料最直接呈現甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "西歐每一國接受援助的金額",
+        "陣營內經濟聯繫的緊密程度",
+        "東歐居民對政府的實際支持率",
+        "各國軍隊對北約的作戰能力"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "334": {
+      "title": "空運避免甚麼選擇",
+      "prompt": "西方在封鎖期間採取空運，與直接放棄西柏林相比，有甚麼不同？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "在維持當地供應的同時保留西方在西柏林的存在",
+        "把供應工作完全交回封鎖一方",
+        "承認陸路封鎖不會影響居民生活",
+        "以撤走全部居民為主要目的"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "335": {
+      "title": "台海巡邏的作用",
+      "prompt": "筆記提到美國派第七艦隊到台灣海峽巡邏，這最直接配合哪項政策？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "協助北越統一越南",
+        "迫使日本退出美國亞洲防線",
+        "支援台灣的國民黨政權",
+        "為西柏林提供日用品"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "336": {
+      "title": "否決權與聯合國",
+      "prompt": "依筆記，冷戰中大國頻繁否決不利己方的議案，會怎樣影響聯合國？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "令所有會員國自動失去發言權",
+        "使聯合國只能處理歐洲經濟援助",
+        "使每項被否決議案自動轉為軍事同盟條約",
+        "令安理會較難形成一致的集體行動"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "337": {
+      "title": "封鎖與物資供應的因果",
+      "prompt": "由陸路受阻開始，排列西方作出空運回應的因果鏈。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        3,
+        1,
+        2
+      ],
+      "choices": [
+        "蘇聯切斷西柏林的陸路交通",
+        "西方利用空中走廊運入物資",
+        "西柏林在封鎖期間得到持續補給",
+        "西柏林的食物和日用品供應面對困難"
+      ],
+      "items": [
+        "蘇聯切斷西柏林的陸路交通",
+        "西方利用空中走廊運入物資",
+        "西柏林在封鎖期間得到持續補給",
+        "西柏林的食物和日用品供應面對困難"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "338": {
+      "title": "中國與朝鮮的不同結果",
+      "prompt": "把筆記中的發展配對至相關政治力量或地區。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "choices": [
+        "朝鮮半島",
+        "南韓",
+        "中國國民黨",
+        "中國共產黨"
+      ],
+      "items": [
+        "1949年建立中華人民共和國",
+        "內戰失利後退守台灣",
+        "在1950至1953年的戰爭中獲美國支援",
+        "戰後仍處於南北分裂狀態"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "339": {
+      "title": "經濟往來與安全承諾",
+      "prompt": "按描述的直接功能，分為經濟聯繫，或軍事安全承諾。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "choices": [
+        "軍事安全承諾",
+        "經濟聯繫"
+      ],
+      "items": [
+        "透過經互會協調陣營內經濟合作",
+        "參加歐洲經濟合作組織",
+        "北約成員受攻擊時獲同盟支援",
+        "容許盟國在境內設立軍事基地"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "340": {
+      "title": "韓戰結果找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0
+      ],
+      "choices": [
+        "朝鮮半島仍維持南北分裂，",
+        "戰爭過程涉及美國對北韓的支援。",
+        "於1975年停戰，",
+        "越戰"
+      ],
+      "items": [
+        "韓戰",
+        "於1953年停戰，",
+        "朝鮮半島隨即完成政治統一，",
+        "戰爭過程涉及美國對南韓的支援。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "341": {
+      "title": "日內瓦討論的問題",
+      "prompt": "筆記所述1955年日內瓦高峰會，主要先就哪類議題展開洽談？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "蘇聯解體後的核武分配",
+        "裁軍與國際安全",
+        "東歐加入歐盟的會員程序",
+        "中美正式建交與台灣斷交"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "342": {
+      "title": "高峰會不只美蘇兩國",
+      "prompt": "筆記記載1955年日內瓦會議及原定1960年巴黎會議，除美蘇外還涉及哪兩國？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "中國與日本",
+        "波蘭與匈牙利",
+        "古巴與土耳其",
+        "英國與法國"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "343": {
+      "title": "驗證一次偵察爭議",
+      "prompt": "若要研究U-2事件如何破壞會談，哪組資料最切題？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "1980年和1984年奧運參賽名單",
+        "偵察任務資料、道歉要求及雙方外交回應",
+        "中美建交公報及東德1990年選舉結果",
+        "西歐農產品價格及經互會分工表"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "344": {
+      "title": "反戰與財政的區別",
+      "prompt": "「民眾因士兵傷亡而示威」與「軍費使政府赤字擴大」，分別較直接屬於哪類壓力？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "外交禮儀問題；太空科技問題",
+        "社會政治壓力；財政經濟壓力",
+        "財政經濟壓力；社會政治壓力",
+        "地區邊界問題；聯合國席位問題"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "345": {
+      "title": "美國在土耳其的讓步",
+      "prompt": "按筆記，古巴危機的解決除了蘇聯撤走古巴導彈，還涉及美國哪項軍事部署的調整？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "在古巴增建蘇聯導彈基地",
+        "允許北越在南韓建立基地",
+        "撤走土耳其導彈",
+        "把西柏林空運改為永久軍事封鎖"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "346": {
+      "title": "如何評估和平承諾",
+      "prompt": "領導人表示願意和平處理分歧後，研究者應如何評估其效果？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "只比較兩國領導人的任期長短",
+        "把承諾與其後實際政策及危機反應對照",
+        "只計算參加會議的官員人數",
+        "只看演說是否出現「和平」二字"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "347": {
+      "title": "古巴危機至風險管理",
+      "prompt": "由發現部署問題開始，依筆記排列古巴危機及其後的主要環節。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "choices": [
+        "美國面對蘇聯在古巴部署導彈的威脅",
+        "甘迺迪實施海上封鎖並要求撤走導彈",
+        "危機後建立直接通訊以改善日後溝通",
+        "雙方達成撤彈及不入侵等妥協安排"
+      ],
+      "items": [
+        "美國面對蘇聯在古巴部署導彈的威脅",
+        "甘迺迪實施海上封鎖並要求撤走導彈",
+        "危機後建立直接通訊以改善日後溝通",
+        "雙方達成撤彈及不入侵等妥協安排"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "348": {
+      "title": "接觸受阻的不同機制",
+      "prompt": "將事件配對至它影響關係的主要機制。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        3,
+        1
+      ],
+      "choices": [
+        "軍事秘密及主權爭議破壞互信",
+        "使雙方更重視共同毀滅的風險",
+        "打開外交協商渠道",
+        "增加東德對人口及政治穩定的憂慮"
+      ],
+      "items": [
+        "1955年安全議題洽談",
+        "U-2偵察任務曝光",
+        "東德人口持續向西流動",
+        "古巴危機逼近核戰"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "349": {
+      "title": "危機結局與後續防範",
+      "prompt": "分清下列措施是古巴危機的直接解決安排，還是危機後改善管理的措施。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "choices": [
+        "直接解決安排",
+        "事後改善管理"
+      ],
+      "items": [
+        "蘇聯撤走古巴導彈",
+        "美國承諾不入侵古巴",
+        "美蘇設立直接通訊熱線",
+        "透過核試驗限制協議減低核風險"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "350": {
+      "title": "1959年互訪找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2
+      ],
+      "choices": [
+        "1955年，",
+        "訪問中國。",
+        "赫魯曉夫",
+        "以美國副總統身分"
+      ],
+      "items": [
+        "1959年，",
+        "戈巴卓夫",
+        "以蘇聯領導人身分",
+        "訪問美國。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "351": {
+      "title": "把試驗移到地下",
+      "prompt": "假設某國把大氣層核試轉移到地下，僅按1963年部分禁試條約的試驗範圍判斷，哪項最準確？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "地下試驗不屬該條約所禁止的試驗類別",
+        "這等同簽署兩德互相承認的條約",
+        "地下試驗即代表該國已交出全部核武",
+        "這等同向非核武國轉讓核武器"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "352": {
+      "title": "限制裝備如何核對",
+      "prompt": "要判斷一項限制導彈發射器數量的安排有否落實，哪類資料最直接？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "雙方球隊互訪次數",
+        "西柏林居民的日用品進口量",
+        "適用範圍內的發射器數量及協議限額",
+        "兩國報章使用「友好」一詞的頻率"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "353": {
+      "title": "兩德加入聯合國",
+      "prompt": "按筆記，兩德在1972年簽訂《基礎條約》後於「翌年」加入聯合國，這裏指哪一年？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "1975年",
+        "1963年",
+        "1979年",
+        "1973年"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "354": {
+      "title": "赫爾辛基的利益對應",
+      "prompt": "按筆記，西方承認戰後東歐邊界，同時東歐作出人權承諾，最能呈現哪種談判方式？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "把一方的內政全部交給另一方管理",
+        "以中美建交代替歐洲安全討論",
+        "雙方就不同關切作出相互承諾",
+        "只處理軍備數量而不涉及政治"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "355": {
+      "title": "民間接觸的作用",
+      "prompt": "乒乓球隊互訪尚未等同正式建交，它仍可能如何協助關係改善？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "立即完成全部軍事同盟的重組",
+        "自動解決所有涉及台灣的外交問題",
+        "提供較低政治門檻的接觸及善意訊號",
+        "直接取代建立外交關係所需的政治決定"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "356": {
+      "title": "中蘇分歧的兩層證據",
+      "prompt": "筆記同時列出中蘇領導人的互相批評及珍寶島衝突，合用兩者有甚麼好處？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "把1979年中美建交改為1963年發生",
+        "證明兩國在任何議題都從未合作",
+        "證明所有共產國家當時都已轉向美國",
+        "同時呈現言論分歧與實際安全摩擦"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "357": {
+      "title": "互訪至合作的時序",
+      "prompt": "把以下緩和措施按發生時間由早至晚排列。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        3,
+        0,
+        2
+      ],
+      "choices": [
+        "布里茲尼夫回訪華盛頓",
+        "美國放寬對蘇聯的出口管制",
+        "美蘇太空船對接並共同實驗",
+        "尼克遜訪問莫斯科"
+      ],
+      "items": [
+        "布里茲尼夫回訪華盛頓",
+        "美國放寬對蘇聯的出口管制",
+        "美蘇太空船對接並共同實驗",
+        "尼克遜訪問莫斯科"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "358": {
+      "title": "合作措施與觀察指標",
+      "prompt": "把研究問題配對至最直接需要查閱的資料。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "choices": [
+        "領導人互訪及會議紀錄",
+        "對接任務及共同實驗紀錄",
+        "雙邊進出口數據",
+        "相關裝備數量與協議限額"
+      ],
+      "items": [
+        "放寬出口管制後貿易有否增長",
+        "限制戰略裝備的承諾有否落實",
+        "高層是否增加直接接觸",
+        "太空合作是否實際進行"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "359": {
+      "title": "德國與中美的正常化",
+      "prompt": "按直接涉及的外交關係，把以下措施分類。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "choices": [
+        "中美關係",
+        "德國問題"
+      ],
+      "items": [
+        "互相承認東西德的主權",
+        "協商保障西柏林安全",
+        "1971年乒乓球隊接觸",
+        "1979年建立正式外交關係"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "360": {
+      "title": "不擴散條約的方向找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0
+      ],
+      "choices": [
+        "禁止核武國向非核武國轉讓核武器，",
+        "《部分禁止核試驗條約》",
+        "並要求各國擴大地下核試驗。",
+        "1963年簽署的"
+      ],
+      "items": [
+        "1968年簽署的",
+        "《不擴散核武器條約》",
+        "鼓勵核武國向非核武國轉讓核武器，",
+        "並限制協助非核武國研製核武器。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "361": {
+      "title": "五年預算的平均值",
+      "prompt": "若只作數學練習，假設筆記所述16000億美元的五年擴軍計劃平均分配，每年平均是多少？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "3200億美元",
+        "80000億美元",
+        "16000億美元",
+        "800億美元"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "362": {
+      "title": "戰費資料可以證明甚麼",
+      "prompt": "若要支持「阿富汗戰爭增加蘇聯財政壓力」，除了列出戰費，加入哪項資料最有幫助？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "1971年乒乓球隊的比賽結果",
+        "阿富汗國旗的設計",
+        "蘇聯同期經濟狀況及其他主要開支",
+        "西柏林在1948年的空運班次"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "363": {
+      "title": "工人權益與政治控制",
+      "prompt": "團結工會以工人權益提出改革訴求，為何仍可能被蘇聯視為政治挑戰？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "經濟訴求與政治權力永遠完全無關",
+        "工會依法必須負責指揮所有東歐軍隊",
+        "群眾動員可能挑戰既有權力和擴散至盟國",
+        "只要訴求涉及工人就必定是外國軍事入侵"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "364": {
+      "title": "抗議方式與直接軍事行動",
+      "prompt": "比較杯葛奧運與出兵阿富汗，哪個判準最能區分兩者的直接行動形式？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "前者完全不影響外交，後者完全不影響經濟",
+        "前者一定沒有政治目的，後者才有政治目的",
+        "前者屬核武裁減，後者屬經濟援助",
+        "前者退出國際活動表態，後者使用軍事力量介入"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "365": {
+      "title": "研發競爭的資源選擇",
+      "prompt": "按筆記對星球大戰計劃的分析，蘇聯若增加相應軍事科研投入，可能面對哪種資源取捨？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "只要投資科研，政府其他開支便會自動增加相同金額",
+        "可供其他經濟及民生用途的資源受到壓力",
+        "太空科研與國家資源分配完全無關",
+        "所有軍事研究都毋須人力或資金"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "366": {
+      "title": "閱讀敵對言論",
+      "prompt": "分析「邪惡帝國」這類稱呼時，第一步應區分哪兩件事？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "使用文字的字體與國旗顏色",
+        "電台的音量與軍事基地的面積",
+        "演說的字數與發言者的出生月份",
+        "發言者的政治立場與被描述國家的可核查行動"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "367": {
+      "title": "再起時期的先後節點",
+      "prompt": "將下列事件由早至晚排列。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        1,
+        2,
+        0
+      ],
+      "choices": [
+        "蘇聯等國杯葛洛杉磯奧運會",
+        "波蘭團結工會遭鎮壓",
+        "列根提出星球大戰計劃",
+        "蘇聯出兵阿富汗"
+      ],
+      "items": [
+        "蘇聯等國杯葛洛杉磯奧運會",
+        "波蘭團結工會遭鎮壓",
+        "列根提出星球大戰計劃",
+        "蘇聯出兵阿富汗"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "368": {
+      "title": "再起階段的行動對象",
+      "prompt": "把行動配對至它在筆記中的直接對象。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        0,
+        2,
+        3
+      ],
+      "choices": [
+        "波蘭當局的政策",
+        "蘇聯的地區軍事介入",
+        "蘇聯的國際政治形象",
+        "由蘇聯主辦的國際體育活動"
+      ],
+      "items": [
+        "美國要求撤出駐阿富汗部隊",
+        "波蘭工會發動罷工及提出改革要求",
+        "列根以邪惡帝國批評對方",
+        "杯葛莫斯科奧運會"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "369": {
+      "title": "施壓措施與承受的代價",
+      "prompt": "把描述分為施壓／競爭措施，或筆記指出的成本／負擔。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "choices": [
+        "施壓／競爭措施",
+        "成本／負擔"
+      ],
+      "items": [
+        "美國推動高成本太空防禦競爭",
+        "美國增加軍備建設投入",
+        "蘇聯財政因追趕競爭而更加緊絀",
+        "蘇聯在阿富汗持續耗用軍力及資源"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "370": {
+      "title": "團結工會事件找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1
+      ],
+      "choices": [
+        "1956年，",
+        "團結工會在波蘭遭到鎮壓，",
+        "該工會曾組織北約軍事演習，",
+        "要求加強蘇聯對本國的控制。"
+      ],
+      "items": [
+        "1981年，",
+        "團結工會在匈牙利遭到鎮壓，",
+        "該工會曾發動罷工，",
+        "要求改革並爭取工人權益。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "371": {
+      "title": "增長率下降了多少",
+      "prompt": "按筆記，蘇聯經濟增長率由5%降至2%。兩個增長率相差多少個百分點？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "3個百分點",
+        "7個百分點",
+        "0.4個百分點",
+        "2.5個百分點"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "372": {
+      "title": "私人經營的例子",
+      "prompt": "筆記舉哪類行業可設立私人企業，說明戈巴卓夫放寬經濟管理？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "只限華約聯合司令部",
+        "只限國家導彈指揮部",
+        "只限外交使館",
+        "服務業等行業"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "373": {
+      "title": "企業自主與公民表達",
+      "prompt": "企業可以自訂薪酬與公民獲得較大出版自由，兩者最主要分別是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "前者屬國際裁軍，後者屬企業出口規定",
+        "兩者都只改變華約會員資格",
+        "兩者都等同取消所有國家法律",
+        "前者改變經營權限，後者改變公共表達空間"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "374": {
+      "title": "不干預是否足以解釋變局",
+      "prompt": "蘇聯放寬控制後東歐出現政變和選舉變化，分析時還應加入哪類因素？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "只比較各國國旗的配色",
+        "假定各國民眾的訴求都完全相同",
+        "各國本地不滿、改革力量及政治條件",
+        "只計算美國領導人的訪問里數"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "375": {
+      "title": "貧窮比例的意義",
+      "prompt": "筆記說1990年有25%的蘇聯人民生活在貧窮線下。哪項解讀符合這個比例？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "每個人的收入都下降了25%",
+        "約四分之一人口處於該貧窮標準以下",
+        "政府全部預算都用於救濟25個城市",
+        "國內生產總值必定下降了四分之一"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "376": {
+      "title": "兩種脫離的區別",
+      "prompt": "東歐衛星國擺脫蘇聯控制，與加盟共和國脫離蘇聯，有何重要分別？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "前者改變外部陣營關係，後者涉及聯邦國家本身的組成",
+        "兩者都只是蘇聯一個城市更名",
+        "前者必定是經濟事件，後者必定與政治無關",
+        "兩者都代表同一國家加入西德"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "377": {
+      "title": "改革與政治轉變的節點",
+      "prompt": "按筆記，將下列改革及政局事件由早至晚排列。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        3,
+        2,
+        0
+      ],
+      "choices": [
+        "保守派發動八一九政變",
+        "戈巴卓夫成為蘇聯領導人",
+        "修改憲法，結束一黨專政的安排",
+        "民選的蘇聯人民代表大會成為最高權力機關"
+      ],
+      "items": [
+        "保守派發動八一九政變",
+        "戈巴卓夫成為蘇聯領導人",
+        "修改憲法，結束一黨專政的安排",
+        "民選的蘇聯人民代表大會成為最高權力機關"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "378": {
+      "title": "解體過程中的不同角色",
+      "prompt": "把行動或立場配對至筆記中的主要行動者。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "choices": [
+        "加盟共和國",
+        "蘇共保守派",
+        "葉利欽",
+        "戈巴卓夫"
+      ],
+      "items": [
+        "推行重建和開放，政變時遭軟禁",
+        "號召人民反對八一九政變",
+        "不滿國家控制鬆動而發動政變",
+        "部分提出脫離蘇聯的獨立訴求"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "379": {
+      "title": "改革目標與實際困境",
+      "prompt": "依句子所表達的性質，分為改革希望達到的方向，或筆記記載的後續困境。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "choices": [
+        "筆記記載的後續困境",
+        "改革希望達到的方向"
+      ],
+      "items": [
+        "增加企業活力並改善經濟運作",
+        "改善與西方的關係以降低對抗",
+        "物資短缺與通脹仍然存在",
+        "民族分離訴求及保守派反彈加劇"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "380": {
+      "title": "馬耳他會談找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2
+      ],
+      "choices": [
+        "在巴黎高峰會上會面，",
+        "宣布加強兩大陣營的軍事對抗。",
+        "戈巴卓夫與布殊",
+        "1947年，"
+      ],
+      "items": [
+        "1989年，",
+        "戈巴卓夫與杜魯門",
+        "在馬耳他高峰會上會面，",
+        "表達結束冷戰的方向。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "381": {
+      "title": "二戰結束時的核武格局",
+      "prompt": "依筆記，第二次世界大戰剛結束時，哪國首先處於獨自擁有核武的地位？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "中國",
+        "美國",
+        "蘇聯",
+        "法國"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "382": {
+      "title": "國界改變與核武位置",
+      "prompt": "假設某核武設施本身沒有搬遷，但所在加盟共和國獨立了，為何仍可能產生新的管理問題？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "核武器必定已被運往另一大洲",
+        "國界變化只影響地圖顏色，與責任無關",
+        "設施必定因此失去全部物理功能",
+        "設施所屬的國家管轄及協調關係改變"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "383": {
+      "title": "統合與合併成一國",
+      "prompt": "東歐參與歐洲統合，為何不應直接寫成「所有參與國都合併為一個國家」？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "只要增加貿易就必須改用同一國名",
+        "加入國際組織會自動使所有本國機關消失",
+        "組織參與和政策合作不等同取消全部國家身分",
+        "制度接軌必定表示國界在同一天全部撤銷"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "384": {
+      "title": "影響力與完全控制",
+      "prompt": "美國在冷戰後有較大國際影響力，是否足以證明每場地區衝突都由它完全控制？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "足夠，唯一超級大國必定能決定每個人的行為",
+        "足夠，外交調解與完全統治沒有分別",
+        "不足，影響力的增加不等於決定所有地方行動",
+        "不足，因大國從來不會影響任何地區衝突"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "385": {
+      "title": "如何檢驗統合增強實力",
+      "prompt": "若要進一步檢驗筆記「歐洲統合提升國際地位」的論點，哪組指標最有用？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "只看地圖上歐洲所在的版面位置",
+        "只看各國領導人的姓名長短",
+        "只看歐洲國家的國旗數量",
+        "共同政策的協調能力及對外談判影響"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "386": {
+      "title": "安全與合作的並列",
+      "prompt": "一篇文章先說歐洲合作增加，再說核武管理出現新問題，這種安排有甚麼作用？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "從不同面向評估冷戰結束的影響",
+        "證明前一段內容必定錯誤",
+        "把核武問題當成歐洲統合已全部失敗的充分證據",
+        "把所有經濟合作都定義為軍事威脅"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "387": {
+      "title": "核武遺產的管理鏈",
+      "prompt": "按筆記討論核武遺產的方向，排列從國家解體到管理需要的解釋鏈。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0,
+        1,
+        3
+      ],
+      "choices": [
+        "原有核武分布跨越新的國家管轄範圍",
+        "核武保管及控制涉及新的跨國協調",
+        "蘇聯解體，原加盟共和國成為不同國家",
+        "防止核武及相關技術擴散成為持續關注"
+      ],
+      "items": [
+        "原有核武分布跨越新的國家管轄範圍",
+        "核武保管及控制涉及新的跨國協調",
+        "蘇聯解體，原加盟共和國成為不同國家",
+        "防止核武及相關技術擴散成為持續關注"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "388": {
+      "title": "不同論點所需的材料",
+      "prompt": "把研究問題配對至最合適的材料類別。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        2,
+        3,
+        1
+      ],
+      "choices": [
+        "外交調解及軍事介入的個案紀錄",
+        "戰爭損失、外債及經濟恢復資料",
+        "制度轉變及參與歐洲組織的紀錄",
+        "核武所在位置及保管協調資料"
+      ],
+      "items": [
+        "美國如何介入冷戰後地區事務",
+        "東歐如何與西歐接軌",
+        "蘇聯解體留下甚麼核安全問題",
+        "二戰如何削弱歐洲國力"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "389": {
+      "title": "本國制度與跨國參與",
+      "prompt": "按直接發生的層面，分為國內制度轉變，或跨國組織／合作。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "choices": [
+        "國內制度轉變",
+        "跨國組織／合作"
+      ],
+      "items": [
+        "建立多黨制議會",
+        "增加市場經濟機制",
+        "參與歐洲聯盟",
+        "加入北約安全安排"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "390": {
+      "title": "東歐經濟轉向找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0
+      ],
+      "choices": [
+        "由傳統計劃經濟轉向市場機制，",
+        "並停止與西歐的一切往來。",
+        "第二次世界大戰剛結束後，",
+        "西歐不少國家"
+      ],
+      "items": [
+        "冷戰結束後，",
+        "東歐不少國家",
+        "由自由市場轉向蘇聯式計劃經濟，",
+        "並增加與西歐的統合和交流。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    },
+    "391": {
+      "title": "角色比較的時間控制",
+      "prompt": "若比較美蘇「同一時期」的政策，一方選1947年、另一方選1989年，最主要的問題是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "所有跨國比較都必須使用同一位領導人",
+        "兩個年份的數字長度相同，沒有可比性",
+        "把不同國際背景和政策階段直接並列",
+        "經濟政策只能與體育政策比較"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "392": {
+      "title": "誰先行動是否足夠",
+      "prompt": "判斷誰對和平貢獻較大時，只知道誰先提出會談，為何仍不足夠？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "會談的先後完全不可能有任何分析價值",
+        "還需比較讓步內容、履行情況及對結果的影響",
+        "只要先發言便必定承擔全部裁軍成本",
+        "只須再知道兩國首都名稱便能定論"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "393": {
+      "title": "同盟文件與實際運作",
+      "prompt": "若同盟文件宣稱集體防禦，但要研究它是否也被用來控制盟國，還應查甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "只列出與同盟無關的運動賽事",
+        "面對盟國內部改革時的實際干預紀錄",
+        "只重讀組織名稱中的「防禦」字眼",
+        "只計算成員國旗幟上的顏色"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "394": {
+      "title": "年份正確仍可能不切題",
+      "prompt": "題目問「冷戰再起的原因」，學生只列出1990年兩德統一。這項答案有甚麼不足？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        2
+      ],
+      "choices": [
+        "兩德統一必然是所有早期政策的直接原因",
+        "所有晚於1985年的事件都不能作歷史研究",
+        "即使史實正確，也未直接解釋1979至1985年的緊張再起",
+        "年份正確便能自動回答任何冷戰問題"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "395": {
+      "title": "檢查一個單因結論",
+      "prompt": "若文章聲稱「冷戰結束只因美國施壓」，哪組材料最有助檢查這個「只因」是否過強？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        1
+      ],
+      "choices": [
+        "只列星球大戰計劃的名稱翻譯",
+        "蘇聯內部改革、東歐變局與雙邊協商",
+        "只列更多美國擴軍金額",
+        "只抄同一篇反共演說的不同段落"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "396": {
+      "title": "援助能否只看名義",
+      "prompt": "判斷某項援助既有復甦目的也有政治影響時，最合適的做法是甚麼？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        3
+      ],
+      "choices": [
+        "假定經濟改善與政治利益永遠不能同時存在",
+        "只看提出者是美國還是蘇聯，便預定全部結論",
+        "只按計劃名稱是否含「援助」作判斷",
+        "同時分析公開目標、分配對象及實際效果"
+      ],
+      "items": [],
+      "maxIndex": [
+        3
+      ],
+      "distinct": false
+    },
+    "397": {
+      "title": "經濟合作與裁軍的跨期節點",
+      "prompt": "把下列組織成立或協議簽署事件，由早至晚排列。",
+      "type": "order",
+      "validator": "index-array/1",
+      "answer": [
+        3,
+        1,
+        0,
+        2
+      ],
+      "choices": [
+        "第一期限制戰略武器協議簽署",
+        "經濟互助委員會成立",
+        "中程導彈裁撤條約簽署",
+        "歐洲經濟合作組織成立"
+      ],
+      "items": [
+        "第一期限制戰略武器協議簽署",
+        "經濟互助委員會成立",
+        "中程導彈裁撤條約簽署",
+        "歐洲經濟合作組織成立"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "398": {
+      "title": "角色評估的判準",
+      "prompt": "把評估問題配對至應重點比較的材料。",
+      "type": "match",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        2,
+        0,
+        3
+      ],
+      "choices": [
+        "撤軍、裁撤武器等行動紀錄",
+        "提出會談與釋出善意的先後",
+        "協議及政策中的具體承諾",
+        "國內經濟、改革及陣營變局資料"
+      ],
+      "items": [
+        "誰較主動促成接觸",
+        "各方承擔了甚麼讓步",
+        "措施有否真正執行",
+        "和平是否只由外交促成"
+      ],
+      "maxIndex": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "distinct": true
+    },
+    "399": {
+      "title": "措施敘述與角色評價",
+      "prompt": "按語句的主要性質，分為具體措施敘述，或概括性的角色評價。",
+      "type": "classify",
+      "validator": "index-array/1",
+      "answer": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "choices": [
+        "概括性的角色評價",
+        "具體措施敘述"
+      ],
+      "items": [
+        "美國推行馬歇爾計劃",
+        "美蘇簽署中程導彈裁撤條約",
+        "美國是資本主義陣營的保護者",
+        "戈巴卓夫時期蘇聯是積極和平締結者"
+      ],
+      "maxIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "distinct": false
+    },
+    "400": {
+      "title": "中程導彈裁軍找錯",
+      "prompt": "以下四個片段中只有一處史實錯誤。先選錯誤片段，再選能替代該片段、使整句正確的文字。",
+      "type": "correct",
+      "validator": "index-array/1",
+      "answer": [
+        2,
+        0
+      ],
+      "choices": [
+        "由美國與蘇聯簽署，",
+        "《第一期限制戰略武器條約》",
+        "1972年，",
+        "只安排兩國乒乓球隊互訪。"
+      ],
+      "items": [
+        "1987年，",
+        "《中程導彈裁撤條約》",
+        "由美國與中國簽署，",
+        "規定裁撤相關中程導彈。"
+      ],
+      "maxIndex": [
+        3,
+        3
+      ],
+      "distinct": false
+    }
+  }
+}

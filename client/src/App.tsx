@@ -1,3 +1,7 @@
+import GameRecords from "@/pages/GameRecords";
+import ConnectedGame from "@/components/ConnectedGame";
+import { games } from "@/lib/games/registry";
+import { GameSyncProvider } from "@/contexts/GameSyncContext";
 import MySubmissions from "@/pages/MySubmissions";
 import ContentPreview from "@/pages/ContentPreview";
 import ContentLibrary from "@/pages/ContentLibrary";
@@ -36,7 +40,7 @@ function SessionContent({ children }: { children: React.ReactNode }) {
   const account = useOptionalStudentAccount();
   return (
     <ScoreSyncProvider key={account?.studentId || "preview"}>
-      {children}
+      {account ? <GameSyncProvider key={`${account.user.uid}:${account.studentId}`}>{children}</GameSyncProvider> : children}
     </ScoreSyncProvider>
   );
 }
@@ -52,6 +56,14 @@ function StudentArea({
       <SessionContent>{children}</SessionContent>
     </AccountGate>
   );
+}
+
+function GameLanding() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("gameRecords")) return <GameRecords />;
+  const id = params.get("game");
+  if (id) { const game = games[id]; return game ? <main className="paper-texture min-h-screen p-3"><a href={import.meta.env.BASE_URL}>返回探索館</a><h1 className="display-title text-2xl">{game.title}</h1><ConnectedGame game={game} /></main> : <p>找不到此遊戲。<a href={import.meta.env.BASE_URL}>返回探索館</a></p>; }
+  return <Home />;
 }
 
 function Routes() {
@@ -76,8 +88,8 @@ function Routes() {
         </Route>
       )}
       <Route path="/">
-        <StudentArea>
-          <Home />
+        <StudentArea teacherPage={new URLSearchParams(window.location.search).get("gameRecords") === "teacher"}>
+          <GameLanding />
         </StudentArea>
       </Route>
       <Route path="/admin">

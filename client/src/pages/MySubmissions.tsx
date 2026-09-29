@@ -64,6 +64,7 @@ export default function MySubmissions() {
         </Link>
         <h1 className="display-title my-6 text-3xl">我的提交與評語</h1>
         <p>這裡顯示此帳戶的雲端提交，換裝置登入也能查閱。</p>
+        <a className="pixel-button pixel-button-teal my-4" href={`${import.meta.env.BASE_URL}?gameRecords=1`}>我的遊戲場次與錯題庫</a>
         <button
           className="pixel-button pixel-button-paper my-4"
           disabled={busy}
