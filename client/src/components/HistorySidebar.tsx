@@ -79,7 +79,7 @@ function SidebarBody({
           <span className="character-preview-label">角色展示</span>
         )}
       </div>
-      <Accordion type="multiple" defaultValue={[]} className="mt-4 space-y-2">
+      <Accordion type="single" collapsible className="mt-4 space-y-2">
         {GRADES.filter(({ grade }) => canSeeGrade(previewSettings ? { profile: student, teacher: Boolean(account?.teacher) } : account, grade)).map(({ grade, title }) => {
           const topics = PUBLIC_TOPICS.filter(topic => topic.grade === grade);
           return (
