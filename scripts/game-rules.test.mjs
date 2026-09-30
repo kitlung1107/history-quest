@@ -95,3 +95,18 @@ test('separate rounds retain separate wrong lists; unfinished rounds are exclude
   await assertFails(setDoc(doc(db,'gameCatalog','cold-war-maze','versions','fake'),{enabled:true}));
   await assertFails(updateDoc(doc(teacher(),'gameCatalog','cold-war-maze','versions',version,'questions','mc'),{answer:[0]}));
 });
+
+test('record queries isolate students, including answer counts; teachers can read every student', async () => {
+  const db = student(); await start(db); await answer(db,'wrong-a','mc',[0]); await answer(db,'wrong-b','mc',[0]);
+  await updateDoc(doc(db,'gameSessions','round-one'),{status:'completed',completedAt:serverTimestamp()});
+  const other = env.authenticatedContext('u2',claims('two@school.test')).firestore();
+  await assertFails(getDocs(query(collection(other,'gameSessions'),where('studentId','==','s1'),where('status','==','completed'))));
+  await assertFails(getDocs(query(collection(db,'gameSessions'),where('status','==','completed'))));
+  await assertFails(getDocs(query(collection(other,'gameSessions','round-one','answers'),where('correct','==',false))));
+  const own = await assertSucceeds(getDocs(query(collection(db,'gameSessions','round-one','answers'),where('correct','==',false))));
+  assert.equal(own.size,2);
+  const all = await assertSucceeds(getDocs(query(collection(teacher(),'gameSessions'),where('status','==','completed'))));
+  assert.equal(all.size,1);
+  await assertSucceeds(getDocs(query(collection(teacher(),'gameSessions','round-one','answers'),where('correct','==',false))));
+  await assertFails(getDocs(collection(env.unauthenticatedContext().firestore(),'gameSessions')));
+});

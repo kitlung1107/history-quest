@@ -1,6 +1,7 @@
-import { collection, doc, getDocFromServer, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where, writeBatch, type DocumentSnapshot } from 'firebase/firestore';
+import { collection, doc, getDocFromServer, getDocsFromServer, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where, writeBatch, type DocumentSnapshot } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { isCorrect, type Game, type GameEvent, type Question } from './model';
+import { collectPages, countWrongAnswers, mergeWrongQuestions, type WrongQuestion } from './records';
 export type QueuedEvent = { uid: string; studentId: string; gameId: string; version: string; event: GameEvent };
 export type GameSession = { uid: string; studentId: string; gameId: string; version: string; status: 'open' | 'completed' | 'abandoned'; attempts: number; correct: number; lastEventId: string };
 export const versionRef = (game: Pick<Game, 'gameId' | 'version'>) => doc(db, 'gameCatalog', game.gameId, 'versions', game.version);
@@ -74,14 +75,33 @@ export async function publishGame(game: Game) {
   await batch.commit();
 }
 export async function loadGameSessions(studentId?: string, cursor?: DocumentSnapshot) {
-  return getDocs(query(collection(db, 'gameSessions'), ...(studentId ? [where('studentId', '==', studentId)] : []), where('status', '==', 'completed'), orderBy('createdAt', 'desc'), ...(cursor ? [startAfter(cursor)] : []), limit(30)));
+  return getDocsFromServer(query(collection(db, 'gameSessions'), ...(studentId !== undefined ? [where('studentId', '==', studentId)] : []), where('status', '==', 'completed'), orderBy('createdAt', 'desc'), ...(cursor ? [startAfter(cursor)] : []), limit(30)));
 }
-export async function loadWrongQuestions(sessionId: string, gameId: string, version: string) {
-  const answers = await getDocs(query(collection(db, 'gameSessions', sessionId, 'answers'), where('correct', '==', false)));
-  const ids = Array.from(new Set(answers.docs.map(d => d.data().questionId as string)));
-  return Promise.all(ids.map(async id => {
-    const q = await getDocFromServer(doc(versionRef({ gameId, version }), 'questions', id));
-    if (!q.exists()) throw new Error('原版題目暫時無法讀取，請重試');
-    return { id, ...q.data() } as { id: string; title: string; prompt: string; items: string[]; choices: string[] };
-  }));
+export type SavedSession = GameSession & { id: string; createdAt?: { toDate(): Date } };
+export async function loadAllGameSessions(studentId?: string): Promise<SavedSession[]> {
+  return collectPages<SavedSession, DocumentSnapshot>(async cursor => {
+    const result = await loadGameSessions(studentId, cursor);
+    return { rows: result.docs.map(d => ({ ...d.data() as GameSession, id: d.id })), cursor: result.docs.at(-1), more: result.size === 30 };
+  });
+}
+type QuestionCache = Map<string, Promise<Question | null>>;
+export async function loadWrongQuestions(sessionId: string, gameId: string, version: string, cache: QuestionCache = new Map()): Promise<WrongQuestion[]> {
+  const answers = await getDocsFromServer(query(collection(db, 'gameSessions', sessionId, 'answers'), where('correct', '==', false)));
+  const counts = countWrongAnswers(answers.docs.map(d => d.data() as { questionId: string; correct: boolean }));
+  const rows: WrongQuestion[] = [];
+  for (const [id, count] of Array.from(counts)) {
+    const key = JSON.stringify([gameId, version, id]);
+    if (!cache.has(key)) cache.set(key, getDocFromServer(doc(versionRef({ gameId, version }), 'questions', id)).then(q => q.exists() ? q.data() as Question : null));
+    rows.push({ id, gameId, version, count, question: await cache.get(key)! });
+  }
+  return rows;
+}
+export async function loadCumulativeWrongQuestions(sessions: SavedSession[]) {
+  const cache: QuestionCache = new Map(), rows: WrongQuestion[] = [];
+  // Bound concurrent reads, and only publish a total after every session succeeds.
+  for (let i = 0; i < sessions.length; i += 5) {
+    const batch = await Promise.all(sessions.slice(i, i + 5).map(s => loadWrongQuestions(s.id, s.gameId, s.version, cache)));
+    rows.push(...batch.flat());
+  }
+  return mergeWrongQuestions(rows);
 }
