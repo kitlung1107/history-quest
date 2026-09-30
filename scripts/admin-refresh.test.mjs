@@ -44,6 +44,7 @@ function workspace() {
     },
     "@/components/TeachingWorkspace": { default: "workspace" },
     "@/components/AccountManager": { default: "accounts" },
+    "@/components/CoinRuleEditor": { default: "coin-rules" },
     "@/contexts/StudentAccount": { useStudentAccount: () => ({ user: { email: "teacher" } }) },
   };
   const Admin = compile("../client/src/pages/Admin.tsx", modules).default;
@@ -103,7 +104,7 @@ test("load more marks only its page; refresh retries every loaded page", async (
 });
 
 function cloud(grade) {
-  const reads = [], writes = [];
+  const reads = [], writes = [], awards = [];
   const data = { studentId: "s", taskId: "task", version: "old-version", answers: [] , grade };
   const modules = {
     "firebase/firestore": {
@@ -115,8 +116,16 @@ function cloud(grade) {
     },
     "./firebase": { db: {} }, "./historyQuest": { HISTORY_TASKS: [] },
     "./assessment": { markAnswers: () => [], percentage: () => null },
+    // Ledger persistence is covered by coins.integration.test.ts; this harness
+    // checks that grading passes its transaction and result to the ledger hook.
+    "./coinStore": { prepareCoinAward: async (tx, ...args) => {
+      assert.equal(writes.length, 0, "prepare the award before transaction writes");
+      assert.equal(typeof tx.get, "function");
+      awards.push(args);
+      return () => { awards.push("applied"); };
+    } },
   };
-  return { mark: compile("../client/src/lib/cloudStore.ts", modules).markSubmission, reads, writes };
+  return { mark: compile("../client/src/lib/cloudStore.ts", modules).markSubmission, reads, writes, awards };
 }
 
 test("transaction returns existing grade without overwriting scores or feedback", async () => {
@@ -125,6 +134,7 @@ test("transaction returns existing grade without overwriting scores or feedback"
   assert.equal(await c.mark("a"), grade);
   assert.equal(c.writes.length, 0);
   assert.equal(c.reads.length, 1);
+  assert.equal(c.awards.length, 0);
 });
 
 test("transaction uses submitted version and returns pending short-answer grade", async () => {
@@ -134,4 +144,5 @@ test("transaction uses submitted version and returns pending short-answer grade"
   assert.equal(grade.status, "pending");
   assert.equal(grade.revision, 1);
   assert.equal(c.writes[0].value.grade, grade);
+  assert.deepEqual(c.awards, [["s", "task", "a", null, 100], "applied"]);
 });
