@@ -103,6 +103,16 @@ test("load more marks only its page; refresh retries every loaded page", async (
   assert.ok(w.state.some(s => typeof s === "string" && s.includes("尚有未載入")));
 });
 
+test("refresh rechecks graded submissions for first positive coins but leaves pending answers alone", async () => {
+  const w = workspace();
+  w.control.pages = [[snapshot("graded", { ...row("graded"), status: "graded", score: 80 }), snapshot("pending", { ...row("pending"), status: "pending" })]];
+  w.mount(); await settle();
+  assert.ok(w.calls.includes("mark:graded"));
+  assert.ok(!w.calls.includes("mark:pending"));
+  w.click("重新整理"); await settle();
+  assert.equal(w.calls.filter(c => c === "mark:graded").length, 2);
+});
+
 function cloud(grade) {
   const reads = [], writes = [], awards = [];
   const data = { studentId: "s", taskId: "task", version: "old-version", answers: [] , grade };

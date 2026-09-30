@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDocFromServer, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { HISTORY_TASKS } from "@/lib/historyQuest";
+import { coinSettingsError } from "@/lib/coinSettingsError";
 import {
   defaultCoinRule,
   validateCoinRule,
@@ -18,26 +19,32 @@ export default function CoinRuleEditor({
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(preview);
   const [notice, setNotice] = useState("");
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
   useEffect(() => {
     let active = true;
     setNotice("");
+    setLoadFailed(false);
     setReady(preview);
     setRule(defaultCoinRule);
     if (!preview)
-      getDoc(doc(db, "coinRules", taskId))
+      getDocFromServer(doc(db, "coinRules", taskId))
         .then(s => {
           if (active) {
             setRule(s.exists() ? (s.data() as CoinRule) : defaultCoinRule);
             setReady(true);
           }
         })
-        .catch(() => {
-          if (active) setNotice("未能讀取設定，請重新開啟重試。");
+        .catch(error => {
+          if (active) {
+            setLoadFailed(true);
+            setNotice(coinSettingsError(error, db.app.options.projectId || "未知專案"));
+          }
         });
     return () => {
       active = false;
     };
-  }, [taskId, preview]);
+  }, [taskId, preview, retry]);
   async function save() {
     setBusy(true);
     setNotice("");
@@ -58,9 +65,9 @@ export default function CoinRuleEditor({
       <summary className="cursor-pointer font-bold">
         任務探索幣設定{preview ? "（本機預覽）" : ""}
       </summary>
+      {loadFailed && <button type="button" className="pixel-button pixel-button-paper my-3" onClick={() => setRetry(n => n + 1)}>重試讀取設定</button>}
       <p className="my-3 text-sm">
-        每名學生每項任務只結算一次：完成並首次取得有效正式成績後，按當時規則發幣。重做、重複提交、改分同規則更新唔會再發幣或追溯調整。未設定為零幣。現時完成程度為交卷後
-        100%；短答要等老師批改完成。
+        新學生餘額由 0 開始，不同任務獎勵會累積。完成並取得有效正式成績後，按老師設定派幣。未設獎勵、未達門檻或 0 幣唔會鎖定日後資格；每人每任務只派一次正數獎勵，之後唔重複派發或補差額。改規則後可按工作室「重新整理」檢查已載入成績。短答要等老師批改完成。
       </p>
       <label className="block my-3">
         任務
@@ -131,12 +138,13 @@ export default function CoinRuleEditor({
                 }
               >
                 <option value="score">正式成績（百分比）</option>
-                <option value="progress">完成程度（百分比）</option>
+                <option value="progress">完成程度（目前只會以 100% 結算）</option>
               </select>
             </label>
             <p className="text-sm">
               只取符合嘅最高門檻，唔會累加；未達最低門檻為零幣。
             </p>
+            {rule.metric === "progress" && <p className="text-sm">現有任務只喺完成後以 100% 結算，未有部分完成派幣；因此會選取 100% 符合嘅最高門檻。想按答題表現分級，請選「正式成績」。</p>}
             {rule.tiers.map((tier, i) => (
               <div key={i} className="flex flex-wrap items-end gap-3">
                 <label>

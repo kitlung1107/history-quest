@@ -72,7 +72,7 @@ export default function Admin() {
       const failures: string[] = [];
       for (const snapshot of docs) {
         // Short answers with a pending grade already exist; never regrade them.
-        if (snapshot.data().grade) continue;
+        if (snapshot.data().grade && snapshot.data().grade.status !== "graded") continue;
         try {
           const grade = await markSubmission(snapshot.id);
           setData(current => current ? {
@@ -86,7 +86,7 @@ export default function Admin() {
         }
       }
       setNotice(
-        (append ? "本次新增載入 " : "本次重新載入 ") + rows.length + " 份提交；已確認核算 " + processed + " 份原先未核算的提交。既有成績及評語保留，短答仍需逐份手動批改。" +
+        (append ? "本次新增載入 " : "本次重新載入 ") + rows.length + " 份提交；已核算或檢查探索幣資格 " + processed + " 份提交。既有成績及評語保留，短答仍需逐份手動批改。" +
         (hasMore ? "尚有未載入的提交，未包含在本次核算內。" : "") +
         (failures.length ? "\n" + failures.length + " 份核算失敗，請按「重新整理」重試：\n" + failures.join("\n") : "")
       );
@@ -109,7 +109,7 @@ export default function Admin() {
     </div>
     <h1 className="display-title my-6 text-3xl">教師工作室</h1><p>{account.user.email} · Firestore</p>
     <p className="my-3">首次載入最新 100 份提交；「載入更早的 100 份」會同步題目並核算新增載入的未核算提交。「重新整理」會重新讀取目前已載入的頁數並重試核算。篩選、匯出及欠交比較只涵蓋已載入紀錄，需要完整比較時請先載入更多。</p>
-    <p className="mt-3 text-sm">開啟工作室及重新整理時，先同步題目版本，再核算本次載入且未核算的提交。學生交卷流程不變；短答仍需教師評分，不會重新批改已有成績或評語的提交。</p>
+    <p className="mt-3 text-sm">開啟工作室及重新整理時，先同步題目版本，再核算本次載入且未核算的提交，並檢查已批改提交嘅首次正數探索幣資格。未設獎勵或零幣唔會鎖定資格；已有正數獎勵唔會再派或補差額。短答仍需教師評分，既有成績及評語保持不變。</p>
     {notice && <p role="status" className="my-4 whitespace-pre-wrap border-2 p-3">{notice}</p>}
     {catalogueNotice && <p role="status" className="my-4 border-2 p-3">{catalogueNotice}</p>}
     <CoinRuleEditor />

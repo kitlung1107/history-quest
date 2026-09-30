@@ -7,7 +7,8 @@ import {
 import { db } from "./firebase";
 import { coinAward, defaultCoinRule, type CoinRule } from "./coinModel";
 
-// Read before any grade/progress writes. One immutable entry per student/task.
+// Read before any writes. Positive rewards are immutable; legacy zero entries
+// can be replaced by the first positive reward in the same transaction.
 export async function prepareCoinAward(
   tx: Transaction,
   sid: string,
@@ -20,11 +21,11 @@ export async function prepareCoinAward(
   const ref = doc(db, "coinAccounts", sid, "entries", taskId);
   const existing = await tx.get(ref);
   const settings = await tx.get(doc(db, "coinRules", taskId));
-  if (existing.exists()) return () => {};
+  if (existing.exists() && existing.data().amount !== 0) return () => {};
   const rule = (settings.data() as CoinRule | undefined) ?? defaultCoinRule;
   const amount = coinAward(rule, score, progress);
   return () => {
-    if (amount !== null)
+    if (amount !== null && amount > 0)
       tx.set(ref, {
         kind,
         taskId,

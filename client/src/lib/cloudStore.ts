@@ -44,7 +44,13 @@ export async function markSubmission(id:string) {
     const snapshot = await tx.get(ref);
     const data = snapshot.data() as CloudSubmission;
     if (!data) throw new Error("提交已不存在，請重新整理。");
-    if (data.grade) return data.grade;
+    if (data.grade) {
+      if (data.grade.status === "graded" && typeof data.grade.score === "number") {
+        const award = await prepareCoinAward(tx, data.studentId, data.taskId, id, data.grade.score, Number(data.grade.progress));
+        award();
+      }
+      return data.grade;
+    }
     const catalogue = await tx.get(doc(db,"catalogue",`${data.taskId}--${data.version}`));
     if (!catalogue.exists()) throw new Error(`找不到 ${data.taskId} 的原版題目。請按教師工作室頂部「重新整理」重試；若仍失敗，需由網站管理員補回該提交版本的題目設定。`);
     const profile = await tx.get(doc(db,"profiles",data.studentId));
@@ -75,7 +81,7 @@ export async function saveGrade(id:string, revision:number, marks:{question_id:s
       return {...a,awarded:mark.awarded,feedback:mark.feedback || ""};
     });
     const score=percentage(answers);
-    const award = data.grade.status === "graded" ? () => {} : await prepareCoinAward(tx, data.studentId, data.taskId, id, score, Number(data.grade.progress));
+    const award = await prepareCoinAward(tx, data.studentId, data.taskId, id, score, Number(data.grade.progress));
     tx.update(ref,{grade:{...data.grade,answers,score,feedback,status:score===null?"pending":"graded",revision:revision+1}});
     award();
     if(progress.data()?.attemptId===id) tx.update(progressRef,{score:score || 0});
