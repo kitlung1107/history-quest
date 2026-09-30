@@ -73,7 +73,9 @@ test("same attempt agrees across immediate, ungraded history and graded history;
 });
 
 function compile(path, modules, suffix = "") {
-  const source = fs.readFileSync(new URL(path, import.meta.url), "utf8") + suffix;
+  // Match Vite's build-time replacement before running the CommonJS test module.
+  const source = fs.readFileSync(new URL(path, import.meta.url), "utf8")
+    .replaceAll("import.meta.env.BASE_URL", '"/history-quest/"') + suffix;
   const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   const context = { exports: {}, require: id => { assert.ok(id in modules, id); return modules[id]; } };
   vm.runInNewContext(js, context);
@@ -146,6 +148,7 @@ test("submission history separates MC feedback from manual comments for all thre
       "@/contexts/StudentAccount": { useStudentAccount: () => ({}) },
     }).default;
     const html = renderToStaticMarkup(React.createElement(MySubmissions));
+    assert.ok(html.includes('href="/history-quest/?gameRecords=1"'));
     assert.equal(html.includes("MC 自動回饋"), items.some(a => a.type === "choice"));
     assert.equal(html.includes("非 MC 題目老師總評語"), items.some(a => a.type !== "choice"));
     assert.ok(html.includes("preserved teacher comment"));
