@@ -14,7 +14,6 @@ import {
   CalendarDays,
   ChevronRight,
   Clock3,
-  Flame,
   Gamepad2,
   Newspaper,
   Sparkles,
@@ -27,7 +26,7 @@ import {
 } from "@/contexts/StudentAccount";
 import TaskModal from "@/components/TaskModal";
 import TaskTypeLabel from "@/components/TaskTypeLabel";
-import { useScoreSync, completedTaskCount } from "@/contexts/ScoreSyncContext";
+import { useScoreSync } from "@/contexts/ScoreSyncContext";
 import {
   HISTORY_TASKS,
   type HistoryTask,
@@ -87,11 +86,6 @@ export default function Home({
     : activeGrade !== null
       ? gradeTitle(activeGrade)
       : settings.allHeading;
-  const completed = completedTaskCount(progress);
-  const points = Object.values(progress).reduce(
-    (total, item) => total + Math.round(item.score * 1.28),
-    0
-  );
 
   return (
     <div className="manga-home min-h-screen">
@@ -240,7 +234,7 @@ export default function Home({
                 </div>
               )}
 
-              {(settings.showDaily || settings.showStats) && (
+              {settings.showDaily && (
                 <section className="daily-strip mt-5">
                   {settings.showDaily && (
                     <>
@@ -259,24 +253,6 @@ export default function Home({
                             {settings.dailyText}
                           </p>
                         </div>
-                      </div>
-                    </>
-                  )}
-                  {settings.showStats && (
-                    <>
-                      <div className="stat-cell">
-                        <Trophy className="h-8 w-8 text-gold" />
-                        <span>
-                          <small>探索積分</small>
-                          <strong>{points || 0}</strong>
-                        </span>
-                      </div>
-                      <div className="stat-cell">
-                        <Flame className="h-8 w-8 text-red" />
-                        <span>
-                          <small>完成任務</small>
-                          <strong>{completed}</strong>
-                        </span>
                       </div>
                     </>
                   )}

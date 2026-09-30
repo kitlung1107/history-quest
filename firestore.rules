@@ -234,6 +234,32 @@ service cloud.firestore {
       }
     }
 
+    match /coinRules/{task} {
+      allow read, write: if teacher();
+    }
+    match /coinAccounts/{sid}/entries/{entry} {
+      allow read: if teacher() || owns(sid);
+      function submissionEvidence(d) {
+        let s = getAfter(/databases/$(database)/documents/submissions/$(d.attemptId)).data;
+        return s.studentId == sid && s.taskId == entry && s.grade.status == 'graded' && s.grade.score == d.score;
+      }
+      function gameEvidence(d) {
+        let s = get(/databases/$(database)/documents/gameSessions/$(d.attemptId)).data;
+        return s.studentId == sid && s.status == 'completed' && s.attempts > 0
+          && get(/databases/$(database)/documents/gameCatalog/$(s.gameId)/versions/$(s.version)).data.taskId == entry;
+      }
+      // Teacher-confirmed grading is the trust boundary. Students cannot mint coins.
+      // Immutable task IDs make retries and concurrent marking idempotent.
+      allow create: if teacher()
+        && request.resource.data.keys().hasOnly(['kind','taskId','attemptId','amount','score','progress','rule','createdAt'])
+        && request.resource.data.taskId == entry
+        && request.resource.data.amount is int && request.resource.data.amount >= 0 && request.resource.data.amount <= 100000
+        && request.resource.data.score is number && request.resource.data.score >= 0 && request.resource.data.score <= 100
+        && request.resource.data.progress == 100 && request.resource.data.createdAt == request.time
+        && ((request.resource.data.kind == 'taskReward' && submissionEvidence(request.resource.data))
+          || (request.resource.data.kind == 'gameReward' && gameEvidence(request.resource.data)));
+      allow update, delete: if false;
+    }
     match /catalogue/{task} { allow read, write: if teacher(); }
     match /roster/{student} { allow read, write: if teacher(); }
     match /metadata/{key} { allow read, write: if teacher(); }

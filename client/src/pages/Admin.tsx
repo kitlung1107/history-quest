@@ -5,6 +5,7 @@ import { db, googleLogout } from "@/lib/firebase";
 import { loadSubmissions, asRow, markSubmission, syncCatalogue, type CloudSubmission } from "@/lib/cloudStore";
 import TeachingWorkspace, { type TeachingData } from "@/components/TeachingWorkspace";
 import AccountManager from "@/components/AccountManager";
+import CoinRuleEditor from "@/components/CoinRuleEditor";
 import { type CloudProfile, useStudentAccount } from "@/contexts/StudentAccount";
 
 export default function Admin() {
@@ -111,6 +112,7 @@ export default function Admin() {
     <p className="mt-3 text-sm">開啟工作室及重新整理時，先同步題目版本，再核算本次載入且未核算的提交。學生交卷流程不變；短答仍需教師評分，不會重新批改已有成績或評語的提交。</p>
     {notice && <p role="status" className="my-4 whitespace-pre-wrap border-2 p-3">{notice}</p>}
     {catalogueNotice && <p role="status" className="my-4 border-2 p-3">{catalogueNotice}</p>}
+    <CoinRuleEditor />
     {data && <TeachingWorkspace pin="" initial={data} onDataChange={setData} loading={busy} />}
     {more && <button disabled={busy} className="pixel-button pixel-button-paper my-4" onClick={() => void refreshWorkspace(true)}>載入更早的 100 份</button>}
     <a className="pixel-button pixel-button-teal my-4" href={`${import.meta.env.BASE_URL}?gameRecords=teacher`}>學生遊戲場次與錯題庫</a>

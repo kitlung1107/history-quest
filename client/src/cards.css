@@ -25,3 +25,10 @@
 .card-editor-preview { width: min(100%, 280px); margin: 0 auto; }
 .explorer-card-starter .explorer-card-nickname { left: 22%; top: 3.7%; width: 56%; height: 6.4%; }
 .explorer-card-starter .explorer-card-identity { left: 29%; top: 87%; width: 42%; height: 4.8%; }
+
+.coin-balance { width:fit-content; max-width:100%; margin:17px auto 18px; color:#263b44; text-align:center; }
+.coin-balance-label { display:block; margin-bottom:7px; font-size:18px; font-weight:800; letter-spacing:.06em; line-height:1.4; }
+.coin-balance-count { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:9px; }
+.coin-balance .exploration-coin { width:27px; height:30px; flex:none; }
+.coin-balance-times { font-size:20px; font-weight:500; color:#80755f; }
+.coin-balance strong { font-size:26px; font-weight:750; line-height:1.1; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }

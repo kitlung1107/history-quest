@@ -33,6 +33,7 @@ import {
   type CloudProfile,
 } from "@/contexts/StudentAccount";
 import ExplorerCard from "@/components/ExplorerCard";
+import CoinBalance from "@/components/CoinBalance";
 import { EXPLORER_CARDS } from "@/lib/cards";
 import { resolveCard } from "@/lib/cardModel";
 import { useEffect, useId, useRef, useState } from "react";
@@ -67,6 +68,7 @@ function SidebarBody({
           card={card}
           profile={{ ...student, nickname: profile?.nickname }}
         />
+        <CoinBalance />
         {onChangeCharacter ? (
           <button className="change-character" onClick={onChangeCharacter}>
             更換卡片

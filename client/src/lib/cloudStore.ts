@@ -1,5 +1,6 @@
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where, writeBatch, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
+import { prepareCoinAward } from "./coinStore";
 import { HISTORY_TASKS, type TaskProgress } from "./historyQuest";
 import { assessmentVersion, getQuestions, markAnswers, percentage, type Answer, type Question, type SubmissionRow } from "./assessment";
 import type { CloudProfile } from "@/contexts/StudentAccount";
@@ -52,7 +53,9 @@ export async function markSubmission(id:string) {
     const answers = markAnswers(catalogue.data().questions as Question[],data.answers);
     const score = percentage(answers);
     const grade:SubmissionRow = {...asRow(id,data,profile.data() as CloudProfile),task_title:catalogue.data().title,answers,score,status:score===null?"pending":"graded",revision:1,feedback:""};
+    const award = await prepareCoinAward(tx, data.studentId, data.taskId, id, score, Number(grade.progress));
     tx.update(ref,{grade});
+    award();
     if (progress.data()?.attemptId===id) tx.update(progressRef,{score:score || 0});
     return grade;
   });
@@ -72,7 +75,9 @@ export async function saveGrade(id:string, revision:number, marks:{question_id:s
       return {...a,awarded:mark.awarded,feedback:mark.feedback || ""};
     });
     const score=percentage(answers);
+    const award = data.grade.status === "graded" ? () => {} : await prepareCoinAward(tx, data.studentId, data.taskId, id, score, Number(data.grade.progress));
     tx.update(ref,{grade:{...data.grade,answers,score,feedback,status:score===null?"pending":"graded",revision:revision+1}});
+    award();
     if(progress.data()?.attemptId===id) tx.update(progressRef,{score:score || 0});
   });
   return (await getDoc(doc(db,"submissions",id))).data()!.grade as SubmissionRow;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Home from "./Home";
+import CoinRuleEditor from "@/components/CoinRuleEditor";
 import { ProfileEditor, type CloudProfile } from "@/contexts/StudentAccount";
 import { characterKey } from "@/lib/characters";
 import { isStudentRole, giftCards } from "@/lib/cardModel";
@@ -148,6 +149,7 @@ export default function LocalHomeDemo() {
           </nav>
         </>
       )}
+      {new URLSearchParams(location.search).get("coins") === "teacher" && <div className="mx-auto max-w-4xl p-4"><CoinRuleEditor preview /></div>}
       {editing ? (
         <ProfileEditor
           initialProfile={profile}
