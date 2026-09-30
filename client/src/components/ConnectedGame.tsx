@@ -30,7 +30,7 @@ export default function ConnectedGame({ game }: { game: Game }) {
     return onSnapshot(versionRef(game), { includeMetadataChanges: true }, snapshot => {
       if (snapshot.metadata.fromCache) return;
       const enabled = snapshot.exists() && snapshot.data().enabled === true;
-      setPublished(enabled); setNotice(enabled ? '' : '此版本尚未啟用，請老師先在遊戲紀錄頁同步題庫。');
+      setPublished(enabled); setNotice(enabled ? '' : '此遊戲版本尚未啟用，請聯絡管理員完成題庫發布。');
     }, () => { setPublished(false); setNotice('題庫核對失敗，請檢查連線並重新登入。'); });
   }, [account?.user.uid, game.version]);
   useEffect(() => {

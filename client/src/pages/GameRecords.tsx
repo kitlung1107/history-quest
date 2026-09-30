@@ -3,7 +3,7 @@ import { doc, getDocFromServer, type DocumentSnapshot } from 'firebase/firestore
 import { useStudentAccount } from '../contexts/StudentAccount';
 import { db } from '../lib/firebase';
 import { games } from '../lib/games/registry';
-import { loadGameSessions, loadWrongQuestions, publishGame, type GameSession } from '../lib/games/store';
+import { loadGameSessions, loadWrongQuestions, type GameSession } from '../lib/games/store';
 type Row = GameSession & { id: string; name: string; title: string };
 function SessionCard({ row }: { row: Row }) {
   const [questions, setQuestions] = useState<Awaited<ReturnType<typeof loadWrongQuestions>> | null>(null);
@@ -31,7 +31,7 @@ function SessionCard({ row }: { row: Row }) {
 export default function GameRecords() {
   const account = useStudentAccount();
   const [rows, setRows] = useState<Row[]>([]), [busy, setBusy] = useState(false), [error, setError] = useState('');
-  const [cursor, setCursor] = useState<DocumentSnapshot>(), [more, setMore] = useState(false), [notice, setNotice] = useState('');
+  const [cursor, setCursor] = useState<DocumentSnapshot>(), [more, setMore] = useState(false);
   async function load(next = false) {
     setBusy(true); setError('');
     try {
@@ -57,13 +57,7 @@ export default function GameRecords() {
     <h1 className="display-title my-6 text-3xl">{account.teacher ? '學生遊戲場次' : '我的遊戲場次'}</h1>
     <p>各局獨立保存。每次提交作答計一次；同一題錯多次只列一次，之後答對仍保留在該局錯題庫。</p>
     <button className="pixel-button pixel-button-paper my-4" disabled={busy} onClick={() => void load()}>重新整理</button>
-    {account.teacher && <button className="pixel-button pixel-button-teal m-3" disabled={busy} onClick={async () => {
-      setBusy(true); setNotice('正在同步遊戲題庫…');
-      try { for (const game of Object.values(games)) await publishGame(game); setNotice('遊戲題庫已同步。'); }
-      catch { setNotice('題庫同步失敗，請檢查規則與連線後重試。'); }
-      finally { setBusy(false); }
-    }}>同步遊戲題庫版本</button>}
-    {notice && <p role="status">{notice}</p>}{error && <p role="alert">{error}</p>}
+    {error && <p role="alert">{error}</p>}
     {!busy && !error && !rows.length && <p>尚未有已完成並同步的場次。</p>}
     {rows.map(row => <SessionCard key={row.id} row={row} />)}
     {more && <button className="pixel-button pixel-button-paper" disabled={busy} onClick={() => void load(true)}>載入更早的 30 局</button>}
