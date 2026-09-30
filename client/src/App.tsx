@@ -62,7 +62,7 @@ function GameLanding() {
   const params = new URLSearchParams(window.location.search);
   if (params.has("gameRecords")) return <GameRecords />;
   const id = params.get("game");
-  if (id) { const game = games[id]; return game ? <main className="paper-texture min-h-screen p-3"><a href={import.meta.env.BASE_URL}>返回探索館</a><h1 className="display-title text-2xl">{game.title}</h1><ConnectedGame game={game} /></main> : <p>找不到此遊戲。<a href={import.meta.env.BASE_URL}>返回探索館</a></p>; }
+  if (id) { const game = games[id]; return game ? <main className="paper-texture min-h-screen p-3"><a href={import.meta.env.BASE_URL}>返回探索館</a><ConnectedGame game={game} /></main> : <p>找不到此遊戲。<a href={import.meta.env.BASE_URL}>返回探索館</a></p>; }
   return <Home />;
 }
 
@@ -112,11 +112,9 @@ function Routes() {
         </StudentArea>
       </Route>
       <Route path="/preview">
-        <ScoreSyncProvider>
-          <ContentPreview />
-        </ScoreSyncProvider>
+        <StudentArea teacherPage><ContentPreview /></StudentArea>
       </Route>
-      <Route path="/library" component={ContentLibrary} />
+      <Route path="/library"><StudentArea teacherPage><ContentLibrary /></StudentArea></Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

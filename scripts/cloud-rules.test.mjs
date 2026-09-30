@@ -43,7 +43,7 @@ const teacher=()=>env.authenticatedContext('teacher',claims('kitlung1107@gmail.c
 before(async()=>{env=await initializeTestEnvironment({projectId:'demo-hdc',firestore:{rules:await readFile('firestore.rules','utf8')}});});
 after(async()=>{await env?.cleanup();});
 beforeEach(async()=>{await env.clearFirestore();await env.withSecurityRulesDisabled(async c=>{
- const db=c.firestore();await setDoc(doc(db,'profiles','s1'),profile);await setDoc(doc(db,'profiles','s2'),{...profile,studentNo:'02'});
+ const db=c.firestore();await setDoc(doc(db,'taskAccess','task1'),{grade:1,enabled:true});await setDoc(doc(db,'profiles','s1'),profile);await setDoc(doc(db,'profiles','s2'),{...profile,studentNo:'02'});
  await setDoc(doc(db,'access','student@ctshkpcc.edu.hk'),{studentId:'s1',enabled:true});
  await setDoc(doc(db,'access','approved@gmail.com'),{studentId:'s1',enabled:true});
 });});

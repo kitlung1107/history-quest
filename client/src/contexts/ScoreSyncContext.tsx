@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { canPlayGrade } from "@/lib/gradeAccess";
 import { toast } from "sonner";
 import { HISTORY_TASKS, type HistoryTask, type TaskProgress } from "@/lib/historyQuest";
 import { getQuestions, assessmentVersion, markAnswers, type Answer } from "@/lib/assessment";
@@ -31,6 +32,7 @@ export function ScoreSyncProvider({children}:{children:React.ReactNode}) {
   useEffect(()=>{setProgress({});void retry();const online=()=>void retry();window.addEventListener("online",online);return()=>window.removeEventListener("online",online);},[retry]);
   async function completeTask(task:HistoryTask,answers:Answer[]) {
     if(!sid) throw new Error("請先登入。");
+    if (!canPlayGrade(account, task.grade)) throw new Error("此年級尚未開放。");
     markAnswers(getQuestions(task),answers);
     const duplicate=read().find(p=>p.taskId===task.id);
     const pending=duplicate || {id:crypto.randomUUID(),taskId:task.id,version:assessmentVersion(getQuestions(task)),answers};

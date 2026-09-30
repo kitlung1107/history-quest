@@ -5,6 +5,7 @@ import AccessRequestForm from "@/components/AccessRequestForm";
 import {
   doc,
   getDoc,
+  onSnapshot,
   runTransaction,
   serverTimestamp,
 } from "firebase/firestore";
@@ -133,6 +134,12 @@ export function AccountGate({
       }),
     []
   );
+  useEffect(() => {
+    if (!account || account.teacher) return;
+    return onSnapshot(doc(db, "profiles", account.studentId), snapshot => {
+      setAccount(current => current ? { ...current, profile: snapshot.exists() ? snapshot.data() as CloudProfile : null } : current);
+    }, () => setAccount(current => current ? { ...current, profile: null } : current));
+  }, [account?.user.uid, account?.studentId, account?.teacher]);
   if (loading)
     return (
       <main className="paper-texture min-h-screen p-10">
@@ -258,23 +265,7 @@ export function AccountGate({
         這個帳戶沒有教師權限。<a href={import.meta.env.BASE_URL}>返回首頁</a>
       </main>
     );
-  if (account.teacher && !account.profile && !teacherPage)
-    return (
-      <main className="paper-texture min-h-screen p-10">
-        <h1 className="display-title text-3xl">教師帳戶已登入</h1>
-        <p className="my-5">教師帳戶不用建立學生角色。</p>
-        <a
-          className="pixel-button pixel-button-gold"
-          href={`${import.meta.env.BASE_URL}admin`}
-        >
-          前往教師工作室
-        </a>
-        <button className="ml-4 underline" onClick={() => void googleLogout()}>
-          登出
-        </button>
-      </main>
-    );
-  if (!account.profile && !teacherPage)
+  if (!account.profile && !teacherPage && !account.teacher)
     return (
       <main className="p-10">
         學生名單設定未完整，請聯絡老師。
@@ -283,7 +274,7 @@ export function AccountGate({
     );
   return (
     <Context.Provider value={account}>
-      {account.profile &&
+      {!account.teacher && account.profile &&
       (!account.profile.configured || !isStudentRole(account.profile.role)) &&
       !teacherPage ? (
         <ProfileForm />

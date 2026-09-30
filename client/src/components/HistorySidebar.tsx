@@ -1,3 +1,4 @@
+import { canSeeGrade } from "@/lib/gradeAccess";
 import {
   SITE_SETTINGS as defaults,
   GRADES,
@@ -79,7 +80,7 @@ function SidebarBody({
         )}
       </div>
       <Accordion type="multiple" defaultValue={[]} className="mt-4 space-y-2">
-        {GRADES.map(({ grade, title }) => {
+        {GRADES.filter(({ grade }) => canSeeGrade(previewSettings ? { profile: student, teacher: Boolean(account?.teacher) } : account, grade)).map(({ grade, title }) => {
           const topics = PUBLIC_TOPICS.filter(topic => topic.grade === grade);
           return (
             <AccordionItem

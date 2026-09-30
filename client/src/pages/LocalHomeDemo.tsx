@@ -23,6 +23,8 @@ const example: CloudProfile = {
 export default function LocalHomeDemo() {
   const [profile, setProfile] = useState<CloudProfile>(() => {
     // Explicit, synthetic text samples for the development-only preview.
+    const testClass = new URLSearchParams(location.search).get("class");
+    if (testClass) return { ...example, className: testClass };
     const sample = new URLSearchParams(location.search).get("labels");
     if (sample === "short")
       return { ...example, nickname: "小探員", name: "示範生" };

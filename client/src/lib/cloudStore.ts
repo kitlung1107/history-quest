@@ -30,6 +30,7 @@ export function asRow(id:string, data:CloudSubmission, profile?:CloudProfile):Su
 export async function syncCatalogue() {
   const batch = writeBatch(db);
   for (const task of HISTORY_TASKS) {
+    batch.set(doc(db,"taskAccess",task.id), { grade:task.grade, enabled:true });
     const questions = getQuestions(task);
     if (!questions.length) continue;
     batch.set(doc(db,"catalogue",`${task.id}--${assessmentVersion(questions)}`), {questions,title:task.title});

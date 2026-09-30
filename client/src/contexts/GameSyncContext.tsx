@@ -1,3 +1,5 @@
+import { HISTORY_TASKS } from '../lib/historyQuest';
+import { canPlayGrade } from '../lib/gradeAccess';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useStudentAccount } from './StudentAccount';
@@ -59,7 +61,7 @@ export function GameSyncProvider({ children }: { children: ReactNode }) {
     alive.current = true;
     const stop = onSnapshot(doc(db, 'access', account.user.email!.toLowerCase()), { includeMetadataChanges: true }, snapshot => {
       // A cached grant may not unlock a new game. A known live session can keep queuing offline.
-      const allowed = snapshot.exists() && snapshot.data().enabled === true && snapshot.data().studentId === account.studentId && auth.currentUser?.uid === account.user.uid;
+      const allowed = account.teacher || snapshot.exists() && snapshot.data().enabled === true && snapshot.data().studentId === account.studentId && auth.currentUser?.uid === account.user.uid;
       if (!snapshot.metadata.fromCache || !allowed) { active.current = allowed; setAuthorized(allowed); }
       if (active.current) void flush();
       else setMessage('尚未取得學生遊戲授權；請重新登入或聯絡老師');
@@ -71,6 +73,8 @@ export function GameSyncProvider({ children }: { children: ReactNode }) {
   }, [prefix]);
   function enqueue(gameId: string, version: string, event: GameEvent) {
     const game = games[gameId];
+    const task = HISTORY_TASKS.find(t => t.id === game?.taskId);
+    if (!task || !canPlayGrade(account, task.grade)) return false;
     if (!active.current || auth.currentUser?.uid !== account.user.uid || !game || game.version !== version || !validEvent(event, game)) return false;
     try {
       const key = prefix + event.eventId;

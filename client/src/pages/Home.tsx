@@ -4,6 +4,8 @@ import {
   gradeTitle,
   mediaUrl,
 } from "@/lib/siteSettings";
+import GradeLock from "@/components/GradeLock";
+import { canPlayGrade, canSeeGrade, studentGrade } from "@/lib/gradeAccess";
 import { filterTasks } from "@/lib/contentModel";
 import { imagePosition } from "@/lib/imagePosition";
 import { useEffect, useMemo, useState } from "react";
@@ -47,7 +49,9 @@ export default function Home({
   const account = useOptionalStudentAccount();
   const student: StudentProfile | null = previewSettings
     ? previewProfile || { className: "預覽", name: "學生畫面", studentNo: "" }
-    : account?.profile || null;
+    : account?.profile || (account?.teacher ? { className: "", name: "教師／管理員", studentNo: "" } : null);
+  const identity = previewSettings ? { profile: student, teacher: Boolean(account?.teacher) } : account;
+  const allowed = (task: HistoryTask) => canPlayGrade(identity, task.grade);
   const [activeGrade, setActiveGrade] = useState<number | null>(null);
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
@@ -59,16 +63,25 @@ export default function Home({
     setActiveTopic(null);
   };
   const [selectedTask, setSelectedTask] = useState<HistoryTask | null>(null);
+  useEffect(() => {
+    if (activeGrade !== null && !canSeeGrade(identity, activeGrade)) {
+      setActiveGrade(null);
+      setActiveTopic(null);
+    }
+    if (selectedTask && !canPlayGrade(identity, selectedTask.grade)) setSelectedTask(null);
+  }, [student?.className, account?.teacher, activeGrade, selectedTask]);
   const { progress, syncing, syncError, retry } = useScoreSync();
   const visibleTasks = useMemo(
     () =>
       filterTasks(
-        previewTasks || HISTORY_TASKS,
+        (previewTasks || HISTORY_TASKS).filter(task => canSeeGrade(identity, task.grade) && (activeGrade !== null || allowed(task))),
         activeGrade,
         activeTopic
       ),
-    [activeGrade, activeTopic, previewTasks]
+    [activeGrade, activeTopic, previewTasks, student, account?.teacher]
   );
+  const locked = activeGrade !== null ? !canPlayGrade(identity, activeGrade) : !identity?.teacher && studentGrade(student?.className) === null;
+  const openTask = (task: HistoryTask) => { if (allowed(task)) setSelectedTask(task); };
   const sectionTitle = activeTopic
     ? PUBLIC_TOPICS.find(topic => topic.id === activeTopic)?.title
     : activeGrade !== null
@@ -129,7 +142,8 @@ export default function Home({
               </div>
             </header>
 
-            <div className="p-4 md:p-5 lg:p-7">
+            <div className="grade-content">
+            <div className="p-4 md:p-5 lg:p-7" inert={locked} aria-hidden={locked || undefined}>
               <div className="section-rule my-5">
                 <BookOpen aria-hidden="true" />
                 <h2>{sectionTitle}</h2>
@@ -198,7 +212,8 @@ export default function Home({
                               </div>
                             )}
                             <button
-                              onClick={() => setSelectedTask(task)}
+                              disabled={!allowed(task)}
+                              onClick={() => openTask(task)}
                               className="pixel-button pixel-button-gold w-full"
                             >
                               <Gamepad2 className="h-5 w-5" />
@@ -268,6 +283,8 @@ export default function Home({
                 </section>
               )}
             </div>
+            {locked && <GradeLock identity={identity} />}
+            </div>
           </main>
           <nav className="mobile-bottom-nav md:hidden">
             <button onClick={() => changeGrade(null)}>
@@ -276,7 +293,7 @@ export default function Home({
             </button>
             <button
               onClick={() =>
-                visibleTasks[0] && setSelectedTask(visibleTasks[0])
+                visibleTasks[0] && openTask(visibleTasks[0])
               }
             >
               <Gamepad2 />

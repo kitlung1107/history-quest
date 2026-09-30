@@ -1,3 +1,6 @@
+import { useOptionalStudentAccount } from "@/contexts/StudentAccount";
+import { canPlayGrade } from "@/lib/gradeAccess";
+import GradeLock from "./GradeLock";
 import ConnectedGame from "./ConnectedGame";
 import { gameForTask } from "@/lib/games/registry";
 import TaskQuiz from "./TaskQuiz";
@@ -54,6 +57,7 @@ export default function TaskModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const account = useOptionalStudentAccount();
   const [started, setStarted] = useState(false);
   const { progress } = useScoreSync();
 
@@ -64,6 +68,7 @@ export default function TaskModal({
   }, [open]);
 
   if (!task) return null;
+  if (!preview && !canPlayGrade(account, task.grade)) return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent><DialogTitle>級別未開放</DialogTitle><DialogDescription>請返回探索館切換年級。</DialogDescription><GradeLock identity={account} /></DialogContent></Dialog>;
   const completed = progress[task.id]?.progress === 100;
   const videoEmbed = toEmbedUrl(task.videoUrl);
   const connectedGame = gameForTask(task.id);

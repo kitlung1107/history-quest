@@ -21,9 +21,10 @@ beforeEach(async () => { await env.clearFirestore(); await env.withSecurityRules
   const db = c.firestore();
   await setDoc(doc(db,'access','one@school.test'), { studentId:'s1', enabled:true });
   await setDoc(doc(db,'access','two@school.test'), { studentId:'s2', enabled:true });
-  await setDoc(doc(db,'profiles','s1'), {name:'同學一'});
+  await setDoc(doc(db,'profiles','s1'), {name:'同學一',className:'S6'});
   await setDoc(doc(db,'profiles','s2'), {name:'同學二'});
-  await setDoc(doc(db,'gameCatalog','cold-war-maze','versions',version), {enabled:true});
+  await setDoc(doc(db,'gameCatalog','cold-war-maze','versions',version), {enabled:true,taskId:'cold-war-task'});
+  await setDoc(doc(db,'taskAccess','cold-war-task'),{grade:6,enabled:true});
   for (const [id,q] of Object.entries(questions)) await setDoc(doc(db,'gameCatalog','cold-war-maze','versions',version,'questions',id), { ...q, validator:'index-array/1', title:id, prompt:`可讀題目 ${id}` });
 }); });
 async function start(db = student(), id = 'round-one', extra = {}) {

@@ -1,3 +1,6 @@
+import { HISTORY_TASKS } from '../lib/historyQuest';
+import { canPlayGrade } from '../lib/gradeAccess';
+import GradeLock from './GradeLock';
 import { useEffect, useRef, useState } from 'react';
 import { onSnapshot } from 'firebase/firestore';
 import { useOptionalStudentAccount } from '../contexts/StudentAccount';
@@ -7,12 +10,14 @@ import { versionRef } from '../lib/games/store';
 import type { Game } from '../lib/games/model';
 export default function ConnectedGame({ game }: { game: Game }) {
   const account = useOptionalStudentAccount(), sync = useGameSync();
+  const task = HISTORY_TASKS.find(t => t.id === game.taskId);
+  const allowed = Boolean(task && canPlayGrade(account, task.grade));
   const frame = useRef<HTMLIFrameElement>(null), shell = useRef<HTMLElement>(null);
   const [channel] = useState(() => crypto.randomUUID());
   const [published, setPublished] = useState(false);
   const [full, setFull] = useState(false);
   const [notice, setNotice] = useState('正在核對題庫版本…');
-  const live = useRef({ account, sync, published }); live.current = { account, sync, published };
+  const live = useRef({ account, sync, published, allowed }); live.current = { account, sync, published, allowed };
   const url = new URL(game.url); url.searchParams.set('hqChannel', channel);
   const origin = url.origin;
   useEffect(() => {
@@ -38,7 +43,7 @@ export default function ConnectedGame({ game }: { game: Game }) {
     function post(data: object) { frame.current?.contentWindow?.postMessage({ protocol: 'history-game/1', channel, ...data }, origin); }
     function identify() {
       const { account: a, sync: s, published: p } = live.current;
-      if (!verified || !a || !s?.authorized || !p) { post({ type: 'locked' }); return; }
+      if (!verified || !a || !live.current.allowed || !(a.teacher || s?.authorized) || !p) { post({ type: 'locked' }); return; }
       post({ type: 'identity', identity: { scope: `${encodeURIComponent(a.user.uid)}:${encodeURIComponent(a.studentId)}`, name: a.profile?.name || a.studentId } });
     }
     function receive(event: MessageEvent) {
@@ -55,6 +60,7 @@ export default function ConnectedGame({ game }: { game: Game }) {
     const interval = setInterval(identify, 3000);
     return () => { post({ type: 'locked' }); clearInterval(interval); window.removeEventListener('message', receive); };
   }, [channel, game.gameId, game.version, origin]);
+  if (account && !allowed) return <GradeLock identity={account} />;
   if (!account || !sync) return <a className="pixel-button pixel-button-teal" href={gameEntry(game.gameId)}>登入探索館後開始遊戲</a>;
   return <section ref={shell} className="my-4 bg-paper p-3" style={{ overflow: 'auto' }} aria-label="已連結探索館的遊戲">
     <div className="mb-3 flex flex-wrap items-center gap-3 text-sm">
@@ -67,6 +73,6 @@ export default function ConnectedGame({ game }: { game: Game }) {
     </div>
     {notice && <p role="alert" className="my-3">{notice}</p>}
     <p className="mb-2 text-sm">成功完成一局後保存摘要與該局曾答錯的題目。待同步時請保留瀏覽器資料；共用裝置用完請登出。</p>
-    {published && sync.authorized && <iframe ref={frame} src={url.href} title={game.title} className="w-full border-0" style={{ height: full ? 'calc(100dvh - 145px)' : 'min(78dvh, 820px)', minHeight: 360 }} allow="autoplay; fullscreen" allowFullScreen sandbox="allow-scripts allow-same-origin allow-pointer-lock" />}
+    {published && allowed && (account.teacher || sync.authorized) && <iframe ref={frame} src={url.href} title={game.title} className="w-full border-0" style={{ height: full ? 'calc(100dvh - 145px)' : 'min(78dvh, 820px)', minHeight: 360 }} allow="autoplay; fullscreen" allowFullScreen sandbox="allow-scripts allow-same-origin allow-pointer-lock" />}
   </section>;
 }
