@@ -67,7 +67,7 @@ export default function CoinRuleEditor({
       </summary>
       {loadFailed && <button type="button" className="pixel-button pixel-button-paper my-3" onClick={() => setRetry(n => n + 1)}>重試讀取設定</button>}
       <p className="my-3 text-sm">
-        新學生餘額由 0 開始，不同任務獎勵會累積。完成並取得有效正式成績後，按老師設定派幣。未設獎勵、未達門檻或 0 幣唔會鎖定日後資格；每人每任務只派一次正數獎勵，之後唔重複派發或補差額。改規則後可按工作室「重新整理」檢查已載入成績。短答要等老師批改完成。
+        自動獎勵啟用後的新提交，客觀題由後端核算；短答在必要批改完成後自動發放。未設獎勵、未達門檻或 0 幣不會鎖定日後資格；每人每任務只發放一次正數獎勵，不會重複派發或補差額。修改規則不會自動補派舊紀錄。
       </p>
       <label className="block my-3">
         任務
@@ -85,9 +85,7 @@ export default function CoinRuleEditor({
         </select>
       </label>
       <p className="my-3 text-sm">
-        遊戲任務：到「學生遊戲場次與錯題庫」選擇玩家，按「確認本局探索幣」。成績按該局答對次數
-        ÷ 總作答次數計算並四捨五入；完成程度為
-        100%。未完成或零作答場次唔會發幣。
+        遊戲獎勵須先接通可信任的通關驗證；冷戰迷宮目前尚未啟用自動獎勵。接通後按本局答對次數 ÷ 總作答次數計算並四捨五入；有效完成程度為 100%。未完成、無效或零作答場次不會發放。
       </p>
       <fieldset disabled={!ready || busy} className="space-y-3">
         <label className="block">

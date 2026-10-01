@@ -240,7 +240,48 @@ service cloud.firestore {
     }
 
     match /coinRules/{task} {
-      allow read, write: if teacher();
+      function studentRewardReader() {
+        let sid = get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId;
+        return owns(sid) && taskAllowed(sid, task);
+      }
+      // Students may get settings for an authorised task only. Never expose
+      // extra teacher metadata or grant collection listing / setting writes.
+      allow get: if teacher() || (signed() && studentRewardReader()
+        && (resource == null || resource.data.keys().hasOnly(['mode','amount','metric','tiers'])));
+      allow list, write: if teacher();
+    }
+    match /rewardPolicies/{task} {
+      function reader() {
+        let sid = get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId;
+        return owns(sid) && taskAllowed(sid, task);
+      }
+      allow get: if teacher() || (signed() && reader()
+        && (resource == null || resource.data.keys().hasOnly(['source','enabled'])));
+      allow list: if teacher();
+      allow write: if teacher() && request.resource.data.keys().hasOnly(['source','enabled'])
+        && request.resource.data.source in ['assessment','game','none'] && request.resource.data.enabled is bool;
+    }
+    match /rewardAutomation/{key} {
+      function approved() {
+        let sid = get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId;
+        return owns(sid);
+      }
+      allow get: if teacher() || (key == 'status' && signed() && approved()
+        && (resource == null || resource.data.keys().hasOnly(['enabled','activatedAt'])));
+      allow list: if teacher();
+      allow write: if false;
+    }
+    match /rewardResults/{sid}/attempts/{attempt} {
+      allow read: if teacher() || owns(sid);
+      allow write: if false;
+    }
+    match /trustedGameCompletions/{session} {
+      allow read: if teacher() || owns(resource.data.studentId);
+      allow write: if false;
+    }
+    match /trustedGameVerifiers/{version} {
+      allow read: if teacher();
+      allow write: if false;
     }
     match /coinAccounts/{sid}/entries/{entry} {
       allow read: if teacher() || owns(sid);

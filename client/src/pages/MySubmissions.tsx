@@ -1,4 +1,5 @@
 import McFeedback from "@/components/McFeedback";
+import RewardStatus from "@/components/RewardStatus";
 import {
   getSubmissionMcEncouragement,
   type McEncouragement,
@@ -86,6 +87,7 @@ export default function MySubmissions() {
                 : "已收到答案，待教師核算或批改"}
             </p>
             <McFeedback feedback={r.mcFeedback} provisional={!r.revision} />
+            <RewardStatus taskId={r.task_id} sourceId={r.attempt_id} />
             {r.answers?.map(a => (
               <div key={a.question_id} className="mt-3 border-t p-3">
                 <strong>{a.prompt}</strong>

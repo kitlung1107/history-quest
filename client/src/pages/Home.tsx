@@ -26,6 +26,9 @@ import {
 } from "@/contexts/StudentAccount";
 import TaskModal from "@/components/TaskModal";
 import TaskTypeLabel from "@/components/TaskTypeLabel";
+import CoinRewardHint from "@/components/CoinRewardHint";
+import { useTaskCoinRewards } from "@/hooks/useTaskCoinRewards";
+import type { CoinRule } from "@/lib/coinModel";
 import { useScoreSync } from "@/contexts/ScoreSyncContext";
 import {
   HISTORY_TASKS,
@@ -37,11 +40,13 @@ export default function Home({
   previewSettings,
   previewTasks,
   previewProfile,
+  previewCoinRules,
   onChangeCharacter,
 }: {
   previewSettings?: typeof defaults;
   previewTasks?: HistoryTask[];
   previewProfile?: CloudProfile;
+  previewCoinRules?: Record<string, CoinRule>;
   onChangeCharacter?: () => void;
 } = {}) {
   const settings = previewSettings || defaults;
@@ -80,6 +85,7 @@ export default function Home({
     [activeGrade, activeTopic, previewTasks, student, account?.teacher, account?.testingAccount]
   );
   const locked = activeGrade !== null ? !canPlayGrade(identity, activeGrade) : !hasAllGradeAccess(identity) && studentGrade(student?.className) === null;
+  const rewards = useTaskCoinRewards(visibleTasks, Boolean(previewSettings), previewCoinRules);
   const openTask = (task: HistoryTask) => { if (allowed(task)) setSelectedTask(task); };
   const sectionTitle = activeTopic
     ? PUBLIC_TOPICS.find(topic => topic.id === activeTopic)?.title
@@ -175,18 +181,21 @@ export default function Home({
                             {task.description}
                           </p>
                           <div className="mt-auto pt-5">
-                            <div className="mb-4 flex items-end justify-between border-t-2 border-dotted border-ink/45 pt-3 text-xs font-bold text-ink">
-                              <span className="flex items-center gap-1">
+                            <div className="mission-meta mb-4 flex flex-wrap items-start justify-between gap-x-3 gap-y-2 border-t-2 border-dotted border-ink/45 pt-3 text-xs font-bold text-ink">
+                              <span className="flex shrink-0 items-center gap-1">
                                 <Clock3 className="h-4 w-4" />
                                 {task.duration} 分鐘
                               </span>
-                              <span>
-                                難度{" "}
-                                <b className="text-gold">
-                                  {"★".repeat(task.difficulty)}
-                                  {"☆".repeat(5 - task.difficulty)}
-                                </b>
-                              </span>
+                              <div className={`mission-reward-difficulty${rewards[task.id] ? " has-reward" : ""}`}>
+                                  <CoinRewardHint reward={rewards[task.id]} />
+                                  <span className="mission-difficulty shrink-0">
+                                    難度{" "}
+                                    <b className="text-gold">
+                                      {"★".repeat(task.difficulty)}
+                                      {"☆".repeat(5 - task.difficulty)}
+                                    </b>
+                                  </span>
+                              </div>
                             </div>
                             {taskProgress && (
                               <div className="mb-3">
@@ -285,6 +294,7 @@ export default function Home({
         </div>
       )}
       <TaskModal
+        reward={selectedTask ? rewards[selectedTask.id] : null}
         preview={Boolean(previewSettings)}
         task={selectedTask}
         open={Boolean(selectedTask)}

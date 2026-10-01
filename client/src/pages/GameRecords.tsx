@@ -3,7 +3,7 @@ import { doc, getDocFromServer } from 'firebase/firestore';
 import { useStudentAccount } from '../contexts/StudentAccount';
 import { db } from '../lib/firebase';
 import { games } from '../lib/games/registry';
-import { confirmGameCoins } from '../lib/coinStore';
+import RewardStatus from '../components/RewardStatus';
 import { loadAllGameSessions, loadCumulativeWrongQuestions, loadWrongQuestions, type SavedSession } from '../lib/games/store';
 import { correctAnswerLines, questionKey, questionTypes, type WrongQuestion } from '../lib/games/records';
 
@@ -51,18 +51,11 @@ function WrongBank({ sessions, single = false }: { sessions: SavedSession[]; sin
   </div>;
 }
 function SessionCard({ row, teacher = false }: { row: SavedSession; teacher?: boolean }) {
-  const [busy, setBusy] = useState(false), [notice, setNotice] = useState('');
-  async function confirm() {
-    setBusy(true); setNotice('');
-    try { await confirmGameCoins(row.id); setNotice('已檢查探索幣資格；符合正數獎勵先派幣，已有正數獎勵保持不變。'); }
-    catch (e) { setNotice(e instanceof Error ? e.message : '結算失敗，請重試。'); }
-    finally { setBusy(false); }
-  }
   return <article className="my-4 border-2 p-4">
     <h3 className="display-title text-xl">{games[row.gameId]?.title || row.gameId}</h3>
     <p className="mt-2 text-sm break-all">{row.createdAt?.toDate().toLocaleString('zh-HK')} · 場次 {row.id}</p>
     <p className="my-3 font-bold">總作答 {row.attempts} 次 · 答對 {row.correct} 次 · 答錯 {row.attempts - row.correct} 次</p>
-    {teacher && <><p className="text-sm">確認後按本局答對率及任務探索幣設定結算；每人每任務只派一次正數獎勵。零幣唔會鎖定資格，之後符合規則可再確認；已派正數唔會重複派發或補差額。</p><button disabled={busy} className="pixel-button pixel-button-gold my-3" onClick={() => void confirm()}>{busy ? '結算中…' : '確認本局探索幣'}</button>{notice && <p role="status">{notice}</p>}</>}
+    {games[row.gameId]?.taskId && <RewardStatus taskId={games[row.gameId].taskId} sourceId={row.id} kind="gameReward" studentId={teacher ? row.studentId : undefined} />}
     <WrongBank sessions={[row]} single />
   </article>;
 }

@@ -45,6 +45,7 @@ function workspace() {
     "@/components/TeachingWorkspace": { default: "workspace" },
     "@/components/AccountManager": { default: "accounts" },
     "@/components/CoinRuleEditor": { default: "coin-rules" },
+    "@/components/CoinRewardRecords": { default: "coin-records" },
     "@/contexts/StudentAccount": { useStudentAccount: () => ({ user: { email: "teacher" } }) },
   };
   const Admin = compile("../client/src/pages/Admin.tsx", modules).default;
@@ -103,7 +104,7 @@ test("load more marks only its page; refresh retries every loaded page", async (
   assert.ok(w.state.some(s => typeof s === "string" && s.includes("尚有未載入")));
 });
 
-test("refresh rechecks graded submissions for first positive coins but leaves pending answers alone", async () => {
+test("refresh reads existing grades without manually minting rewards and leaves pending answers alone", async () => {
   const w = workspace();
   w.control.pages = [[snapshot("graded", { ...row("graded"), status: "graded", score: 80 }), snapshot("pending", { ...row("pending"), status: "pending" })]];
   w.mount(); await settle();
@@ -126,8 +127,7 @@ function cloud(grade) {
     },
     "./firebase": { db: {} }, "./historyQuest": { HISTORY_TASKS: [] },
     "./assessment": { markAnswers: () => [], percentage: () => null },
-    // Ledger persistence is covered by coins.integration.test.ts; this harness
-    // checks that grading passes its transaction and result to the ledger hook.
+    // The old minting hook must never be called by teacher grading anymore.
     "./coinStore": { prepareCoinAward: async (tx, ...args) => {
       assert.equal(writes.length, 0, "prepare the award before transaction writes");
       assert.equal(typeof tx.get, "function");
@@ -154,5 +154,24 @@ test("transaction uses submitted version and returns pending short-answer grade"
   assert.equal(grade.status, "pending");
   assert.equal(grade.revision, 1);
   assert.equal(c.writes[0].value.grade, grade);
-  assert.deepEqual(c.awards, [["s", "task", "a", null, 100], "applied"]);
+  assert.deepEqual(c.awards, []);
+});
+
+test("game questionnaires retain a grading catalogue without enabling a reward source", async () => {
+  const writes = [];
+  const questions = [{ id: "q1", type: "choice", points: 100 }];
+  const modules = {
+    "firebase/firestore": {
+      doc: (_, ...parts) => parts.join("/"),
+      writeBatch: () => ({ set: (ref, data) => writes.push({ ref, data }), commit: async () => {} }),
+    },
+    "./firebase": { db: {} },
+    "./historyQuest": { HISTORY_TASKS: [{ id: "maze", type: "game", grade: 5, title: "Maze", questions }] },
+    "./assessment": { getQuestions: task => task.questions, assessmentVersion: () => "v1" },
+  };
+  await compile("../client/src/lib/cloudStore.ts", modules).syncCatalogue();
+  assert.equal(writes.find(w => w.ref === "rewardPolicies/maze").data.enabled, false);
+  const catalogue = writes.find(w => w.ref === "catalogue/maze--v1").data;
+  assert.equal(catalogue.source, "questionnaire");
+  assert.equal(catalogue.questions, questions);
 });

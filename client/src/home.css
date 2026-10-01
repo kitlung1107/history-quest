@@ -364,6 +364,51 @@
 .manga-home .mission-card p {
   overflow-wrap: anywhere;
 }
+.coin-reward-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  max-width: 100%;
+  line-height: 1.5;
+}
+.mission-reward-difficulty {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 12px;
+  min-width: 0;
+}
+.mission-reward-difficulty.has-reward {
+  flex-basis: 250px;
+}
+.mission-reward-difficulty > .coin-reward-hint {
+  flex: 1 1 0;
+}
+.mission-difficulty {
+  margin-left: auto;
+}
+.coin-reward-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+.coin-reward-label > span {
+  overflow-wrap: anywhere;
+}
+.coin-reward-confirmation {
+  font-size: 11px;
+  font-weight: 500;
+  color: #172a3abf;
+}
+.task-reward-meta > .meta-chip {
+  max-width: 100%;
+}
 .manga-home .pixel-button,
 .profile-page .pixel-button {
   background: #ffcf43;

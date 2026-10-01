@@ -1,4 +1,5 @@
 import McFeedback from "./McFeedback";
+import RewardStatus from "./RewardStatus";
 import { getMcEncouragement } from "@/lib/mcEncouragement";
 import { useState } from "react";
 import {
@@ -69,7 +70,7 @@ export default function TaskQuiz({
       <p className="comic-kicker">
         {preview
           ? "試答預覽 · 不會提交成績"
-          : "讀畢測驗 · 即時分數為練習參考，正式成績以教師核算為準"}
+          : "讀畢測驗 · 客觀題由系統核算正式成績，短答由老師批改"}
       </p>
       <p className="mt-2 text-sm">
         已填 {count} / {questions.length} 題 · 共{" "}
@@ -151,6 +152,7 @@ export default function TaskQuiz({
               ? "這是預覽，沒有儲存或傳送學生資料。"
               : "答案已保留。正式成績與老師評語可在「我的提交」查看。"}
           </p>
+          {!preview && <RewardStatus taskId={task.id} sourceId={attemptId} />}
         </div>
       )}
       {!preview && syncError && (

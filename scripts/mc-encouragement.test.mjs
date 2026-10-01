@@ -73,6 +73,7 @@ test("same attempt agrees across immediate, ungraded history and graded history;
 });
 
 function compile(path, modules, suffix = "") {
+  modules = { "./RewardStatus": { default: () => null }, "@/components/RewardStatus": { default: () => null }, ...modules };
   // Match Vite's build-time replacement before running the CommonJS test module.
   const source = fs.readFileSync(new URL(path, import.meta.url), "utf8")
     .replaceAll("import.meta.env.BASE_URL", '"/history-quest/"') + suffix;

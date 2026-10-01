@@ -5,6 +5,8 @@ import ConnectedGame from "./ConnectedGame";
 import { gameForTask } from "@/lib/games/registry";
 import TaskQuiz from "./TaskQuiz";
 import TaskTypeLabel from "./TaskTypeLabel";
+import CoinRewardHint from "./CoinRewardHint";
+import type { CoinRewardHint as RewardHint } from "@/lib/coinRewardHint";
 import { getQuestions } from "@/lib/assessment";
 import { mediaUrl } from "@/lib/siteSettings";
 /**
@@ -51,7 +53,9 @@ export default function TaskModal({
   open,
   onOpenChange,
   preview = false,
+  reward,
 }: {
+  reward?: RewardHint | null;
   preview?: boolean;
   task: HistoryTask | null;
   open: boolean;
@@ -105,7 +109,7 @@ export default function TaskModal({
                 {task.description}
               </DialogDescription>
             </DialogHeader>
-            <div className="mt-5 flex flex-wrap gap-3 text-sm font-black text-ink">
+            <div className="task-reward-meta mt-5 flex flex-wrap items-start gap-3 text-sm font-black text-ink">
               <span className="meta-chip">
                 <Clock3 className="h-4 w-4" />約 {task.duration} 分鐘
               </span>
@@ -113,6 +117,7 @@ export default function TaskModal({
                 難度 {"★".repeat(task.difficulty)}
                 {"☆".repeat(5 - task.difficulty)}
               </span>
+              <CoinRewardHint reward={reward} chip />
               {completed && (
                 <span className="meta-chip bg-teal text-white">
                   <CheckCircle2 className="h-4 w-4" />

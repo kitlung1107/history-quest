@@ -65,9 +65,9 @@ beforeEach(async () => {
       });
   });
 });
-async function grade(attemptId: string, score: number | null) {
+async function grade(attemptId: string, score: number | null, taskId = "t1") {
   await runTransaction(state.db, async tx => {
-    const award = await prepareCoinAward(tx, "s1", "t1", attemptId, score, 100);
+    const award = await prepareCoinAward(tx, "s1", taskId, attemptId, score, 100);
     tx.update(doc(state.db, "submissions", attemptId), {
       grade: { score, status: score === null ? "pending" : "graded" },
     });
@@ -228,7 +228,7 @@ test("different tasks accumulate from zero; aborted transaction does not mint", 
     mode: "fixed",
     amount: 29,
   });
-  await markSubmission("b1");
+  await grade("b1", 75, "t2");
   await markSubmission("b1");
   expect(
     (
@@ -236,7 +236,7 @@ test("different tasks accumulate from zero; aborted transaction does not mint", 
     ).docs.reduce((sum, d) => sum + d.data().amount, 0)
   ).toBe(40);
 });
-test("already graded zero can be reconsidered without regrading after rule changes", async () => {
+test("refreshing an old grade never backfills historical rewards after rule changes", async () => {
   const oldGrade = {
     status: "graded",
     score: 80,
@@ -268,9 +268,9 @@ test("already graded zero can be reconsidered without regrading after rule chang
   expect(
     (await getDoc(doc(state.db, "coinAccounts", "s1", "entries", "t1"))).data()
       ?.amount
-  ).toBe(19);
+  ).toBe(0);
 });
-test("real short-answer grading awards on completion and never repeats after correction", async () => {
+test("teacher grading writes grades only; reward settlement belongs to the backend trigger", async () => {
   await env.withSecurityRulesDisabled(async c => {
     await setDoc(doc(c.firestore(), "submissions", "a1"), {
       studentId: "s1",
@@ -306,10 +306,7 @@ test("real short-answer grading awards on completion and never repeats after cor
   await saveGrade("a1", 2, [{ question_id: "q1", awarded: 5 }], "");
   await saveGrade("a1", 3, [{ question_id: "q1", awarded: 10 }], "");
   await markSubmission("a1");
-  expect(
-    (await getDoc(doc(state.db, "coinAccounts", "s1", "entries", "t1"))).data()
-      ?.amount
-  ).toBe(13);
+  expect((await getDoc(doc(state.db, "coinAccounts", "s1", "entries", "t1"))).exists()).toBe(false);
 });
 test("completed game uses verified answer rate and shares task deduplication", async () => {
   await env.withSecurityRulesDisabled(async c => {

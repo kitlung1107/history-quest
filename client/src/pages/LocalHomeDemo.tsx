@@ -5,6 +5,8 @@ import { ProfileEditor, type CloudProfile } from "@/contexts/StudentAccount";
 import { characterKey } from "@/lib/characters";
 import { isStudentRole, giftCards } from "@/lib/cardModel";
 import { SITE_SETTINGS } from "@/lib/siteSettings";
+import { HISTORY_TASKS } from "@/lib/historyQuest";
+import { demoCoinRewards } from "@/lib/demoCoinRewards";
 import "./home-paper-preview.css";
 
 const storageKey = "hdc.local-home-demo.v1";
@@ -63,6 +65,8 @@ export default function LocalHomeDemo() {
     }
   });
   const [editing, setEditing] = useState(false);
+  const rewardScenario = new URLSearchParams(location.search).get("rewards");
+  const rewards = rewardScenario && HISTORY_TASKS[0] ? demoCoinRewards(HISTORY_TASKS[0], rewardScenario) : undefined;
   const cardPreview =
     new URLSearchParams(location.search).get("view") === "cards";
   const [corners, setCorners] = useState(() =>
@@ -98,6 +102,7 @@ export default function LocalHomeDemo() {
       data-corners={corners}
       data-hero={edgePreview ? "edge" : "original"}
     >
+      {rewards && <div className="demo-notice">探索幣獎勵預覽 · 全部為本機測試資料 · 不會派發或更改正式餘額</div>}
       {!cardPreview && (
         <>
           <div className="demo-notice">
@@ -171,6 +176,8 @@ export default function LocalHomeDemo() {
         />
       ) : (
         <Home
+          previewTasks={rewards?.tasks}
+          previewCoinRules={rewards?.rules}
           previewSettings={SITE_SETTINGS}
           previewProfile={profile}
           onChangeCharacter={() => setEditing(true)}

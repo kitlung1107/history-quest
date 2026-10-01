@@ -39,7 +39,7 @@ export function ScoreSyncProvider({children}:{children:React.ReactNode}) {
     if(!duplicate) sessionStorage.setItem(key,JSON.stringify([...read(),pending]));
     await retry();
     if(read().some(p=>p.id===pending.id)) throw new Error("答案尚未傳送；請保持此分頁開啟，按重試同步。");
-    toast.success("答案已存入 Firestore，正式成績待教師確認。");
+    toast.success("答案已儲存；客觀題由系統核算，短答待老師批改。");
     return pending;
   }
   return <Context.Provider value={{progress,completeTask,syncing,syncError,retry}}>{children}</Context.Provider>;
