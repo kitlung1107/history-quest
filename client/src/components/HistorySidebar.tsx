@@ -82,7 +82,7 @@ function SidebarBody({
         )}
       </div>
       <Accordion type="single" collapsible className="mt-4 space-y-2">
-        {GRADES.filter(({ grade }) => canSeeGrade(previewSettings ? { profile: student, teacher: Boolean(account?.teacher) } : account, grade)).map(({ grade, title }) => {
+        {GRADES.filter(({ grade }) => canSeeGrade(previewSettings ? { ...account, profile: student } : account, grade)).map(({ grade, title }) => {
           const topics = PUBLIC_TOPICS.filter(topic => topic.grade === grade);
           return (
             <AccordionItem

@@ -49,7 +49,7 @@ export default function Home({
   const student: StudentProfile | null = previewSettings
     ? previewProfile || { className: "預覽", name: "學生畫面", studentNo: "" }
     : account?.profile || (account?.teacher ? { className: "", name: "教師／管理員", studentNo: "" } : null);
-  const identity = previewSettings ? { profile: student, teacher: Boolean(account?.teacher) } : account;
+  const identity = previewSettings ? { ...account, profile: student } : account;
   const allowed = (task: HistoryTask) => canPlayGrade(identity, task.grade);
   const [activeGrade, setActiveGrade] = useState<number | null>(null);
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
@@ -68,7 +68,7 @@ export default function Home({
       setActiveTopic(null);
     }
     if (selectedTask && !canPlayGrade(identity, selectedTask.grade)) setSelectedTask(null);
-  }, [student?.className, account?.teacher, activeGrade, selectedTask]);
+  }, [student?.className, account?.teacher, account?.testingAccount, activeGrade, selectedTask]);
   const { progress, syncing, syncError, retry } = useScoreSync();
   const visibleTasks = useMemo(
     () =>
@@ -77,7 +77,7 @@ export default function Home({
         activeGrade,
         activeTopic
       ),
-    [activeGrade, activeTopic, previewTasks, student, account?.teacher]
+    [activeGrade, activeTopic, previewTasks, student, account?.teacher, account?.testingAccount]
   );
   const locked = activeGrade !== null ? !canPlayGrade(identity, activeGrade) : !hasAllGradeAccess(identity) && studentGrade(student?.className) === null;
   const openTask = (task: HistoryTask) => { if (allowed(task)) setSelectedTask(task); };

@@ -41,7 +41,7 @@ export async function reviewAccessRequest(email: string, studentId: string | nul
       } else if (!profile.exists()) throw new Error("請先匯入學生帳戶名單，再選擇對應學生。");
       if (access.exists() && access.data().studentId !== studentId) throw new Error("此電郵已連結另一學生，請核對身分。");
       if (newProfile) tx.set(doc(db, "profiles", studentId), newProfile);
-      tx.set(doc(db, "access", email), { studentId, enabled: true });
+      tx.set(doc(db, "access", email), { studentId, enabled: true, testing: access.data()?.testing === true });
       tx.set(metaRef, { revision: (meta.data()?.revision || 0) + 1 });
       tx.update(ref, { status: "approved", studentId, reviewedAt: serverTimestamp() });
     } else {

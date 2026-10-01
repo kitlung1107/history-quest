@@ -46,7 +46,7 @@ test('teacher/admin plays all six without a student profile or access entry', as
 });
 test('Testing has six-grade access but cannot administer accounts or impersonate another student', async () => {
   await env.withSecurityRulesDisabled(async c => {
-    await setDoc(doc(c.firestore(), 'access', 'tangkl@ctshkpcc.edu.hk'), { enabled: true, studentId: 'testing' });
+    await setDoc(doc(c.firestore(), 'access', 'tangkl@ctshkpcc.edu.hk'), { enabled: true, studentId: 'testing', testing: true });
     await setDoc(doc(c.firestore(), 'profiles', 'testing'), { className: 'Other' });
   });
   const db = env.authenticatedContext('testing', claims('tangkl@ctshkpcc.edu.hk')).firestore();
@@ -61,6 +61,29 @@ test('Testing has six-grade access but cannot administer accounts or impersonate
   await assertFails(start(unverified, 'testing', 1, '-unverified'));
   await env.withSecurityRulesDisabled(c => updateDoc(doc(c.firestore(), 'access', 'tangkl@ctshkpcc.edu.hk'), { enabled: false }));
   await assertFails(start(db, 'testing', 1, '-disabled'));
+});
+test('any admin-marked account gains all grades; students cannot self-promote; cancelling revokes active play', async () => {
+  const db = await identity('another-testing', '1A');
+  const accessRef = doc(db, 'access', 'another-testing@school.test');
+  await assertFails(updateDoc(accessRef, { testing: true }));
+  await assertFails(start(db, 'another-testing', 6, '-before'));
+  const admin = env.authenticatedContext('teacher', claims('kitlung1107@gmail.com')).firestore();
+  const adminRef = doc(admin, 'access', 'another-testing@school.test');
+  await assertFails(updateDoc(adminRef, { testing: 'true' }));
+  await assertSucceeds(updateDoc(adminRef, { testing: true }));
+  for (let grade = 1; grade <= 6; grade++) {
+    await assertSucceeds(start(db, 'another-testing', grade));
+    await assertSucceeds(submission(db, 'another-testing', grade));
+  }
+  await assertFails(getDocs(collection(db, 'access')));
+  await assertFails(updateDoc(accessRef, { testing: false }));
+  await assertSucceeds(updateDoc(adminRef, { testing: false }));
+  await assertFails(start(db, 'another-testing', 6, '-after'));
+  await assertFails(updateDoc(doc(db, 'gameSessions', 'another-testing-6'), { status: 'completed', completedAt: serverTimestamp() }));
+  await assertSucceeds(start(db, 'another-testing', 1, '-own-grade'));
+  await assertSucceeds(updateDoc(adminRef, { testing: true }));
+  await env.withSecurityRulesDisabled(c => setDoc(doc(c.firestore(), 'taskAccess', 'closed'), { grade: 6, enabled: false }));
+  await assertFails(setDoc(doc(db, 'submissions', 'closed'), { studentId: 'another-testing', taskId: 'closed', version: 'v1', answers: [], createdAt: serverTimestamp() }));
 });
 test('unknown grade, forged catalogue, missing task, disabled task and changed class fail closed', async () => {
   const db = await identity('unknown', 'Other');

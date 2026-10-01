@@ -17,7 +17,7 @@ import {
 import type { CloudProfile } from "@/contexts/StudentAccount";
 import AccessRequestManager from "./AccessRequestManager";
 type Entry = { id: string; profile: CloudProfile };
-type Access = { email: string; studentId: string; enabled: boolean };
+type Access = { email: string; studentId: string; enabled: boolean; testing?: boolean };
 type Plan = { row: AccountRosterRow; id: string; existing: boolean };
 export default function AccountManager({
   onChanged,
@@ -162,6 +162,7 @@ export default function AccountManager({
         enabled: binding.exists()
           ? binding.data().enabled
           : (oldBinding?.data()?.enabled ?? true),
+        testing: binding.exists() ? binding.data().testing === true : oldBinding?.data()?.testing === true,
       });
       if (editor.oldEmail && editor.oldEmail !== nextEmail)
         tx.delete(doc(db, "access", editor.oldEmail));
@@ -243,6 +244,7 @@ export default function AccountManager({
           email: `demo.student${i + 1}@gmail.com`,
           studentId: p.id,
           enabled: i !== 3,
+          testing: i === 3,
         }))
       );
       setLoggedInStudents(new Set(["demo-1", "demo-4"]));
@@ -333,7 +335,7 @@ export default function AccountManager({
             tx.set(doc(db, "access", email), {
               studentId: item.id,
               enabled: true,
-            });
+            }, { merge: true });
           }
           tx.set(metaRef, { revision: expected + 1 });
         });
@@ -360,12 +362,27 @@ export default function AccountManager({
       if ((meta.data()?.revision || 0) !== revision)
         throw new Error("名單已變更，請重新載入後再操作。");
       const profile = await tx.get(doc(db, "profiles", studentId));
+      const binding = await tx.get(doc(db, "access", email));
       if (!profile.exists()) throw new Error("學生紀錄不存在。");
-      tx.set(doc(db, "access", email), { studentId, enabled });
+      tx.set(doc(db, "access", email), { studentId, enabled, testing: binding.data()?.studentId === studentId && binding.data()?.testing === true });
       tx.set(ref, { revision: revision + 1 });
     });
     await refresh();
     setPlan([]);
+  }
+  async function toggleTesting(account: Access) {
+    if (previewOnly) throw new Error("示範預覽：不會修改真實帳戶權限。");
+    await runTransaction(db, async tx => {
+      const metaRef = doc(db, "metadata", "enrollment"), bindingRef = doc(db, "access", account.email);
+      const meta = await tx.get(metaRef), binding = await tx.get(bindingRef);
+      if ((meta.data()?.revision || 0) !== revision || !binding.exists() || binding.data().studentId !== account.studentId)
+        throw new Error("名單已變更，請重新載入後再操作。");
+      tx.update(bindingRef, { testing: binding.data().testing !== true });
+      tx.set(metaRef, { revision: revision + 1 });
+    });
+    await refresh();
+    setPlan([]);
+    setNotice(account.testing ? "已取消測試帳號，恢復按年級限制。" : "已設為測試帳號，可查看及遊玩所有年級；沒有教師後台權限。");
   }
   const editorForm = editor && (
     <form
@@ -800,6 +817,7 @@ export default function AccountManager({
                 >
                   <span className="break-all">
                     {a.email} · {a.enabled ? "已核准" : "已停用"}
+                    {a.testing && " · 測試帳號（全級遊玩）"}
                   </span>
                   <span
                     className="rounded border px-2 py-1 text-sm"
@@ -824,6 +842,14 @@ export default function AccountManager({
                     }
                   >
                     {a.enabled ? "停用" : "恢復"}
+                  </button>
+                  <button
+                    disabled={busy}
+                    className="underline"
+                    aria-pressed={a.testing === true}
+                    onClick={() => void run(() => toggleTesting(a))}
+                  >
+                    {a.testing ? "取消測試帳號" : "設為測試帳號"}
                   </button>
                   <button
                     disabled={busy}

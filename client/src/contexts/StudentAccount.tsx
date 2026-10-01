@@ -43,6 +43,7 @@ type Account = {
   studentId: string;
   profile: CloudProfile | null;
   teacher: boolean;
+  testingAccount: boolean;
   refresh: () => Promise<void>;
 };
 const Context = createContext<Account | null>(null);
@@ -118,7 +119,7 @@ export function AccountGate({
         });
         if (auth.currentUser?.uid !== user.uid) return;
       }
-      setAccount({ user, studentId, profile, teacher, refresh });
+      setAccount({ user, studentId, profile, teacher, testingAccount: access.exists() && access.data().testing === true, refresh });
       setError("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "無法讀取帳戶，請重試。");
@@ -139,6 +140,18 @@ export function AccountGate({
     return onSnapshot(doc(db, "profiles", account.studentId), snapshot => {
       setAccount(current => current ? { ...current, profile: snapshot.exists() ? snapshot.data() as CloudProfile : null } : current);
     }, () => setAccount(current => current ? { ...current, profile: null } : current));
+  }, [account?.user.uid, account?.studentId, account?.teacher]);
+  useEffect(() => {
+    if (!account || account.teacher) return;
+    const email = account.user.email!.toLowerCase(), sid = account.studentId;
+    return onSnapshot(doc(db, "access", email), snapshot => {
+      if (!snapshot.exists() || snapshot.data().enabled !== true || snapshot.data().studentId !== sid) {
+        void refresh();
+        return;
+      }
+      setAccount(current => current?.studentId === sid && current.user.email?.toLowerCase() === email
+        ? { ...current, testingAccount: snapshot.data().testing === true } : current);
+    }, () => setAccount(current => current ? { ...current, testingAccount: false } : current));
   }, [account?.user.uid, account?.studentId, account?.teacher]);
   if (loading)
     return (

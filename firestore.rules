@@ -29,7 +29,8 @@ service cloud.firestore {
         && ((own >= 1 && own <= 3 && grade == own) || (own >= 4 && grade >= 4 && grade <= own));
     }
     function testingAccount(sid) {
-      return signed() && request.auth.token.email == 'tangkl@ctshkpcc.edu.hk' && owns(sid);
+      return owns(sid)
+        && get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.get('testing', false) == true;
     }
     function taskAllowed(sid, task) {
       let entry = get(/databases/$(database)/documents/taskAccess/$(task)).data;
@@ -81,7 +82,8 @@ service cloud.firestore {
     match /access/{email} {
       allow get: if teacher() || (signed() && request.auth.token.email == email);
       allow list: if teacher();
-      allow create, update: if teacher() && request.resource.data.keys().hasOnly(['studentId', 'enabled'])
+      allow create, update: if teacher() && request.resource.data.keys().hasOnly(['studentId', 'enabled', 'testing'])
+        && (!('testing' in request.resource.data) || request.resource.data.testing is bool)
         && request.resource.data.studentId is string && request.resource.data.enabled is bool;
       allow delete: if teacher();
     }

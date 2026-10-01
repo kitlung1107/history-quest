@@ -1,7 +1,7 @@
-export type GradeIdentity = { teacher?: boolean; user?: { email?: string | null; emailVerified?: boolean }; profile?: { className?: string } | null } | null | undefined;
+export type GradeIdentity = { teacher?: boolean; testingAccount?: boolean; user?: { email?: string | null; emailVerified?: boolean }; profile?: { className?: string } | null } | null | undefined;
 
 export function hasAllGradeAccess(identity: GradeIdentity): boolean {
-  return Boolean(identity?.teacher || (identity?.user?.emailVerified === true && identity.user.email?.toLowerCase() === 'tangkl@ctshkpcc.edu.hk'));
+  return Boolean(identity?.teacher || (identity?.user?.emailVerified === true && identity.testingAccount === true));
 }
 
 // The roster is authoritative; selected navigation state never grants access.
