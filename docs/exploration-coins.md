@@ -31,7 +31,7 @@ Firestore 規則只容許既有教師身份管理規則及新增有有效來源�
 
 探索館嘅 `ConnectedGame` / `GameSyncContext` 接收遊戲事件，`submitGameEvent` 保存並核對答案，待完成事件及所有作答同步後才成為已完成場次。教師頁 `GameRecords` 選玩家後嘅「確認本局探索幣」呼叫 `confirmGameCoins`。未完成、放棄、零作答場次不派幣。只有 iframe／外部遊戲連結、未接通此事件及版本題庫流程嘅遊戲，暫時不能自動計分派幣；今次冇新增遊戲整合。
 
-本次未部署正式網站或 Firestore 規則。日後發布必須先發布本專案 `firestore.rules`，再發布前端；正式舊規則未更新前，新帳簿及設定存取會被拒絕。老師應先設定獎勵，再確認新成績／遊戲。前端預覽只驗證介面，唔會冒充真實餘額或寫入正式資料。
+探索幣 Firestore 規則已於 2026-10-01 13:53:59 香港時間部署（見下方核對紀錄）。老師應先設定獎勵，再確認新成績／遊戲。前端預覽只驗證介面，唔會冒充真實餘額或寫入正式資料。
 
 本機學生預覽：`http://localhost:3000/__home-demo?view=cards&class=S5`。
 本機教師設定預覽：`http://localhost:3000/__home-demo?view=cards&class=S5&coins=teacher`。
@@ -42,4 +42,10 @@ Firestore 規則只容許既有教師身份管理規則及新增有有效來源�
 
 設定編輯器改用伺服器讀取，分別顯示權限、登入及連線錯誤，附專案 ID／錯誤代碼及重試按鈕；讀取失敗保持禁止儲存，避免用空白預設蓋過原設定。
 
-用戶自行發布時，需另行執行 `firebase deploy --only firestore:rules --project history-discovery-center`（使用已登入嘅 Firebase CLI），再發布／更新前端。GitHub Pages workflow 冇發布 Firebase 規則嘅步驟，單純 push 網站唔會更新資料權限。本次只修改、驗證及備妥規則，冇部署。
+用戶自行發布時，需另行執行 `firebase deploy --only firestore:rules --project history-discovery-center`（使用已登入嘅 Firebase CLI），再發布／更新前端。GitHub Pages workflow 冇發布 Firebase 規則嘅步驟，單純 push 網站唔會更新資料權限。9 月 30 日診斷當時只修改、驗證及備妥規則，冇部署；10 月 1 日已完成下述正式修復。
+
+### 正式探索幣規則修復（2026-10-01）
+
+部署前讀回正式規則（13:45:49 版本），與本機比較：唯一差異為缺少 `coinRules` 與 `coinAccounts` 兩個 match。本次保留所有其他現行規則，發布本機完整規則至 `history-discovery-center`。CLI 編譯及部署成功；再讀回正式 release，更新時間為香港 13:53:59，ruleset ID 為 `b5018f14-ac91-49fb-9d67-f734af766f8b`。正式規則與本機完全一致，SHA-256 為 `50341209fa67c99a4507f9807424dcddccc24dc3874003ba3825b00714632e5b`。部署前後備份在 `tmp/rules-backup-2026-10-01T05-51-55-096Z` 及 `tmp/rules-backup-2026-10-01T05-54-15-365Z`。
+
+本機 Firestore 模擬器 9 項探索幣整合測試全部通過，新增普通／testing 學生空帳簿合計為 0、跨學生讀取拒絕、自行寫幣拒絕、停用及匿名帳號拒絕、教師可讀空帳簿驗證；原有批改、遊戲確認、並發去重、零幣轉正數及多任務累積測試亦通過。未使用真實學生登入或向正式帳簿寫入測試獎勵；正式驗證為部署成功及規則內容讀回一致。前端已有相關流程，今次毋須重發網站。

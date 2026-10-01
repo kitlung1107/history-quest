@@ -74,6 +74,23 @@ async function grade(attemptId: string, score: number | null) {
     award();
   });
 }
+test("empty accounts read as zero for ordinary and testing students; access stays private", async () => {
+  await env.withSecurityRulesDisabled(async c => {
+    for (const [email, enabled] of [["testing@example.test", true], ["disabled@example.test", false]] as const)
+      await setDoc(doc(c.firestore(), "access", email), { studentId: "s1", enabled, testing: true });
+  });
+  for (const email of ["student@example.test", "testing@example.test"]) {
+    const student = env.authenticatedContext(email, claims(email)).firestore();
+    const entries = await assertSucceeds(getDocs(collection(student, "coinAccounts", "s1", "entries")));
+    expect(entries.docs.reduce((sum, entry) => sum + entry.data().amount, 0)).toBe(0);
+    await assertFails(getDocs(collection(student, "coinAccounts", "s2", "entries")));
+    await assertFails(setDoc(doc(student, "coinAccounts", "s1", "entries", "t1"), { amount: 100 }));
+  }
+  expect((await assertSucceeds(getDocs(collection(state.db, "coinAccounts", "s2", "entries")))).empty).toBe(true);
+  const disabled = env.authenticatedContext("disabled", claims("disabled@example.test")).firestore();
+  await assertFails(getDocs(collection(disabled, "coinAccounts", "s1", "entries")));
+  await assertFails(getDocs(collection(env.unauthenticatedContext().firestore(), "coinAccounts", "s1", "entries")));
+});
 test("pending grades do not award; concurrent attempts/retries/updates mint once, persist rule snapshot", async () => {
   await setDoc(doc(state.db, "coinRules", "t1"), {
     ...defaultCoinRule,
