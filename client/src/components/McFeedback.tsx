@@ -18,9 +18,6 @@ export default function McFeedback({
         {feedback.awarded} / {feedback.points}
       </p>
       <p className="mt-2">{feedback.message}</p>
-      <p className="mt-2 text-sm">
-        系統按 MC 答中率選取的鼓勵評語，只適用於 MC 部分。
-      </p>
     </section>
   );
 }
