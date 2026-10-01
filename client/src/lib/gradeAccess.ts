@@ -1,4 +1,8 @@
-export type GradeIdentity = { teacher?: boolean; profile?: { className?: string } | null } | null | undefined;
+export type GradeIdentity = { teacher?: boolean; user?: { email?: string | null; emailVerified?: boolean }; profile?: { className?: string } | null } | null | undefined;
+
+export function hasAllGradeAccess(identity: GradeIdentity): boolean {
+  return Boolean(identity?.teacher || (identity?.user?.emailVerified === true && identity.user.email?.toLowerCase() === 'tangkl@ctshkpcc.edu.hk'));
+}
 
 // The roster is authoritative; selected navigation state never grants access.
 export function studentGrade(value?: string): number | null {
@@ -9,13 +13,13 @@ export function studentGrade(value?: string): number | null {
 }
 export function canPlayGrade(identity: GradeIdentity, grade: number): boolean {
   if (!Number.isInteger(grade) || grade < 1 || grade > 6) return false;
-  if (identity?.teacher) return true;
+  if (hasAllGradeAccess(identity)) return true;
   const own = studentGrade(identity?.profile?.className);
   return own !== null && (own <= 3 ? grade === own : grade >= 4 && grade <= own);
 }
 export function canSeeGrade(identity: GradeIdentity, grade: number): boolean {
   const own = studentGrade(identity?.profile?.className);
-  return Boolean(identity?.teacher || own === null || own <= 3 || grade >= 4);
+  return Boolean(hasAllGradeAccess(identity) || own === null || own <= 3 || grade >= 4);
 }
 export function gradeLockMessage(identity: GradeIdentity): string {
   const own = studentGrade(identity?.profile?.className);

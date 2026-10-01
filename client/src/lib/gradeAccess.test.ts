@@ -1,6 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { studentGrade, canPlayGrade, canSeeGrade } from './gradeAccess.ts';
+test('verified Testing login sees and plays all grades without teacher privilege', () => {
+  const identity = { teacher: false, user: { email: 'tangkl@ctshkpcc.edu.hk', emailVerified: true }, profile: { className: 'Other' } };
+  for (let grade = 1; grade <= 6; grade++) {
+    assert.equal(canPlayGrade(identity, grade), true);
+    assert.equal(canSeeGrade({ ...identity, profile: { className: 'S6' } }, grade), true);
+    assert.equal(canPlayGrade({ ...identity, user: { ...identity.user, emailVerified: false } }, grade), false);
+    assert.equal(canPlayGrade({ ...identity, user: { email: 'other@ctshkpcc.edu.hk', emailVerified: true } }, grade), false);
+  }
+  assert.equal(identity.teacher, false);
+});
 const grades = [1, 2, 3, 4, 5, 6];
 test('six student grades and teacher/admin access matrix', () => {
   const expected = [[1], [2], [3], [4], [4, 5], [4, 5, 6]];

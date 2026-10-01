@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { before, after, test } from 'node:test';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, serverTimestamp, getDocs, collection } from 'firebase/firestore';
 let env;
 const claims = email => ({ email, email_verified: true, firebase: { sign_in_provider: 'google.com' } });
 before(async () => {
@@ -43,6 +43,24 @@ test('teacher/admin plays all six without a student profile or access entry', as
     await assertSucceeds(submission(db, 'teacher', grade));
     await assertSucceeds(start(db, 'teacher', grade));
   }
+});
+test('Testing has six-grade access but cannot administer accounts or impersonate another student', async () => {
+  await env.withSecurityRulesDisabled(async c => {
+    await setDoc(doc(c.firestore(), 'access', 'tangkl@ctshkpcc.edu.hk'), { enabled: true, studentId: 'testing' });
+    await setDoc(doc(c.firestore(), 'profiles', 'testing'), { className: 'Other' });
+  });
+  const db = env.authenticatedContext('testing', claims('tangkl@ctshkpcc.edu.hk')).firestore();
+  for (let grade = 1; grade <= 6; grade++) {
+    await assertSucceeds(submission(db, 'testing', grade));
+    await assertSucceeds(start(db, 'testing', grade));
+  }
+  await assertFails(getDocs(collection(db, 'profiles')));
+  await assertFails(setDoc(doc(db, 'taskAccess', 'task1'), { grade: 1, enabled: true }));
+  await assertFails(submission(db, 's1-0', 6, '-spoof'));
+  const unverified = env.authenticatedContext('testing', { ...claims('tangkl@ctshkpcc.edu.hk'), email_verified: false }).firestore();
+  await assertFails(start(unverified, 'testing', 1, '-unverified'));
+  await env.withSecurityRulesDisabled(c => updateDoc(doc(c.firestore(), 'access', 'tangkl@ctshkpcc.edu.hk'), { enabled: false }));
+  await assertFails(start(db, 'testing', 1, '-disabled'));
 });
 test('unknown grade, forged catalogue, missing task, disabled task and changed class fail closed', async () => {
   const db = await identity('unknown', 'Other');

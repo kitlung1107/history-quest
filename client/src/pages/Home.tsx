@@ -5,7 +5,7 @@ import {
   mediaUrl,
 } from "@/lib/siteSettings";
 import GradeLock from "@/components/GradeLock";
-import { canPlayGrade, canSeeGrade, studentGrade } from "@/lib/gradeAccess";
+import { canPlayGrade, canSeeGrade, studentGrade, hasAllGradeAccess } from "@/lib/gradeAccess";
 import { filterTasks } from "@/lib/contentModel";
 import { imagePosition } from "@/lib/imagePosition";
 import { useEffect, useMemo, useState } from "react";
@@ -79,7 +79,7 @@ export default function Home({
       ),
     [activeGrade, activeTopic, previewTasks, student, account?.teacher]
   );
-  const locked = activeGrade !== null ? !canPlayGrade(identity, activeGrade) : !identity?.teacher && studentGrade(student?.className) === null;
+  const locked = activeGrade !== null ? !canPlayGrade(identity, activeGrade) : !hasAllGradeAccess(identity) && studentGrade(student?.className) === null;
   const openTask = (task: HistoryTask) => { if (allowed(task)) setSelectedTask(task); };
   const sectionTitle = activeTopic
     ? PUBLIC_TOPICS.find(topic => topic.id === activeTopic)?.title

@@ -28,9 +28,12 @@ service cloud.firestore {
       return grade is int && grade >= 1 && grade <= 6
         && ((own >= 1 && own <= 3 && grade == own) || (own >= 4 && grade >= 4 && grade <= own));
     }
+    function testingAccount(sid) {
+      return signed() && request.auth.token.email == 'tangkl@ctshkpcc.edu.hk' && owns(sid);
+    }
     function taskAllowed(sid, task) {
       let entry = get(/databases/$(database)/documents/taskAccess/$(task)).data;
-      return teacher() || (entry.enabled == true && gradeAllowed(sid, entry.grade));
+      return teacher() || (entry.enabled == true && (testingAccount(sid) || gradeAllowed(sid, entry.grade)));
     }
     match /taskAccess/{task} {
       allow read: if signed();
