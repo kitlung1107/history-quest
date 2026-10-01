@@ -8,7 +8,9 @@ import { useGameSync } from '../contexts/GameSyncContext';
 import { gameEntry } from '../lib/games/registry';
 import { versionRef } from '../lib/games/store';
 import type { Game } from '../lib/games/model';
-export default function ConnectedGame({ game }: { game: Game }) {
+import { canUseNativeGameFullscreen } from '../lib/games/viewport';
+import './connected-game.css';
+export default function ConnectedGame({ game, onExpandedChange }: { game: Game; onExpandedChange?: (expanded: boolean) => void }) {
   const account = useOptionalStudentAccount(), sync = useGameSync();
   const task = HISTORY_TASKS.find(t => t.id === game.taskId);
   const allowed = Boolean(task && canPlayGrade(account, task.grade));
@@ -20,16 +22,36 @@ export default function ConnectedGame({ game }: { game: Game }) {
   const live = useRef({ account, sync, published, allowed }); live.current = { account, sync, published, allowed };
   const url = new URL(game.url); url.searchParams.set('hqChannel', channel);
   const origin = url.origin;
-  useEffect(() => {
-    const changed = () => setFull(document.fullscreenElement === shell.current);
-    document.addEventListener('fullscreenchange', changed);
-    return () => document.removeEventListener('fullscreenchange', changed);
-  }, []);
-  async function toggleFullscreen() {
-    if (document.fullscreenElement === shell.current) { await document.exitFullscreen(); return; }
-    if (!shell.current?.requestFullscreen) throw new Error('Fullscreen unavailable');
-    await shell.current.requestFullscreen();
+  const expanded = useRef(false);
+  const expansionChanged = useRef(onExpandedChange); expansionChanged.current = onExpandedChange;
+  function changeExpansion(value: boolean) {
+    expanded.current = value;
+    setFull(value);
+    expansionChanged.current?.(value);
   }
+  function expandGame() {
+    if (expanded.current || !frame.current) return;
+    changeExpansion(true);
+    // Layout expansion succeeds independently of the native API or installation.
+    if (shell.current && canUseNativeGameFullscreen(navigator, window) && document.fullscreenEnabled !== false) {
+      try { void shell.current.requestFullscreen?.().catch(() => {}); } catch { /* Keep viewport expansion. */ }
+    }
+  }
+  function returnToView() {
+    changeExpansion(false);
+    if (document.fullscreenElement === shell.current) void document.exitFullscreen().catch(() => {});
+    requestAnimationFrame(() => frame.current?.focus());
+  }
+  useEffect(() => {
+    if (!full) return;
+    const bodyOverflow = document.body.style.overflow;
+    const rootOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden'; document.documentElement.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = bodyOverflow; document.documentElement.style.overflow = rootOverflow; };
+  }, [full]);
+  useEffect(() => {
+    frame.current?.contentWindow?.postMessage({ protocol: 'history-game/1', channel, type: 'viewport', expanded: full }, origin);
+  }, [full, channel, origin]);
   useEffect(() => {
     if (!account) return;
     return onSnapshot(versionRef(game), { includeMetadataChanges: true }, snapshot => {
@@ -44,6 +66,7 @@ export default function ConnectedGame({ game }: { game: Game }) {
     function identify() {
       const { account: a, sync: s, published: p } = live.current;
       if (!verified || !a || !live.current.allowed || !(a.teacher || s?.authorized) || !p) { post({ type: 'locked' }); return; }
+      post({ type: 'viewport', expanded: expanded.current });
       post({ type: 'identity', identity: { scope: `${encodeURIComponent(a.user.uid)}:${encodeURIComponent(a.studentId)}`, name: a.profile?.name || a.studentId } });
     }
     function receive(event: MessageEvent) {
@@ -51,9 +74,8 @@ export default function ConnectedGame({ game }: { game: Game }) {
       if (event.source !== frame.current?.contentWindow || event.origin !== origin || !d || d.protocol !== 'history-game/1' || d.channel !== channel || d.gameId !== game.gameId) return;
       if (d.version !== game.version) { verified = false; post({ type: 'locked' }); setNotice('遊戲與題庫版本不同，請重新載入；若仍失敗請聯絡老師。'); return; }
       if (d.type === 'hello') { verified = true; identify(); }
-      if (verified && d.type === 'fullscreen') {
-        void toggleFullscreen().catch(() => { setNotice('此瀏覽器未能全螢幕，可用新分頁開啟或加入主畫面。'); post({ type: 'fullscreen-unavailable' }); });
-      }
+      if (verified && d.type === 'fullscreen') expandGame();
+      if (verified && d.type === 'return-to-view') returnToView();
       if (verified && d.type === 'event' && live.current.published && live.current.sync?.enqueue(game.gameId, game.version, d.event)) post({ type: 'accepted', eventId: d.event.eventId });
     }
     window.addEventListener('message', receive);
@@ -62,17 +84,16 @@ export default function ConnectedGame({ game }: { game: Game }) {
   }, [channel, game.gameId, game.version, origin]);
   if (account && !allowed) return <GradeLock identity={account} />;
   if (!account || !sync) return <a className="pixel-button pixel-button-teal" href={gameEntry(game.gameId)}>登入探索館後開始遊戲</a>;
-  return <section ref={shell} className="my-4 bg-paper p-3" style={{ overflow: 'auto' }} aria-label="已連結探索館的遊戲">
-    <div className="mb-3 flex flex-wrap items-center gap-3 text-sm">
+  return <section ref={shell} className="connected-game my-4 bg-paper p-3" data-expanded={full} aria-label="已連結探索館的遊戲">
+    <div className="connected-game-tools mb-3 flex flex-wrap items-center gap-3 text-sm">
       <strong>已連結：{account.profile?.name || account.studentId}（{account.profile?.className} {account.profile?.studentNo}）</strong>
       <span role="status" aria-live="polite">{sync.message}</span>
       <button className="pixel-button pixel-button-paper" onClick={sync.retry}>重試同步</button>
-      <button className="pixel-button pixel-button-paper" onClick={() => { void toggleFullscreen().catch(() => setNotice('此瀏覽器未能全螢幕，請用新分頁開啟。')); }}>{full ? '退出全螢幕' : '全螢幕'}</button>
-      <a className="pixel-button pixel-button-teal" href={gameEntry(game.gameId)} target="_blank" rel="noopener noreferrer">新分頁遊玩</a>
+      <button className="pixel-button pixel-button-paper" onClick={expandGame} aria-label="全螢幕">全螢幕</button>
       <a className="pixel-button pixel-button-paper" href={`${import.meta.env.BASE_URL}?gameRecords=1`} target="_blank" rel="noopener noreferrer">各局紀錄與錯題</a>
     </div>
     {notice && <p role="alert" className="my-3">{notice}</p>}
     <p className="mb-2 text-sm">成功完成一局後保存摘要與該局曾答錯的題目。待同步時請保留瀏覽器資料；共用裝置用完請登出。</p>
-    {published && allowed && (account.teacher || sync.authorized) && <iframe ref={frame} src={url.href} title={game.title} className="w-full border-0" style={{ height: full ? 'calc(100dvh - 145px)' : 'min(78dvh, 820px)', minHeight: 360 }} allow="autoplay; fullscreen" allowFullScreen sandbox="allow-scripts allow-same-origin allow-pointer-lock" />}
+    {published && allowed && (account.teacher || sync.authorized) && <iframe ref={frame} src={url.href} title={game.title} className="w-full border-0"  allow="autoplay; fullscreen" allowFullScreen sandbox="allow-scripts allow-same-origin allow-pointer-lock" />}
   </section>;
 }

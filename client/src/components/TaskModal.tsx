@@ -59,11 +59,13 @@ export default function TaskModal({
 }) {
   const account = useOptionalStudentAccount();
   const [started, setStarted] = useState(false);
+  const [gameExpanded, setGameExpanded] = useState(false);
   const { progress } = useScoreSync();
 
   useEffect(() => {
     if (!open) {
       setStarted(false);
+      setGameExpanded(false);
     }
   }, [open]);
 
@@ -77,7 +79,13 @@ export default function TaskModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="task-dialog max-h-[92dvh] w-[calc(100%-2rem)] sm:max-w-5xl overflow-y-auto p-0">
+      <DialogContent
+        className={"task-dialog max-h-[92dvh] w-[calc(100%-2rem)] sm:max-w-5xl overflow-y-auto p-0 " + (gameExpanded ? "task-dialog-expanded" : "")}
+        showCloseButton={!gameExpanded}
+        onPointerDownOutside={event => { if (started && connectedGame) event.preventDefault(); }}
+        onInteractOutside={event => { if (started && connectedGame) event.preventDefault(); }}
+        onEscapeKeyDown={event => { if (started && connectedGame) event.preventDefault(); }}
+      >
         <div className={`task-masthead task-${task.accent}`}>
           <img
             src={mediaUrl(task.image)}
@@ -114,7 +122,7 @@ export default function TaskModal({
             </div>
           </div>
         </div>
-        <div className="paper-texture p-6 md:p-9">
+        <div className="task-body paper-texture p-6 md:p-9">
           {!started ? (
             <div className="mx-auto max-w-2xl py-8 text-center">
               <div className="pixel-icon mx-auto">!</div>
@@ -138,7 +146,7 @@ export default function TaskModal({
             </div>
           ) : (
             <div
-              className={`mx-auto ${gameEmbed ? "max-w-none" : "max-w-3xl"}`}
+              className={`task-game-container mx-auto ${gameEmbed ? "max-w-none" : "max-w-3xl"}`}
             >
               {task.article && (
                 <article className="history-prose">
@@ -156,7 +164,7 @@ export default function TaskModal({
                   />
                 </div>
               )}
-              {connectedGame && <ConnectedGame game={connectedGame} />}
+              {connectedGame && <ConnectedGame game={connectedGame} onExpandedChange={setGameExpanded} />}
               {gameEmbed && !connectedGame && (
                 <section className="mt-7" aria-label="互動遊戲">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
