@@ -71,11 +71,11 @@ function SidebarBody({
         <CoinBalance />
         {onChangeCharacter ? (
           <button className="change-character" onClick={onChangeCharacter}>
-            更換卡片
+            更換卡片及暱稱
           </button>
         ) : !previewSettings ? (
           <Link href="/profile" className="change-character">
-            更換卡片
+            更換卡片及暱稱
           </Link>
         ) : (
           <span className="character-preview-label">角色展示</span>
@@ -127,9 +127,6 @@ function SidebarBody({
         <div className="mt-auto grid gap-2 pt-5">
           <Link href="/submissions" className="sidebar-utility">
             我的提交與評語
-          </Link>
-          <Link href="/profile" className="sidebar-utility">
-            我的卡片
           </Link>
           <Link href="/admin" className="sidebar-utility">
             <ShieldCheck className="h-4 w-4" />

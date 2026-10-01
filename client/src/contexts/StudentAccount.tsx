@@ -449,7 +449,7 @@ export function ProfileEditor({
           </label>
         </div>
         <label>
-          卡片暱稱
+          暱稱
           <input
             required
             maxLength={20}
