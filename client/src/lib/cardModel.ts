@@ -7,7 +7,7 @@ export type ExplorerCard = {
   image: string;
   enabled: boolean;
   role: StudentRole;
-  edition: "starter" | "nile" | "stone-age" | "wwi-s3" | "wwi-s4" | "hk-port" | "age-of-discovery" | "kabuki";
+  edition: "starter" | "nile" | "stone-age" | "wwi-s3" | "wwi-s4" | "hk-port" | "age-of-discovery" | "kabuki" | "renaissance";
   /** Shared CMS background reference; older cards have no assignment. */
   backgroundId?: string | null;
 };

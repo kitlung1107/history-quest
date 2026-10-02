@@ -34,6 +34,11 @@
       "id": "kabuki-stage",
       "name": "歌舞伎・浮世繪舞台",
       "image": "/history-quest/uploads/kabuki-stage-hero-v1.png"
+    },
+    {
+      "id": "renaissance-art-studio",
+      "name": "文藝復興・藝術工坊",
+      "image": "/history-quest/uploads/renaissance-hero-no-text.png"
     }
   ]
 }
