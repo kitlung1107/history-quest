@@ -1,6 +1,6 @@
 import { displayClass } from "@/lib/classOptions";
-import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, type User } from "firebase/auth";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { onIdTokenChanged, type User } from "firebase/auth";
 import AccessRequestForm from "@/components/AccessRequestForm";
 import {
   doc,
@@ -21,12 +21,12 @@ import { characterKey, type CharacterKey } from "@/lib/characters";
 import CardPicker from "@/components/CardPicker";
 import ExplorerCard from "@/components/ExplorerCard";
 import { EXPLORER_CARDS } from "@/lib/cards";
+import { hasFullCardSessionAccess, resolveAccountCard } from "@/lib/fullCardAccess";
 import {
   giftCards,
   isStudentRole,
   STUDENT_ROLES,
   type StudentRole,
-  resolveCard,
 } from "@/lib/cardModel";
 
 export type CloudProfile = StudentProfile & {
@@ -44,6 +44,7 @@ type Account = {
   profile: CloudProfile | null;
   teacher: boolean;
   testingAccount: boolean;
+  fullCardAccess: boolean;
   refresh: () => Promise<void>;
 };
 const Context = createContext<Account | null>(null);
@@ -64,8 +65,11 @@ export function AccountGate({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [waiting, setWaiting] = useState(false);
+  const refreshVersion = useRef(0);
   async function refresh() {
+    const version = ++refreshVersion.current;
     const user = auth.currentUser;
+    const isCurrent = () => version === refreshVersion.current && auth.currentUser?.uid === user?.uid;
     setAccount(null);
     setWaiting(false);
     setError("");
@@ -74,13 +78,15 @@ export function AccountGate({
       return;
     }
     try {
-      const email = user.email?.toLowerCase() || "";
-      const teacher = email === OWNER_EMAIL && user.emailVerified;
+      const token = await user.getIdTokenResult();
+      if (!isCurrent()) return;
+      const email = typeof token.claims.email === "string" ? token.claims.email : "";
+      const teacher = email === OWNER_EMAIL && token.claims.email_verified === true && token.signInProvider === "google.com";
       const access = await getDoc(doc(db, "access", email));
-      if (auth.currentUser?.uid !== user.uid) return;
+      if (!isCurrent()) return;
       let studentId = user.uid;
       if (access.exists()) {
-        if (!access.data().enabled) {
+        if (access.data().enabled !== true) {
           setWaiting(true);
           return;
         }
@@ -89,8 +95,9 @@ export function AccountGate({
         setWaiting(true);
         return;
       }
+      const fullCardAccess = hasFullCardSessionAccess(token.claims, user.uid, studentId, access.exists() ? access.data() : null);
       const result = await getDoc(doc(db, "profiles", studentId));
-      if (auth.currentUser?.uid !== user.uid) return;
+      if (!isCurrent()) return;
       let profile = result.exists() ? (result.data() as CloudProfile) : null;
       if (!teacher && isStudentRole(profile?.role)) {
         profile = await runTransaction(db, async tx => {
@@ -108,7 +115,7 @@ export function AccountGate({
             tx.update(ref, { ownedCardIds });
           return { ...current, ownedCardIds };
         });
-        if (auth.currentUser?.uid !== user.uid) return;
+        if (!isCurrent()) return;
       }
       if (!teacher && profile) {
         await runTransaction(db, async tx => {
@@ -117,41 +124,45 @@ export function AccountGate({
           if (!firstLogin.exists())
             tx.set(ref, { firstLoginAt: serverTimestamp() });
         });
-        if (auth.currentUser?.uid !== user.uid) return;
+        if (!isCurrent()) return;
       }
-      setAccount({ user, studentId, profile, teacher, testingAccount: access.exists() && access.data().testing === true, refresh });
+      setAccount({ user, studentId, profile, teacher, fullCardAccess, testingAccount: access.exists() && access.data().testing === true, refresh });
       setError("");
     } catch (e) {
+      if (!isCurrent()) return;
       setError(e instanceof Error ? e.message : "無法讀取帳戶，請重試。");
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
   }
   useEffect(
     () =>
-      onAuthStateChanged(auth, () => {
+      onIdTokenChanged(auth, () => {
         setLoading(true);
         void refresh();
       }),
     []
   );
   useEffect(() => {
-    if (!account || account.teacher) return;
+    if (!account) return;
     return onSnapshot(doc(db, "profiles", account.studentId), snapshot => {
-      setAccount(current => current ? { ...current, profile: snapshot.exists() ? snapshot.data() as CloudProfile : null } : current);
-    }, () => setAccount(current => current ? { ...current, profile: null } : current));
+      setAccount(current => current?.user.uid === account.user.uid && current.studentId === account.studentId
+        ? { ...current, profile: snapshot.exists() ? snapshot.data() as CloudProfile : null } : current);
+    }, () => setAccount(current => current?.user.uid === account.user.uid
+      ? { ...current, profile: null, fullCardAccess: false } : current));
   }, [account?.user.uid, account?.studentId, account?.teacher]);
   useEffect(() => {
-    if (!account || account.teacher) return;
-    const email = account.user.email!.toLowerCase(), sid = account.studentId;
+    if (!account) return;
+    const email = account.user.email!, sid = account.studentId;
     return onSnapshot(doc(db, "access", email), snapshot => {
+      if (!snapshot.exists() && account.teacher && sid === account.user.uid) return;
       if (!snapshot.exists() || snapshot.data().enabled !== true || snapshot.data().studentId !== sid) {
         void refresh();
         return;
       }
-      setAccount(current => current?.studentId === sid && current.user.email?.toLowerCase() === email
+      setAccount(current => current?.studentId === sid && current.user.uid === account.user.uid
         ? { ...current, testingAccount: snapshot.data().testing === true } : current);
-    }, () => setAccount(current => current ? { ...current, testingAccount: false } : current));
+    }, () => setAccount(current => current?.user.uid === account.user.uid ? null : current));
   }, [account?.user.uid, account?.studentId, account?.teacher]);
   if (loading)
     return (
@@ -297,18 +308,28 @@ export function AccountGate({
     </Context.Provider>
   );
 }
+function fullCardAccessMessage(fullAccess: boolean) {
+  return fullAccess ? "請選擇已啟用的卡片。" : "請選擇已擁有的同角色卡片。";
+}
 export function ProfileForm({ onDone }: { onDone?: () => void }) {
   const account = useStudentAccount();
+  // The existing owner may not have a roster profile. No student can create one.
+  const initialProfile: CloudProfile | null = account.profile ?? (account.teacher ? {
+    className: "Other", studentNo: "TEACHER", name: "老師", nickname: "老師",
+    avatar: "explorer", configured: false,
+  } : null);
+  if (!initialProfile) return <p>找不到帳號資料。</p>;
   return (
     <ProfileEditor
-      initialProfile={account.profile!}
+      initialProfile={initialProfile}
+      fullCardAccess={account.fullCardAccess}
       email={account.user.email || ""}
       onSave={async profile => {
         await runTransaction(db, async tx => {
           const ref = doc(db, "profiles", account.studentId);
           const snapshot = await tx.get(ref);
-          if (!snapshot.exists()) throw new Error("找不到學生帳戶。");
-          const current = snapshot.data() as CloudProfile;
+          if (!snapshot.exists() && !account.teacher) throw new Error("找不到學生帳戶。");
+          const current = snapshot.exists() ? snapshot.data() as CloudProfile : initialProfile;
           if (!isStudentRole(profile.role)) throw new Error("請選擇角色。");
           if (current.role && current.role !== profile.role)
             throw new Error("角色已鎖定，請重新載入。");
@@ -319,13 +340,13 @@ export function ProfileForm({ onDone }: { onDone?: () => void }) {
             ])
           );
           if (
-            !resolveCard(EXPLORER_CARDS, profile.cardId, {
+            !resolveAccountCard(EXPLORER_CARDS, profile.cardId, {
               role: profile.role,
               ownedCardIds,
-            })
+            }, account.fullCardAccess)
           )
-            throw new Error("只能展示自己角色已擁有的卡片。");
-          tx.update(ref, {
+            throw new Error(fullCardAccessMessage(account.fullCardAccess));
+          const changes = {
             nickname: profile.nickname,
             role: profile.role,
             ownedCardIds,
@@ -334,7 +355,9 @@ export function ProfileForm({ onDone }: { onDone?: () => void }) {
             ...(!current.role && current.cardId
               ? { legacyCardId: current.cardId }
               : {}),
-          });
+          };
+          if (snapshot.exists()) tx.update(ref, changes);
+          else tx.set(ref, { ...initialProfile, ...changes });
         });
         await account.refresh();
         onDone?.();
@@ -351,18 +374,20 @@ export function ProfileEditor({
   onSave,
   onLogout,
   onCancel,
+  fullCardAccess = false,
 }: {
   initialProfile: CloudProfile;
   email: string;
   onSave: (profile: CloudProfile) => Promise<void>;
   onLogout?: () => void;
   onCancel?: () => void;
+  fullCardAccess?: boolean;
 }) {
   const [profile, setProfile] = useState<CloudProfile>(() => ({
     ...initialProfile,
     avatar: characterKey(initialProfile.avatar),
     nickname: initialProfile.nickname || "歷史小探員",
-    cardId: resolveCard(EXPLORER_CARDS, initialProfile.cardId, initialProfile)
+    cardId: resolveAccountCard(EXPLORER_CARDS, initialProfile.cardId, initialProfile, fullCardAccess)
       ?.id,
   }));
   const [error, setError] = useState("");
@@ -390,8 +415,8 @@ export function ProfileEditor({
               throw new Error("請先選擇男學生或女學生。");
             if (initialProfile.role && initialProfile.role !== next.role)
               throw new Error("角色已鎖定。");
-            if (!resolveCard(EXPLORER_CARDS, next.cardId, next))
-              throw new Error("請選擇已擁有的同角色卡片。");
+            if (!resolveAccountCard(EXPLORER_CARDS, next.cardId, next, fullCardAccess))
+              throw new Error(fullCardAccessMessage(fullCardAccess));
             await onSave({ ...next, configured: true });
           } catch (err) {
             const permissionDenied =
@@ -510,11 +535,12 @@ export function ProfileEditor({
         ) : null}
         <div className="card-editor-preview">
           <ExplorerCard
-            card={resolveCard(EXPLORER_CARDS, profile.cardId, profile)}
+            card={resolveAccountCard(EXPLORER_CARDS, profile.cardId, profile, fullCardAccess)}
             profile={profile}
           />
         </div>
         <CardPicker
+          fullCardAccess={fullCardAccess}
           collection={profile}
           value={profile.cardId}
           onChange={cardId => setProfile({ ...profile, cardId })}

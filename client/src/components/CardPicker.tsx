@@ -1,19 +1,22 @@
 import { EXPLORER_CARDS } from "@/lib/cards";
-import { availableCards, type CardCollection } from "@/lib/cardModel";
+import { type CardCollection } from "@/lib/cardModel";
+import { availableAccountCards } from "@/lib/fullCardAccess";
 import { mediaUrl } from "@/lib/siteSettings";
 export default function CardPicker({
   value,
   collection,
+  fullCardAccess = false,
   onChange,
 }: {
   value?: string;
   collection: CardCollection;
+  fullCardAccess?: boolean;
   onChange: (id: string) => void;
 }) {
-  const cards = availableCards(EXPLORER_CARDS, collection);
+  const cards = availableAccountCards(EXPLORER_CARDS, collection, fullCardAccess);
   const locked = EXPLORER_CARDS.filter(
     c =>
-      c.enabled &&
+      !fullCardAccess && c.enabled &&
       c.role === collection.role &&
       !collection.ownedCardIds?.includes(c.id)
   );
@@ -23,7 +26,8 @@ export default function CardPicker({
       <p className="mb-3 text-sm">
         更換展示卡不會改變角色。選卡後按「儲存卡片」。
       </p>
-      {!cards.length && <p role="status">請先選擇角色。</p>}
+      {fullCardAccess && <p className="mb-3 text-sm">此帳號可使用所有已啟用卡片，包括男、女角色卡。</p>}
+      {!cards.length && <p role="status">{fullCardAccess ? "暫時沒有已啟用的卡片。" : "請先選擇角色。"}</p>}
       <div className="card-picker-grid">
         {cards.map(card => (
           <label
@@ -38,7 +42,7 @@ export default function CardPicker({
               onChange={() => onChange(card.id)}
             />
             <img src={mediaUrl(card.image)} alt="" />
-            <span>{card.name} · 已擁有</span>
+            <span>{card.name} · {fullCardAccess ? "可使用" : "已擁有"}</span>
           </label>
         ))}
       </div>

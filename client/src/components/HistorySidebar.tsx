@@ -35,12 +35,13 @@ import {
 import ExplorerCard from "@/components/ExplorerCard";
 import CoinBalance from "@/components/CoinBalance";
 import { EXPLORER_CARDS } from "@/lib/cards";
-import { resolveCard } from "@/lib/cardModel";
+import { resolveAccountCard } from "@/lib/fullCardAccess";
 import { useEffect, useId, useRef, useState } from "react";
 
 type SidebarProps = {
   previewSettings?: typeof defaults;
   previewProfile?: CloudProfile;
+  previewFullCardAccess?: boolean;
   onChangeCharacter?: () => void;
   student: StudentProfile;
   activeGrade: number | null;
@@ -56,13 +57,15 @@ function SidebarBody({
   onTopicChange,
   previewSettings,
   previewProfile,
+  previewFullCardAccess = false,
   onChangeCharacter,
 }: SidebarProps) {
   // Keep transient touch/pen feedback separate from the selected topic.
   const [pressedTopic, setPressedTopic] = useState<string | null>(null);
   const account = useOptionalStudentAccount();
   const profile = previewProfile || account?.profile;
-  const card = resolveCard(EXPLORER_CARDS, profile?.cardId, profile);
+  const card = resolveAccountCard(EXPLORER_CARDS, profile?.cardId, profile,
+    previewSettings ? previewFullCardAccess : account?.fullCardAccess);
   return (
     <div className="flex h-full flex-col">
       <div className="collection-card-area">

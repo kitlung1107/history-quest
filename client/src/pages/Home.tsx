@@ -9,6 +9,7 @@ import HomeHeroImage from "@/components/HomeHeroImage";
 import { EXPLORER_CARDS } from "@/lib/cards";
 import { CARD_BACKGROUNDS } from "@/lib/cardBackgrounds";
 import { resolveCardBackground } from "@/lib/cardBackground";
+import { cardDisplayCollection } from "@/lib/fullCardAccess";
 import { canPlayGrade, canSeeGrade, studentGrade, hasAllGradeAccess } from "@/lib/gradeAccess";
 import { filterTasks } from "@/lib/contentModel";
 import { imagePosition } from "@/lib/imagePosition";
@@ -44,12 +45,14 @@ export default function Home({
   previewSettings,
   previewTasks,
   previewProfile,
+  previewFullCardAccess = false,
   previewCoinRules,
   onChangeCharacter,
 }: {
   previewSettings?: typeof defaults;
   previewTasks?: HistoryTask[];
   previewProfile?: CloudProfile;
+  previewFullCardAccess?: boolean;
   previewCoinRules?: Record<string, CoinRule>;
   onChangeCharacter?: () => void;
 } = {}) {
@@ -58,7 +61,8 @@ export default function Home({
   const background = resolveCardBackground(
     EXPLORER_CARDS,
     CARD_BACKGROUNDS,
-    previewSettings ? previewProfile : account?.profile
+    cardDisplayCollection(EXPLORER_CARDS, previewSettings ? previewProfile : account?.profile,
+      previewSettings ? previewFullCardAccess : account?.fullCardAccess)
   );
   const heroImage = background?.image || settings.hero;
   const student: StudentProfile | null = previewSettings
@@ -115,6 +119,7 @@ export default function Home({
             onDesktopOpenChange={setDesktopSidebarOpen}
             previewSettings={previewSettings}
             previewProfile={previewProfile}
+            previewFullCardAccess={previewFullCardAccess}
             onChangeCharacter={onChangeCharacter}
             student={student}
             activeGrade={activeGrade}

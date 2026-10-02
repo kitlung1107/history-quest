@@ -3,7 +3,9 @@ import { ProfileEditor, type CloudProfile } from "@/contexts/StudentAccount";
 import Home from "./Home";
 import { SITE_SETTINGS } from "@/lib/siteSettings";
 import { isStudentRole } from "@/lib/cardModel";
-const key = "hdc.role-preview.v1";
+// This module is already behind the development-only /__role-preview route.
+const fullCardAccess = new URLSearchParams(location.search).get("fullCards") === "1";
+const key = fullCardAccess ? "hdc.full-card-preview.v1" : "hdc.role-preview.v1";
 const fresh = (className = "1A", legacy = false): CloudProfile => ({
   className,
   studentNo: "12",
@@ -34,7 +36,7 @@ export default function RolePreview() {
         className="bg-gold p-4 flex flex-wrap items-center gap-3"
         aria-label="展示帳戶控制"
       >
-        <strong>本機展示帳戶 · 不會改動真實學生資料</strong>
+        <strong>{fullCardAccess ? "本機全卡預覽" : "本機展示帳戶"} · 不會改動真實學生資料</strong>
         <label>
           示範年級{" "}
           <select
@@ -92,6 +94,7 @@ export default function RolePreview() {
       </div>
       {!isStudentRole(profile.role) || editing ? (
         <ProfileEditor
+          fullCardAccess={fullCardAccess}
           key={revision}
           initialProfile={profile}
           email="demo@example.test"
@@ -105,6 +108,7 @@ export default function RolePreview() {
         />
       ) : (
         <Home
+          previewFullCardAccess={fullCardAccess}
           previewSettings={SITE_SETTINGS}
           previewProfile={profile}
           onChangeCharacter={() => setEditing(true)}
