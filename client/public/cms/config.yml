@@ -84,6 +84,7 @@ collections:
                   - starter
                   - nile
                   - stone-age
+                  - age-of-discovery
               - label: 卡片名稱
                 name: name
                 widget: string
