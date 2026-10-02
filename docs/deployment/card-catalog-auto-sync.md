@@ -10,8 +10,8 @@
 - 已發布全卡 rules，ruleset `projects/history-discovery-center/rulesets/03302d57-706c-44a6-afa0-0c2c72b8f2ec`，讀回 hash `89311f9db82898b145b135e14ee838becd67be1ae2dccdcfe5121e71dc9c396b`。舊 ruleset `b5018f14-ac91-49fb-9d67-f734af766f8b` 已留備份。
 - **本機完整 firestore.rules 另外包含尚未上線的獎勵系統規則。本次只將全卡 commit 差異加入現行正式規則，沒有部署獎勵改動。不要直接用完整本機 rules 再次部署。** 精確發布檔為 `tmp/card-catalog-ci-review/firestore-full-card-only.rules`，13 項全卡 emulator 測試通過。CLI 初始化因缺 `@apidevtools/json-schema-ref-parser` 失敗，實際發布使用相同官方 Rules REST API，沒有改依賴或擴權。
 - 僅讀取指定兩個 access 的 enabled/studentId 欄位：Tang 已啟用且有 profile 綁定；Lung 沒有 access 記錄，適用已測的 owner 自己 UID fallback。沒有讀取其他學生資料、改寫任何 access/profile 或冒充真人登入。
-- 全卡前端 commit 已有 [成功 Pages run](https://github.com/kitlung1107/history-quest/actions/runs/37038857221)。新自動同步 workflow 尚未 push／執行；短效 OIDC 交換及 service account 的實際 Firestore 呼叫仍待首次 CI 驗證。
-- **GitHub 三個 environment variables 尚未由本工程設定。** Connector 沒有這項寫入 action；computer-use 所需 node_repl 未提供，亦沒有 gh CLI。已交用戶在既有 `github-pages` environment 設定下方三個非 secret 值。先完成變數，再由用戶 commit/push 九檔差異；最後驗證新 run 的 commit/hash 及兩帳號真人選卡。
+- 用戶已提交新 workflow 為 `a63f50f45079effefe5ec2b64bc38fe492df35e2`。首次 OIDC 因舊 subject 格式被拒；只修正雲端 subject 後，[同一 run 的 attempt 2](https://github.com/kitlung1107/history-quest/actions/runs/37048765666/attempts/2) 已通過真正 OIDC、service account Firestore 讀取／同步核對、receipt 保存及 Pages 發布（deploy job `110981094850`）。
+- **三個 environment variables 已由用戶設定，實際 run 日誌及 preflight 已確認值正確。** 本機無憑證的直接讀取 API 是 401，沒有據此宣稱讀回；驗證來自 GitHub runner。同步 receipt 的 commit 是 `a63f50f45079effefe5ec2b64bc38fe492df35e2`、hash 是上述卡庫 hash，mode 為 `unchanged`，未重寫相同資料。尚需兩帳號真人登入選卡；本次成功 run 沒有新增卡，因此沒有以 CI 身份額外強制測試資料寫入。
 
 本機證據在 `tmp/card-catalog-ci-review/production-verification.json`、`verified-identity-bindings.json`；備份包括 `ruleset-before.json`、`firestore-before.rules`、`iam-policy-before.json` 及 `tmp/full-card-access/catalogue-before-1790963887026.json`。這些含操作紀錄的 tmp 檔不提交 repo。
 
@@ -73,7 +73,7 @@ assertion.repository_owner_id == 'OWNER_ID' &&
 assertion.repository == 'kitlung1107/history-quest' &&
 assertion.ref == 'refs/heads/main' &&
 assertion.workflow_ref == 'kitlung1107/history-quest/.github/workflows/deploy-pages.yml@refs/heads/main' &&
-assertion.sub == 'repo:kitlung1107/history-quest:environment:github-pages' &&
+assertion.sub == 'repo:kitlung1107@322858010/history-quest@1352626201:environment:github-pages' &&
 (assertion.event_name == 'push' || assertion.event_name == 'workflow_dispatch')
 ```
 
@@ -95,6 +95,8 @@ resource.name == 'projects/history-discovery-center/databases/(default)'
 
 數字 repo/owner ID 條件避免只靠可重用名稱辨識來源。此流程不要求 Domain-Wide Delegation 或額外 Token Creator 角色。[Google WIF](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines)、[auth action](https://github.com/google-github-actions/auth)
 
+2026-10-02 首次實際 OIDC run `37048765666`（commit `a63f50f45079effefe5ec2b64bc38fe492df35e2`）暴露舊式 subject 條件不相容：此 repo 建於 2026-08-31，而 GitHub 自 2026-07-15 後新 repo 的預設 subject 包含 owner/repository 數字 ID。雲端已只將上述 `sub` 精確值更新為 immutable 格式並讀回；其他 predicate、mapping、issuer、SA 及 IAM bindings 不變，沒有放寬 repo／branch／環境。首次失敗在 auth，sync／Pages 均跳過；三個 GitHub 變數及 preflight 已由實際 run 確認。[GitHub immutable subject claims](https://docs.github.com/en/actions/reference/security/oidc#immutable-subject-claims)
+
 ## Firestore 與 GitHub 啟用步驟
 
 1. 已批准並發布隔離的全卡 rules，詳見上方正式紀錄。自動同步身份沒有 rules 發布權。再次部署前必須比對即時正式版本，不能帶入未批准的本機獎勵規則。
@@ -106,9 +108,9 @@ resource.name == 'projects/history-discovery-center/databases/(default)'
    | --- | --- |
    | `CARD_CATALOG_WIF_PROVIDER` | `projects/453548212735/locations/global/workloadIdentityPools/history-quest-releases/providers/github` |
    | `CARD_CATALOG_SERVICE_ACCOUNT` | `hq-card-catalog-publisher@history-discovery-center.iam.gserviceaccount.com` |
-   | `CARD_CATALOG_SYNC_ENABLED` | `true`（身份、規則及持續寫入已批准；待用戶設定） |
+   | `CARD_CATALOG_SYNC_ENABLED` | `true`（已由用戶設定及實際 run 確認） |
 
-4. 設定變數並由用戶 push 後，在最新 main 首次執行，核對 receipt commit/hash、同步及 Pages step；由用戶真實登入兩指定帳號驗證新卡及跨角色儲存。正式 rules 已發布及讀回，普通學生拒絕測試已在 emulator 通過；真實 OIDC/IAM 呼叫及真人登入尚未驗證。
+4. 首次真正 OIDC/IAM、receipt commit/hash、同步及 Pages 已驗證成功，詳見上方紀錄。由用戶真實登入兩指定帳號驗證新卡及跨角色儲存；普通學生拒絕測試已在 emulator 通過，未冒充真人登入。
 
 工具使用 Firebase CLI 的 GoogleAuth ADC／Firestore REST，沒有 Firebase Admin SDK。沒有長期 key 或個人 Firebase token。ADC 只在 runner 產生及清理，gitignore 排除 `gha-creds-*.json`，artifact 只匹配卡庫 metadata。CLI 官方建議 CI 使用 ADC。[Firebase CLI CI](https://firebase.google.com/docs/cli#cli-ci-systems)
 
@@ -134,4 +136,4 @@ node --test --test-name-pattern='release tool' scripts/full-card-access-rules.te
 
 ## SummaryDescription
 
-把可信卡庫同步接入同次 main 的 Pages 發布：驗證批准開關、來源、OIDC 身份及最新 commit，同步並讀回核對成功才發布網站。加入 CI guard、短效 ADC、測試及備份／receipt。風險知情批准後已設定專用 WIF／最小 IAM、發布隔離全卡 rules、同步初始卡庫並讀回確認；待 GitHub 變數設定、用戶 commit/push、首次自動 run 及真人登入驗證。
+把可信卡庫同步接入同次 main 的 Pages 發布：驗證批准開關、來源、OIDC 身份及最新 commit，同步並讀回核對成功才發布網站。已設定專用 WIF／最小 IAM、發布隔離全卡 rules 及初始卡庫；修正 GitHub immutable subject 精確值後，同 commit 真正 OIDC／同步核對／Pages run 已成功。尚待兩指定帳號真人登入驗證。
