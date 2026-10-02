@@ -151,7 +151,7 @@
       "explanation": "紡輪是紡線工具，可作相關活動的物證。"
     }
   ],
-  "visible": false,
+  "visible": true,
   "featured": false,
   "order": 1
 }
