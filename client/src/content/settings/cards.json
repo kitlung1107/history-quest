@@ -24,7 +24,7 @@
       "edition": "nile",
       "name": "尼羅河探險 (男)",
       "image": "/history-quest/uploads/nile-explorer-boy-v1.webp",
-      "backgroundId": "",
+      "backgroundId": "Egyptian-civilization",
       "enabled": true
     },
     {
@@ -33,7 +33,7 @@
       "edition": "nile",
       "name": "尼羅河探險 (女)",
       "image": "/history-quest/uploads/nile-explorer-girl-v1.webp",
-      "backgroundId": "",
+      "backgroundId": "Egyptian-civilization",
       "enabled": true
     }
   ]
