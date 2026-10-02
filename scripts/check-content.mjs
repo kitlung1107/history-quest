@@ -41,7 +41,7 @@ export function validateContent() {
         image: media,
         enabled: z.boolean(),
         role: z.enum(["studentBoy", "studentGirl"]),
-        edition: z.enum(["starter", "nile"]),
+        edition: z.enum(["starter", "nile", "stone-age"]),
         backgroundId: cardBackgroundIdSchema,
       })
     )

@@ -35,6 +35,24 @@
       "image": "/history-quest/uploads/nile-explorer-girl-v1.webp",
       "backgroundId": "Egyptian-civilization",
       "enabled": true
+    },
+    {
+      "id": "stone-age-explorer-boy",
+      "role": "studentBoy",
+      "edition": "stone-age",
+      "name": "石器時代探索 (男)",
+      "image": "/history-quest/uploads/stone-age-boy-v1.png",
+      "backgroundId": "stone-age-river-valley",
+      "enabled": true
+    },
+    {
+      "id": "stone-age-explorer-girl",
+      "role": "studentGirl",
+      "edition": "stone-age",
+      "name": "石器時代探索 (女)",
+      "image": "/history-quest/uploads/stone-age-girl-v1.png",
+      "backgroundId": "stone-age-river-valley",
+      "enabled": true
     }
   ]
 }

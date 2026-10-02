@@ -7,7 +7,7 @@ export type ExplorerCard = {
   image: string;
   enabled: boolean;
   role: StudentRole;
-  edition: "starter" | "nile";
+  edition: "starter" | "nile" | "stone-age";
   /** Shared CMS background reference; older cards have no assignment. */
   backgroundId?: string | null;
 };
