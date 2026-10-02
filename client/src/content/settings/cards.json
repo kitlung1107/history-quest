@@ -53,6 +53,24 @@
       "image": "/history-quest/uploads/stone-age-girl-v1.png",
       "backgroundId": "stone-age-river-valley",
       "enabled": true
+    },
+    {
+      "id": "hk-port-boy",
+      "role": "studentBoy",
+      "edition": "hk-port",
+      "name": "香港商埠・碼頭搬運工 (男)",
+      "image": "/history-quest/uploads/hk-port-boy-v1.png",
+      "backgroundId": "hk-port-newspaper",
+      "enabled": true
+    },
+    {
+      "id": "hk-port-girl",
+      "role": "studentGirl",
+      "edition": "hk-port",
+      "name": "香港商埠・貨單管事 (女)",
+      "image": "/history-quest/uploads/hk-port-girl-v1.png",
+      "backgroundId": "hk-port-newspaper",
+      "enabled": true
     }
   ]
 }
