@@ -84,6 +84,8 @@ collections:
                   - starter
                   - nile
                   - stone-age
+                  - wwi-s3
+                  - wwi-s4
               - label: 卡片名稱
                 name: name
                 widget: string
