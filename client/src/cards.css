@@ -32,6 +32,11 @@
 .explorer-card-stone-age .explorer-card-identity { left: 26%; top: 86.1%; width: 48%; height: 5.1%; }
 .explorer-card-figure[data-card-image="/history-quest/uploads/stone-age-girl-v1.png"] .explorer-card-identity { left: 21%; top: 88.5%; width: 58%; height: 5%; }
 
+/* Both Renaissance artworks share a roomy lower plaque. Keep the full frame
+   and fit nickname/name on separate rows, clear of the figures and gold rim. */
+.explorer-card-renaissance .explorer-card-nickname { left: 18%; top: 86.3%; width: 64%; height: 3.8%; }
+.explorer-card-renaissance .explorer-card-identity { left: 22%; top: 90.5%; width: 56%; height: 3.5%; }
+
 .coin-balance { width:fit-content; max-width:100%; margin:6px auto 18px; color:#263b44; text-align:center; }
 .coin-balance-label { display:block; margin-bottom:7px; font-size:18px; font-weight:800; letter-spacing:.06em; line-height:1.4; }
 .coin-balance-count { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:9px; }

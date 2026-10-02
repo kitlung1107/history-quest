@@ -53,6 +53,24 @@
       "image": "/history-quest/uploads/stone-age-girl-v1.png",
       "backgroundId": "stone-age-river-valley",
       "enabled": true
+    },
+    {
+      "id": "renaissance-explorer-boy",
+      "role": "studentBoy",
+      "edition": "renaissance",
+      "name": "文藝復興探索 (男)",
+      "image": "/history-quest/uploads/renaissance-boy-card.png",
+      "backgroundId": "renaissance-art-studio",
+      "enabled": true
+    },
+    {
+      "id": "renaissance-explorer-girl",
+      "role": "studentGirl",
+      "edition": "renaissance",
+      "name": "文藝復興探索 (女)",
+      "image": "/history-quest/uploads/renaissance-girl-card.png",
+      "backgroundId": "renaissance-art-studio",
+      "enabled": true
     }
   ]
 }
