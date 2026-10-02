@@ -153,7 +153,7 @@ export default function ExplorerCard({
       </section>
     );
   return (
-    <figure className="explorer-card-figure">
+    <figure className="explorer-card-figure" data-card-image={card.image}>
       <div className={`explorer-card explorer-card-${card.edition}`} aria-label={card.name}>
         <img
           src={mediaUrl(card.image)}
