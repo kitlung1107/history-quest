@@ -281,12 +281,6 @@
   letter-spacing: -0.045em;
   color: #11283f;
 }
-.hero-divider {
-  width: 75%;
-  height: 1px;
-  background: #c99530;
-  margin: 12px auto;
-}
 .hero-subtitle {
   font-size: clamp(12px, 1.25vw, 19px);
   letter-spacing: 0.08em;
@@ -640,28 +634,53 @@
   position:static; display:block; width:100%; height:auto; border-radius:12px;
 }
 .manga-home .hero-title-wrap {
-  position:absolute; top:6%; left:18.5%; width:63%; margin:0; padding:8px 0;
-  background:transparent; border-radius:0;
+  position:absolute; top:6.5%; left:16%; width:68%; margin:0;
+  /* Preserve the approved text position after removing the compass. */
+  padding:27px 0 0;
+  display:flex; flex-direction:column; align-items:center;
+  z-index:1; text-align:center; background:transparent; border-radius:0;
 }
-.manga-home .hero-title-wrap h1 { font-size:clamp(24px,4.4cqw,53px); }
+.manga-home .hero-title-wrap::before {
+  content:""; position:absolute; inset:-16px -35px -20px;
+  z-index:-1; pointer-events:none;
+  background:var(--hero-title-scrim,none);
+}
+.manga-home .hero-title-wrap h1 {
+  margin:0; padding:0;
+  font-family:"Noto Serif TC",serif;
+  font-size:clamp(26px,4.55cqw,56px); font-weight:800;
+  line-height:1.5; letter-spacing:.055em; white-space:nowrap;
+  color:var(--hero-title-color,#19344b); text-shadow:none;
+}
 .manga-home .hero-english-subtitle {
-  font-family:"Times New Roman",Georgia,serif;
-  font-size:clamp(16px,1.95cqw,24px);
-  font-weight:700;
-  letter-spacing:.025em;
-  line-height:1.3;
-  color:#11283f;
+  margin:0; padding:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(16px,1.85cqw,24px); font-weight:400;
+  line-height:1.6; letter-spacing:.052em; white-space:nowrap;
+  color:var(--hero-subtitle-color,#30495d);
 }
 .manga-home .home-status { min-height:0; padding:8px 28px 0; }
 .manga-home .home-status:empty { display:none; }
 @media(max-width:767px) {
   .manga-home .hero-panel { border-width:6px; border-bottom:0; }
-  .manga-home .hero-title-wrap {
-    position:static; width:100%; padding:16px 12px; background:#fff9e9;
-  }
-  .manga-home .hero-title-wrap h1 { font-size:30px; }
-  .manga-home .hero-english-subtitle { font-size:16px; }
   .manga-home .home-status { padding:8px 16px 0; }
+}
+/* Follow the available cover width, including when the desktop sidebar is open. */
+@container (max-width:740px) {
+  .manga-home .hero-title-wrap {
+    position:relative; top:auto; left:auto; width:100%;
+    padding:31px 8px 17px; background:#fff9ec;
+    border-radius:0 0 10px 10px;
+  }
+  .manga-home .hero-title-wrap::before { display:none; }
+  .manga-home .hero-title-wrap h1 {
+    font-size:clamp(24px,7.7cqw,30px);
+    line-height:1.6; letter-spacing:.025em; color:#19344b;
+  }
+  .manga-home .hero-english-subtitle {
+    font-size:clamp(14px,4.2cqw,17px);
+    line-height:1.5; letter-spacing:.035em; color:#30495d;
+  }
 }
 
 .grade-content { position: relative; min-height: 380px; }

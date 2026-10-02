@@ -137,7 +137,6 @@ export default function Home({
               />
               <div className="hero-title-wrap">
                 <h1 className="display-title">{settings.title}</h1>
-                <div className="hero-divider" aria-hidden="true" />
                 <p className="hero-subtitle hero-english-subtitle" lang="en">History Discovery Center</p>
               </div>
             </header>
