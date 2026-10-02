@@ -9,7 +9,7 @@ import {
   type ExplorerCard,
 } from "./cardModel.ts";
 const cards: ExplorerCard[] = ["boy", "girl"].flatMap(sex =>
-  ["starter", "nile"].map(
+  ["starter", "nile", "stone-age", "age-of-discovery"].map(
     edition =>
       ({
         id: `${edition}-explorer-${sex}`,
@@ -75,6 +75,24 @@ test("selection fails closed for unselected, cross-role, disabled and unowned ca
     null
   );
 });
+test("voyage cards require explicit own-role ownership and are never gifted", () => {
+  for (const role of ["studentBoy", "studentGirl"] as const) {
+    const suffix = role === "studentBoy" ? "boy" : "girl";
+    const id = `age-of-discovery-explorer-${suffix}`;
+    const collection = { role, ownedCardIds: giftCards(role, "1A") };
+    assert.equal(resolveCard(cards, id, collection), null);
+    assert.equal(
+      resolveCard(cards, id, {
+        ...collection,
+        ownedCardIds: [...collection.ownedCardIds, id],
+      })?.id,
+      id
+    );
+    for (const className of ["1A", "2A", "3A", "4A", "5A", "6A"])
+      assert.ok(!giftCards(role, className).includes(id));
+  }
+});
+
 test("old avatars never count as role selection; card shows only student name", () => {
   assert.equal(isStudentRole("explorer"), false);
   assert.equal(isStudentRole(undefined), false);

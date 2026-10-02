@@ -87,6 +87,7 @@ collections:
                   - wwi-s3
                   - wwi-s4
                   - hk-port
+                  - age-of-discovery
               - label: 卡片名稱
                 name: name
                 widget: string

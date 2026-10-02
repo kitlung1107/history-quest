@@ -26,6 +26,10 @@
 .explorer-card-starter .explorer-card-nickname { left: 22%; top: 3.7%; width: 56%; height: 6.4%; }
 .explorer-card-starter .explorer-card-identity { left: 29%; top: 87%; width: 42%; height: 4.8%; }
 
+/* Both full-bleed voyage cards share blank plaques; keep labels dynamic. */
+.explorer-card-age-of-discovery .explorer-card-nickname { left: 22%; top: 4%; width: 56%; height: 5.8%; }
+.explorer-card-age-of-discovery .explorer-card-identity { left: 28%; top: 89.8%; width: 44%; height: 4.8%; }
+
 /* Full-bleed Stone Age art keeps its complete 2:3 frame.
    The girl's lower plaque sits below the boy's; labels remain dynamic. */
 .explorer-card-stone-age .explorer-card-nickname { left: 22%; top: 3%; width: 56%; height: 5.5%; }

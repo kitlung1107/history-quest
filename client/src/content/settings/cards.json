@@ -107,6 +107,22 @@
       "image": "/history-quest/uploads/hk-port-girl-v1.png",
       "backgroundId": "hk-port-newspaper",
       "enabled": true
+    },
+    {
+      "id": "age-of-discovery-explorer-boy",
+      "role": "studentBoy",
+      "edition": "age-of-discovery",
+      "name": "航海大發現 (男)",
+      "image": "/history-quest/uploads/age-of-discovery-boy-v1.png",
+      "enabled": true
+    },
+    {
+      "id": "age-of-discovery-explorer-girl",
+      "role": "studentGirl",
+      "edition": "age-of-discovery",
+      "name": "航海大發現 (女)",
+      "image": "/history-quest/uploads/age-of-discovery-girl-v1.png",
+      "enabled": true
     }
   ]
 }
