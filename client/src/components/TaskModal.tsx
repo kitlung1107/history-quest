@@ -74,7 +74,7 @@ export default function TaskModal({
   }, [open]);
 
   if (!task) return null;
-  if (!preview && !canPlayGrade(account, task.grade)) return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent><DialogTitle>級別未開放</DialogTitle><DialogDescription>請返回探索館切換年級。</DialogDescription><GradeLock identity={account} /></DialogContent></Dialog>;
+  if (!preview && !canPlayGrade(account, task.grade)) return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="task-card-dialog"><DialogTitle>級別未開放</DialogTitle><DialogDescription>請返回探索館切換年級。</DialogDescription><GradeLock identity={account} /></DialogContent></Dialog>;
   const completed = progress[task.id]?.progress === 100;
   const videoEmbed = toEmbedUrl(task.videoUrl);
   const connectedGame = gameForTask(task.id);
@@ -84,7 +84,7 @@ export default function TaskModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={"task-dialog max-h-[92dvh] w-[calc(100%-2rem)] sm:max-w-5xl overflow-y-auto p-0 " + (gameExpanded ? "task-dialog-expanded" : "")}
+        className={"task-card-dialog task-dialog max-h-[92dvh] w-[calc(100%-2rem)] sm:max-w-5xl overflow-y-auto p-0 " + (gameExpanded ? "task-dialog-expanded" : "")}
         showCloseButton={!gameExpanded}
         onPointerDownOutside={event => { if (started && connectedGame) event.preventDefault(); }}
         onInteractOutside={event => { if (started && connectedGame) event.preventDefault(); }}
