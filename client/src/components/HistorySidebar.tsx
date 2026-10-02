@@ -58,6 +58,8 @@ function SidebarBody({
   previewProfile,
   onChangeCharacter,
 }: SidebarProps) {
+  // Keep transient touch/pen feedback separate from the selected topic.
+  const [pressedTopic, setPressedTopic] = useState<string | null>(null);
   const account = useOptionalStudentAccount();
   const profile = previewProfile || account?.profile;
   const card = resolveCard(EXPLORER_CARDS, profile?.cardId, profile);
@@ -103,6 +105,19 @@ function SidebarBody({
                     <button
                       key={topic.id}
                       onClick={() => onTopicChange(grade, topic.id)}
+                      onPointerDown={event => {
+                        if (
+                          event.isPrimary &&
+                          event.button === 0 &&
+                          (event.pointerType === "touch" || event.pointerType === "pen")
+                        ) {
+                          setPressedTopic(topic.id);
+                        }
+                      }}
+                      onPointerUp={() => setPressedTopic(null)}
+                      onPointerCancel={() => setPressedTopic(null)}
+                      onLostPointerCapture={() => setPressedTopic(null)}
+                      data-pointer-pressed={pressedTopic === topic.id || undefined}
                       aria-pressed={activeTopic === topic.id}
                       className={`topic-link ${activeTopic === topic.id ? "bg-paper/15 font-black" : ""}`}
                     >

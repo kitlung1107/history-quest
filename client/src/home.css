@@ -209,14 +209,26 @@
   display: none;
 }
 :is(.manga-home, .manga-sidebar) .topic-link {
+  background: transparent;
   color: #314c60;
   padding: 8px 14px;
   font-size: 13px;
   line-height: 1.5;
 }
-:is(.manga-home, .manga-sidebar) .topic-link:hover,
 :is(.manga-home, .manga-sidebar) .topic-link[aria-pressed="true"] {
   background: #c1e8df;
+  color: #11283e;
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.manga-home, .manga-sidebar) .topic-link:hover,
+  :is(.manga-home, .manga-sidebar) .topic-link:active {
+    background: #dfe7d9;
+    color: #11283e;
+  }
+}
+:is(.manga-home, .manga-sidebar) .topic-link:active:focus-visible,
+:is(.manga-home, .manga-sidebar) .topic-link[data-pointer-pressed="true"] {
+  background: #dfe7d9;
   color: #11283e;
 }
 :is(.manga-home, .manga-sidebar) .all-button {
