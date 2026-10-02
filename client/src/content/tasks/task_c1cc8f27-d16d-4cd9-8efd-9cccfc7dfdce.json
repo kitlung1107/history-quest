@@ -152,6 +152,6 @@
     }
   ],
   "visible": true,
-  "featured": false,
+  "featured": true,
   "order": 1
 }
