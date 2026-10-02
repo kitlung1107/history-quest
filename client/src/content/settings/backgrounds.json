@@ -24,6 +24,11 @@
       "id": "wwi-s4-trench-cover",
       "name": "WWI S4・戰壕前進掩護",
       "image": "/history-quest/uploads/wwi-s4-battle-hero-v1.png"
+    },
+    {
+      "id": "hk-port-newspaper",
+      "name": "香港商埠・貿易碼頭",
+      "image": "/history-quest/uploads/hk-port-hero-v1.png"
     }
   ]
 }

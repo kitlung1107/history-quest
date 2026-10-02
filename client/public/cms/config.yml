@@ -86,6 +86,7 @@ collections:
                   - stone-age
                   - wwi-s3
                   - wwi-s4
+                  - hk-port
               - label: 卡片名稱
                 name: name
                 widget: string
@@ -93,7 +94,7 @@ collections:
                 name: image
                 widget: image
                 choose_url: false
-                hint: 上載2:3直式無字底圖（建議1024×1536）。保留與首批卡相同位置的頂部及底部空白名牌；暱稱和姓名由網站加入，請勿把示範文字畫進圖片。
+                hint: 上載2:3直式底圖（建議1024×1536）。暱稱和姓名由網站加入，請勿把個人文字畫進圖片。一般版型保留頂部及底部空白名牌；hk-port 版型保留頂部角色稱號，暱稱及姓名皆置於底部空白名牌。
               - label: 配對首頁背景
                 name: backgroundId
                 widget: relation
