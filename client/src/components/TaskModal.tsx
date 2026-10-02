@@ -142,7 +142,7 @@ export default function TaskModal({
                     : "開啟文章，閱讀資料與觀看影片。"}
               </p>
               <button
-                className={`pixel-button mt-7 ${task.accent === "red" ? "pixel-button-red" : task.accent === "gold" ? "pixel-button-gold" : "pixel-button-teal"}`}
+                className={`pixel-button mx-auto mt-7 ${task.accent === "red" ? "pixel-button-red" : task.accent === "gold" ? "pixel-button-gold" : "pixel-button-teal"}`}
                 onClick={() => setStarted(true)}
               >
                 <Gamepad2 className="h-5 w-5" />
