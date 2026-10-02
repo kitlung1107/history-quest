@@ -194,9 +194,9 @@
 }
 :is(.manga-home, .manga-sidebar) .grade-accordion[data-state="open"],
 :is(.manga-home, .manga-sidebar) .grade-active {
-  border-color: #36a9ab;
+  border-color: #d8b583;
   box-shadow: none;
-  background: #e0f4ee;
+  background: #fff5e3;
 }
 :is(.manga-home, .manga-sidebar)
   .grade-accordion
