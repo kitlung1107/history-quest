@@ -8,6 +8,8 @@ export type ExplorerCard = {
   enabled: boolean;
   role: StudentRole;
   edition: "starter" | "nile";
+  /** Shared CMS background reference; older cards have no assignment. */
+  backgroundId?: string | null;
 };
 export function isStudentRole(value: unknown): value is StudentRole {
   return value === "studentBoy" || value === "studentGirl";

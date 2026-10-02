@@ -14,6 +14,40 @@ media_libraries:
   all:
     max_file_size: 5242880
 collections:
+  - name: background_library
+    label: 首頁背景庫
+    editor:
+      preview: false
+    files:
+      - name: backgrounds
+        label: 背景圖片與名稱
+        file: client/src/content/settings/backgrounds.json
+        fields:
+          - label: 可重用背景
+            name: backgrounds
+            widget: list
+            required: false
+            summary: "{{fields.name}}"
+            hint: 每個背景只需上載一次，再到「收藏卡庫」配對；多張卡可以共用同一背景。刪除仍在使用的背景後，相關卡會使用首頁預設背景。
+            fields:
+              - label: 永久識別碼
+                name: id
+                widget: string
+                pattern:
+                  - ^[A-Za-z0-9_-]{3,80}$
+                  - 請用3至80個英文字母、數字、連字號或底線。
+                hint: 每個背景必須不同，建立後不要修改，例如 nile-river。改名請修改「背景名稱」。
+              - label: 背景名稱
+                name: name
+                widget: string
+                pattern:
+                  - ^.{1,80}$
+                  - 請填寫1至80個字元的背景名稱。
+              - label: 背景圖片
+                name: image
+                widget: image
+                choose_url: true
+                hint: 上載橫向圖片，或從素材庫選用已上載的圖片；只會替換首頁背景圖片，館名、文字顏色與排版維持原樣。
   - name: card_library
     label: 收藏卡庫
     editor:
@@ -57,6 +91,17 @@ collections:
                 widget: image
                 choose_url: false
                 hint: 上載2:3直式無字底圖（建議1024×1536）。保留與首批卡相同位置的頂部及底部空白名牌；暱稱和姓名由網站加入，請勿把示範文字畫進圖片。
+              - label: 配對首頁背景
+                name: backgroundId
+                widget: relation
+                collection: background_library
+                file: backgrounds
+                value_field: backgrounds.*.id
+                display_fields: [backgrounds.*.name]
+                search_fields: [backgrounds.*.name, backgrounds.*.id]
+                multiple: false
+                required: false
+                hint: 先到「首頁背景庫」新增背景，再按名稱選取。多張卡可選同一背景，毋須重複上載；留空或配對失效時使用「網站與首頁設定」的首頁預設背景。
               - label: 可供學生選用
                 name: enabled
                 widget: boolean
@@ -93,10 +138,11 @@ collections:
             name: logo
             widget: image
             choose_url: true
-          - label: 首頁大圖
+          - label: 首頁預設背景（未配對時使用）
             name: hero
             widget: image
             choose_url: true
+            hint: 保留現有首頁背景；收藏卡未配對或不可用、背景失效時使用。卡片專屬背景請在「首頁背景庫」新增，再到「收藏卡庫」配對。
           - label: 大圖取景調整
             name: heroPosition
             widget: image-position

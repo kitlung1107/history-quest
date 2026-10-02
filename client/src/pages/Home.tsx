@@ -5,6 +5,10 @@ import {
   mediaUrl,
 } from "@/lib/siteSettings";
 import GradeLock from "@/components/GradeLock";
+import HomeHeroImage from "@/components/HomeHeroImage";
+import { EXPLORER_CARDS } from "@/lib/cards";
+import { CARD_BACKGROUNDS } from "@/lib/cardBackgrounds";
+import { resolveCardBackground } from "@/lib/cardBackground";
 import { canPlayGrade, canSeeGrade, studentGrade, hasAllGradeAccess } from "@/lib/gradeAccess";
 import { filterTasks } from "@/lib/contentModel";
 import { imagePosition } from "@/lib/imagePosition";
@@ -51,6 +55,12 @@ export default function Home({
 } = {}) {
   const settings = previewSettings || defaults;
   const account = useOptionalStudentAccount();
+  const background = resolveCardBackground(
+    EXPLORER_CARDS,
+    CARD_BACKGROUNDS,
+    previewSettings ? previewProfile : account?.profile
+  );
+  const heroImage = background?.image || settings.hero;
   const student: StudentProfile | null = previewSettings
     ? previewProfile || { className: "預覽", name: "學生畫面", studentNo: "" }
     : account?.profile || (account?.teacher ? { className: "", name: "教師／管理員", studentNo: "" } : null);
@@ -129,11 +139,13 @@ export default function Home({
               ) : null}
             </div>
             <header className="hero-panel relative isolate overflow-hidden">
-              <img
-                src={mediaUrl(settings.hero)}
-                alt={settings.heroAlt}
-                style={{ objectPosition: imagePosition(settings.heroPosition) }}
-                className="absolute inset-0 -z-10 h-full w-full object-cover"
+              <HomeHeroImage
+                key={heroImage}
+                image={heroImage}
+                alt={background?.name || settings.heroAlt}
+                fallback={settings.hero}
+                fallbackAlt={settings.heroAlt}
+                position={settings.heroPosition}
               />
               <div className="hero-title-wrap">
                 <h1 className="display-title">{settings.title}</h1>

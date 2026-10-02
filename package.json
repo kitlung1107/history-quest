@@ -11,6 +11,7 @@
     "check": "node scripts/check-content.mjs && tsc --noEmit",
     "test:content": "node --experimental-strip-types --test client/src/lib/contentModel.test.ts",
     "test:cards": "node --experimental-strip-types --test client/src/lib/cardModel.test.ts",
+    "test:backgrounds": "node --experimental-strip-types --test client/src/lib/cardBackground.test.ts scripts/background-content.test.mjs",
     "test:teaching": "node --experimental-strip-types --test scripts/teaching.test.mjs scripts/admin-refresh.test.mjs scripts/mc-encouragement.test.mjs",
     "test:editor": "node --test scripts/editor.test.mjs scripts/image-position.test.mjs",
     "format": "prettier --write ."

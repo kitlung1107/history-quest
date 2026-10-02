@@ -19,7 +19,16 @@ function use(src, label) {
 const site = read("settings/site.json");
 use(site.hero, "首頁大圖");
 use(site.logo, "網站標誌");
-for (const card of read("settings/cards.json").cards ?? []) use(card.image, `收藏卡：${card.name}`);
+const backgrounds = read("settings/backgrounds.json").backgrounds ?? [];
+for (const background of backgrounds)
+  use(background.image, `首頁背景庫：${background.name}`);
+for (const card of read("settings/cards.json").cards ?? []) {
+  use(card.image, `收藏卡：${card.name}`);
+  const backgroundId =
+    typeof card.backgroundId === "string" ? card.backgroundId.trim() : "";
+  const background = backgrounds.find(item => item.id === backgroundId);
+  if (background) use(background.image, `收藏卡背景：${card.name}`);
+}
 for (const { data } of tasks) {
   use(data.image, `任務封面：${data.title}`);
   for (const match of (data.article || "").matchAll(

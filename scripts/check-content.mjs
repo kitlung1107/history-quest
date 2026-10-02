@@ -1,5 +1,10 @@
 import fs from "node:fs";
 import { z } from "zod";
+import {
+  backgroundReferenceWarnings,
+  cardBackgroundIdSchema,
+  validateBackgroundLibrary,
+} from "./background-content.mjs";
 import "./build-content-index.mjs";
 const content = new URL("../client/src/content/", import.meta.url);
 const read = p => JSON.parse(fs.readFileSync(new URL(p, content), "utf8"));
@@ -37,6 +42,7 @@ export function validateContent() {
         enabled: z.boolean(),
         role: z.enum(["studentBoy", "studentGirl"]),
         edition: z.enum(["starter", "nile"]),
+        backgroundId: cardBackgroundIdSchema,
       })
     )
     .parse(read("settings/cards.json").cards ?? []);
@@ -44,6 +50,11 @@ export function validateContent() {
     explorerCards.map(card => card.id),
     "收藏卡識別碼"
   );
+  const backgrounds = validateBackgroundLibrary(
+    read("settings/backgrounds.json")
+  );
+  for (const warning of backgroundReferenceWarnings(explorerCards, backgrounds))
+    console.warn(`Content warning: ${warning}`);
   const grades = z
     .array(z.object({ grade, title: text, visible: z.boolean() }))
     .length(6)
@@ -181,6 +192,7 @@ export function validateContent() {
   return {
     grades: grades.length,
     explorerCards: explorerCards.length,
+    backgrounds: backgrounds.length,
     topics: topics.length,
     tasks: tasks.length,
     cards: site.topicCards?.length ?? 0,
