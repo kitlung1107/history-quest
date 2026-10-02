@@ -54,6 +54,11 @@
 .explorer-card-hk-port .explorer-card-nickname { left: 12%; top: 86.1%; width: 76%; height: 5.2%; }
 .explorer-card-hk-port .explorer-card-identity { left: 14%; top: 92%; width: 72%; height: 3.8%; }
 
+/* Both full-bleed Kabuki cards reserve these blank plaque interiors.
+   Keep nickname and name as fitted, accessible text rather than baked-in art. */
+.explorer-card-kabuki .explorer-card-nickname { left: 24%; top: 3.2%; width: 52%; height: 5.3%; }
+.explorer-card-kabuki .explorer-card-identity { left: 25%; top: 89.5%; width: 50%; height: 5%; }
+
 .coin-balance { width:fit-content; max-width:100%; margin:6px auto 18px; color:#263b44; text-align:center; }
 .coin-balance-label { display:block; margin-bottom:7px; font-size:18px; font-weight:800; letter-spacing:.06em; line-height:1.4; }
 .coin-balance-count { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:9px; }

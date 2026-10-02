@@ -29,6 +29,11 @@
       "id": "hk-port-newspaper",
       "name": "香港商埠・貿易碼頭",
       "image": "/history-quest/uploads/hk-port-hero-v1.png"
+    },
+    {
+      "id": "kabuki-stage",
+      "name": "歌舞伎・浮世繪舞台",
+      "image": "/history-quest/uploads/kabuki-stage-hero-v1.png"
     }
   ]
 }
