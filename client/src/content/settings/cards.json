@@ -53,6 +53,24 @@
       "image": "/history-quest/uploads/stone-age-girl-v1.png",
       "backgroundId": "stone-age-river-valley",
       "enabled": true
+    },
+    {
+      "id": "kabuki-explorer-boy",
+      "role": "studentBoy",
+      "edition": "kabuki",
+      "name": "歌舞伎舞台探索 (男)",
+      "image": "/history-quest/uploads/kabuki-boy-v1.png",
+      "backgroundId": "kabuki-stage",
+      "enabled": true
+    },
+    {
+      "id": "kabuki-explorer-girl",
+      "role": "studentGirl",
+      "edition": "kabuki",
+      "name": "歌舞伎舞台探索 (女)",
+      "image": "/history-quest/uploads/kabuki-girl-v1.png",
+      "backgroundId": "kabuki-stage",
+      "enabled": true
     }
   ]
 }
