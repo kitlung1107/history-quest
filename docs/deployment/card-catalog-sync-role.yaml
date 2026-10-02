@@ -1,0 +1,10 @@
+# Proposed custom role only. This file does not create or grant any IAM role.
+# Binding must be conditioned on projects/history-discovery-center/databases/(default).
+# IMPORTANT: IAM is database-scoped, not restricted to cardCatalog/current.
+title: History Quest card catalogue sync
+description: Read, create and update Firestore documents for the approved catalogue publisher; no list, delete, rules, Auth or IAM administration.
+stage: GA
+includedPermissions:
+  - datastore.entities.get
+  - datastore.entities.create
+  - datastore.entities.update

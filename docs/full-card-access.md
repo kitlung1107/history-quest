@@ -1,5 +1,9 @@
 # 指定帳號全卡使用權（本機工程交付）
 
+後續狀態：用戶已提交全卡功能為 `a8f2a2ddf7c8ba0ee9bd889ee8b2f73f22b9380f`。下文原始基準及驗證紀錄保留；新一輪未提交的自動發布差異及啟用要求見 [卡庫自動同步手冊](deployment/card-catalog-auto-sync.md)。
+
+2026-10-02 正式批准後：專用 WIF/IAM、初始 6 卡卡庫及全卡 rules 已部署並讀回核對；GitHub 變數、用戶 push 新 workflow、首次 CI 與真人登入仍待完成。實際只發布從現行規則加上全卡差異的隔離版本，**沒有包含本機另有的獎勵系統改動；下方舊的完整 rules 部署命令不可直接照做**。精確 ruleset、備份及證據見自動同步手冊。
+
 本次基準：`956a81b8e528c8f478c28c5cb391fef06c29a1c8`。未 stage、commit、push、部署 Firebase 規則或修改正式帳號資料。StoneAge 卡庫、背景、圖片及其他 worktree 不在本功能 review patch 內。
 
 既有 `check-content.mjs` 會執行 `build-content-index.mjs`；驗證時重建了 `client/public/cms/content-index.json`，補回現有背景／教材圖片引用。這個產生檔差異另列、保留，沒有自行還原，也不包含在本功能 review patch。請勿使用整個 checkout 的全部差異當成本功能範圍。
@@ -61,9 +65,9 @@ node scripts/sync-card-catalog.mjs --dry-run
 | 前端、新規則、卡庫全部發布 | 指定已啟用身份可跨角色選卡、儲存並顯示相應首頁背景 |
 | 日後 CMS 加卡但沒有同步可信卡庫 | 新前端會列出該卡，但後端拒絕其新的儲存，直到同步成功 |
 
-**未來新卡的完全自動發布仍需串接同步步驟。** 此 repo 現有 GitHub Pages workflow 沒有 Firebase 同步身份。今次沒有修改其 workflow、建立 GitHub secrets、設定 OIDC 或增加 IAM。
+**後續更新：自動同步 workflow 原碼已補齊，啟用設定尚未執行。** 以用戶已提交的 `a8f2a2ddf7c8ba0ee9bd889ee8b2f73f22b9380f` 為基準，新增同次 main 發布的 OIDC 同步、來源與最新 commit 驗證、失敗時停止 Pages、備份及測試。詳見 [自動同步啟用手冊](deployment/card-catalog-auto-sync.md)。未建立正式身份、設定環境變數或增加 IAM；未啟用時新 workflow 會停止新 Pages 發布。
 
-最小串接方案是讓受信任的發布工作，在同一已審 commit 的內容檢查之後、Pages 發布之前，執行上述同步並驗證；同步失敗要阻止該次前端發布。必須限制為受保護的發布來源／環境，序列化發布，避免較舊 commit 在較新版本後覆蓋快照。若現有自動化沒有 Firebase 身份，選擇／授予最小必要 IAM 或 OIDC 是另一個需要批准的設定工作；不能把 IAM 當作只受 Firestore rules 的 document allowlist 約束。
+新 workflow 已實作同一已審 commit 的內容檢查、同步驗證及 Pages 發布順序，限制發布來源／環境、序列化發布及拒絕舊 commit 重跑。選擇／授予正式 IAM 及 OIDC 仍需另外批准；不能把 IAM 當作只受 Firestore rules 的 document allowlist 約束。
 
 在串接獲准前，可由既有受信任操作員在每次 CMS 發布時執行同一同步命令；不需要手改卡 ID 或改兩個帳號。這仍是人工發布步驟，不能聲稱目前已做到未來全自動同步。
 

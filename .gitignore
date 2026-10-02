@@ -14,6 +14,9 @@ build/
 .env.test.local
 .env.production.local
 
+# Ephemeral OIDC ADC files generated only in the approved GitHub release job.
+gha-creds-*.json
+
 # IDE and editor files
 .vscode/
 .idea/

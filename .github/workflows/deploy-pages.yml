@@ -7,16 +7,18 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  # Keep the catalogue sync and its Pages publication in one serialized release.
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -41,6 +43,11 @@ jobs:
           pnpm test:content
           pnpm test:teaching
           pnpm test:editor
+          pnpm test:full-cards
+          pnpm test:card-release
+
+      - name: Preview trusted card catalogue
+        run: pnpm cards:catalog-plan
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -59,12 +66,72 @@ jobs:
           path: dist/public
 
   deploy:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    env:
+      # Unset by default. Approve/configure these in the protected github-pages
+      # environment only after reviewing WIF/IAM and deploying the rules.
+      CARD_CATALOG_SYNC_ENABLED: ${{ vars.CARD_CATALOG_SYNC_ENABLED }}
+      CARD_CATALOG_WIF_PROVIDER: ${{ vars.CARD_CATALOG_WIF_PROVIDER }}
+      CARD_CATALOG_SERVICE_ACCOUNT: ${{ vars.CARD_CATALOG_SERVICE_ACCOUNT }}
     steps:
+      - name: Checkout exact built commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Check release approval and current main
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/card-catalog-release.mjs
+
+      - name: Install sync dependencies without lifecycle scripts
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Authenticate approved catalogue publisher
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          project_id: history-discovery-center
+          workload_identity_provider: ${{ env.CARD_CATALOG_WIF_PROVIDER }}
+          service_account: ${{ env.CARD_CATALOG_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          cleanup_credentials: true
+
+      - name: Sync and verify trusted card catalogue
+        id: catalog-sync
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/sync-card-catalog.mjs --ci --apply --project history-discovery-center
+
+      - name: Retain catalogue-only backup and receipt
+        if: always() && steps.catalog-sync.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-catalog-release-${{ github.sha }}
+          path: tmp/full-card-access/catalogue-*.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # Default success() means failed approval, auth, sync or verification stops Pages.
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
