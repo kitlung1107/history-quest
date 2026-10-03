@@ -97,7 +97,7 @@ collections:
                 name: image
                 widget: image
                 choose_url: false
-                hint: 上載2:3直式底圖（建議1024×1536）。暱稱和姓名由網站加入，請勿把個人文字畫進圖片。一般版型保留頂部及底部空白名牌；hk-port 版型保留頂部角色稱號，暱稱及姓名皆置於底部空白名牌。
+                hint: 上載2:3直式底圖（建議1024×1536）。暱稱和姓名由網站加入，請勿把個人文字畫進圖片。一般版型保留頂部及底部空白名牌；hk-port 版型頂部保留暱稱空白名牌，底部保留姓名及班別／學號兩行空白區，請勿印上角色稱號。
               - label: 配對首頁背景
                 name: backgroundId
                 widget: relation
