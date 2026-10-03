@@ -24,16 +24,20 @@
 .card-choice span { overflow-wrap: anywhere; }
 .card-editor-preview { width: min(100%, 280px); margin: 0 auto; }
 .explorer-card-starter .explorer-card-nickname { left: 22%; top: 3.7%; width: 56%; height: 6.4%; }
-.explorer-card-starter .explorer-card-identity { left: 29%; top: 87%; width: 42%; height: 4.8%; }
+.explorer-card-starter .explorer-card-identity { left: 27%; top: 87%; width: 46%; height: 4.8%; }
+.explorer-card-figure[data-card-image="/history-quest/uploads/starter-explorer-girl-v1.png"] .explorer-card-identity { top: 88.5%; }
+
+/* Fit the combined identity inside the Nile banner, clear of its end badges. */
+.explorer-card-nile .explorer-card-identity { left: 22%; top: 90.3%; width: 54%; height: 4.8%; }
 
 /* Both full-bleed voyage cards share blank plaques; keep labels dynamic. */
 .explorer-card-age-of-discovery .explorer-card-nickname { left: 22%; top: 4%; width: 56%; height: 5.8%; }
-.explorer-card-age-of-discovery .explorer-card-identity { left: 28%; top: 89.8%; width: 44%; height: 4.8%; }
+.explorer-card-age-of-discovery .explorer-card-identity { left: 26%; top: 89.8%; width: 48%; height: 4.8%; }
 
 /* Full-bleed Stone Age art keeps its complete 2:3 frame.
    The girl's lower plaque sits below the boy's; labels remain dynamic. */
 .explorer-card-stone-age .explorer-card-nickname { left: 22%; top: 3%; width: 56%; height: 5.5%; }
-.explorer-card-stone-age .explorer-card-identity { left: 26%; top: 86.1%; width: 48%; height: 5.1%; }
+.explorer-card-stone-age .explorer-card-identity { left: 24%; top: 86.1%; width: 52%; height: 5.1%; }
 .explorer-card-figure[data-card-image="/history-quest/uploads/stone-age-girl-v1.png"] .explorer-card-identity { left: 21%; top: 88.5%; width: 58%; height: 5%; }
 
 /* WWI artwork uses its complete 1024 x 1536 frame. Each blank plaque has
@@ -48,22 +52,21 @@
 .explorer-card-figure[data-card-image="/history-quest/uploads/wwi-s4-battle-girl-v1.png"] .explorer-card-identity { left: 21.6%; top: 89.7%; width: 55.6%; height: 4.8%; }
 
 /* Hong Kong newspaper cards keep the upper plaque clear for the nickname.
-   Name and class/student number share the lower plaque; retain the full 2:3 art. */
+   The combined identity is centered in the lower plaque; retain the full 2:3 art. */
 .explorer-card-hk-port { color: #211e18; }
 .explorer-card-hk-port > img { border-radius: 0; }
 .explorer-card-hk-port .explorer-card-nickname { left: 22%; top: 3.7%; width: 56%; height: 6.4%; }
-.explorer-card-hk-port .explorer-card-identity { left: 14%; top: 87.3%; width: 72%; height: 4.2%; }
-.explorer-card-hk-port .explorer-card-metadata { left: 14%; top: 92.4%; width: 72%; height: 3.1%; }
+.explorer-card-hk-port .explorer-card-identity { left: 14%; top: 88.4%; width: 72%; height: 6.4%; }
 
 /* Both full-bleed Kabuki cards reserve these blank plaque interiors.
-   Keep nickname and name as fitted, accessible text rather than baked-in art. */
+   Keep nickname and identity as fitted, accessible text rather than baked-in art. */
 .explorer-card-kabuki .explorer-card-nickname { left: 24%; top: 3.2%; width: 52%; height: 5.3%; }
-.explorer-card-kabuki .explorer-card-identity { left: 25%; top: 89.5%; width: 50%; height: 5%; }
+.explorer-card-kabuki .explorer-card-identity { left: 24%; top: 89.5%; width: 52%; height: 5%; }
 
 /* Both Renaissance artworks share a roomy lower plaque. Keep the full frame
-   and fit nickname/name on separate rows, clear of the figures and gold rim. */
+   and fit nickname/identity on separate rows, clear of the figures and gold rim. */
 .explorer-card-renaissance .explorer-card-nickname { left: 18%; top: 86.3%; width: 64%; height: 3.8%; }
-.explorer-card-renaissance .explorer-card-identity { left: 22%; top: 90.5%; width: 56%; height: 3.5%; }
+.explorer-card-renaissance .explorer-card-identity { left: 18%; top: 90.5%; width: 64%; height: 3.5%; }
 
 .coin-balance { width:fit-content; max-width:100%; margin:6px auto 18px; color:#263b44; text-align:center; }
 .coin-balance-label { display:block; margin-bottom:7px; font-size:18px; font-weight:800; letter-spacing:.06em; line-height:1.4; }

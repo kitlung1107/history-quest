@@ -93,15 +93,39 @@ test("voyage cards require explicit own-role ownership and are never gifted", ()
   }
 });
 
-test("old avatars never count as role selection; card shows only student name", () => {
+test("old avatars never count as role selection; identity uses profile fields", () => {
   assert.equal(isStudentRole("explorer"), false);
   assert.equal(isStudentRole(undefined), false);
   assert.equal(
     cardIdentity({ className: "1A", studentNo: "12", name: "可豪" }),
-    "可豪"
+    "1A(12) 可豪"
   );
   assert.equal(
     cardIdentity({ name: "陳 Alex".repeat(10) }),
     "陳 Alex".repeat(10)
   );
+});
+
+test("identity uses one space, preserves actual class and leading zeros, and never substitutes nickname", () => {
+  const profile = {
+    className: " 4A ", studentNo: " 01 ", name: " 陳 Alex ",
+    nickname: "獨立暱稱",
+  };
+  assert.equal(cardIdentity(profile), "4A(01) 陳 Alex");
+  assert.equal(cardIdentity({ className: "1A", studentNo: "12", name: "陳小明" }), "1A(12) 陳小明");
+  assert.equal(cardIdentity({ ...profile, name: "" }), "4A(01) 未設定姓名");
+});
+
+test("missing identity fields degrade without undefined or empty parentheses", () => {
+  for (const [profile, expected] of [
+    [{ name: "陳小明" }, "陳小明"],
+    [{ className: "1A", name: "陳小明" }, "1A 陳小明"],
+    [{ studentNo: "12", name: "陳小明" }, "(12) 陳小明"],
+    [{ className: "1A", studentNo: "", name: "陳小明" }, "1A 陳小明"],
+    [{ className: " ", studentNo: " ", name: " " }, "未設定姓名"],
+    [{ className: null, studentNo: null, name: null }, "未設定姓名"],
+    [{}, "未設定姓名"],
+  ] as const) {
+    assert.equal(cardIdentity(profile), expected);
+  }
 });

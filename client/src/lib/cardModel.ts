@@ -44,9 +44,14 @@ export function resolveCard(
   );
 }
 export function cardIdentity(profile: {
-  name: string;
-  className?: string;
-  studentNo?: string;
+  name?: string | null;
+  className?: string | null;
+  studentNo?: string | null;
 }) {
-  return profile.name;
+  const name = typeof profile.name === "string" ? profile.name.trim() : "";
+  const className = typeof profile.className === "string" ? profile.className.trim() : "";
+  const studentNo = typeof profile.studentNo === "string" ? profile.studentNo.trim() : "";
+  const classAndNumber = studentNo ? `${className}(${studentNo})` : className;
+  const identityName = name || "未設定姓名";
+  return classAndNumber ? `${classAndNumber} ${identityName}` : identityName;
 }

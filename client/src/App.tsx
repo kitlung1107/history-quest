@@ -18,7 +18,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ScoreSyncProvider } from "./contexts/ScoreSyncContext";
 import { useEffect } from "react";
-import { SITE_SETTINGS, mediaUrl } from "./lib/siteSettings";
+import { SITE_SETTINGS } from "./lib/siteSettings";
 import {
   AccountGate,
   ProfileForm,
@@ -124,9 +124,7 @@ function Routes() {
 function App() {
   useEffect(() => {
     document.title = SITE_SETTINGS.title;
-    document
-      .querySelector<HTMLLinkElement>('link[rel="icon"]')
-      ?.setAttribute("href", mediaUrl(SITE_SETTINGS.logo));
+    // The approved multi-size site icons are declared in index.html.
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute("content", SITE_SETTINGS.subtitle);
