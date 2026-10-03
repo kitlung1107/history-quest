@@ -47,12 +47,13 @@
 .explorer-card-figure[data-card-image="/history-quest/uploads/wwi-s4-battle-girl-v1.png"] .explorer-card-nickname { left: 12.9%; top: 2.86%; width: 62.9%; height: 5.08%; }
 .explorer-card-figure[data-card-image="/history-quest/uploads/wwi-s4-battle-girl-v1.png"] .explorer-card-identity { left: 21.6%; top: 89.7%; width: 55.6%; height: 4.8%; }
 
-/* Hong Kong newspaper cards have a printed role title at the top.
-   Both dynamic labels share the blank lower plaque; retain the full 2:3 art. */
+/* Hong Kong newspaper cards keep the upper plaque clear for the nickname.
+   Name and class/student number share the lower plaque; retain the full 2:3 art. */
 .explorer-card-hk-port { color: #211e18; }
 .explorer-card-hk-port > img { border-radius: 0; }
-.explorer-card-hk-port .explorer-card-nickname { left: 12%; top: 86.1%; width: 76%; height: 5.2%; }
-.explorer-card-hk-port .explorer-card-identity { left: 14%; top: 92%; width: 72%; height: 3.8%; }
+.explorer-card-hk-port .explorer-card-nickname { left: 22%; top: 3.7%; width: 56%; height: 6.4%; }
+.explorer-card-hk-port .explorer-card-identity { left: 14%; top: 87.3%; width: 72%; height: 4.2%; }
+.explorer-card-hk-port .explorer-card-metadata { left: 14%; top: 92.4%; width: 72%; height: 3.1%; }
 
 /* Both full-bleed Kabuki cards reserve these blank plaque interiors.
    Keep nickname and name as fitted, accessible text rather than baked-in art. */
