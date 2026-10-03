@@ -26,6 +26,7 @@ import {
 } from "./contexts/StudentAccount";
 import "./home.css";
 import "./cards.css";
+import "./coin-draw.css";
 import { lazy, Suspense } from "react";
 
 const LocalHomeDemo = import.meta.env.DEV
@@ -34,6 +35,10 @@ const LocalHomeDemo = import.meta.env.DEV
 
 const RolePreview = import.meta.env.DEV
   ? lazy(() => import("./pages/RolePreview"))
+  : null;
+
+const LocalCoinDrawDemo = import.meta.env.DEV
+  ? lazy(() => import("./pages/LocalCoinDrawDemo"))
   : null;
 
 function SessionContent({ children }: { children: React.ReactNode }) {
@@ -69,6 +74,13 @@ function GameLanding() {
 function Routes() {
   return (
     <Switch>
+      {LocalCoinDrawDemo && (
+        <Route path="/__coin-draw-demo">
+          <Suspense fallback={<p>載入抽卡畫面…</p>}>
+            <ScoreSyncProvider><LocalCoinDrawDemo /></ScoreSyncProvider>
+          </Suspense>
+        </Route>
+      )}
       {RolePreview && (
         <Route path="/__role-preview">
           <Suspense fallback={<p>載入預覽…</p>}>
