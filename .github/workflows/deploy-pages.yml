@@ -45,9 +45,13 @@ jobs:
           pnpm test:editor
           pnpm test:full-cards
           pnpm test:card-release
+          pnpm test:core-catalogue
 
       - name: Preview trusted card catalogue
         run: pnpm cards:catalog-plan
+
+      - name: Validate core teaching metadata plan
+        run: pnpm core:catalog-plan
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -83,6 +87,7 @@ jobs:
       CARD_CATALOG_SYNC_ENABLED: ${{ vars.CARD_CATALOG_SYNC_ENABLED }}
       CARD_CATALOG_WIF_PROVIDER: ${{ vars.CARD_CATALOG_WIF_PROVIDER }}
       CARD_CATALOG_SERVICE_ACCOUNT: ${{ vars.CARD_CATALOG_SERVICE_ACCOUNT }}
+      CORE_CATALOG_SYNC_ENABLED: ${{ vars.CORE_CATALOG_SYNC_ENABLED }}
     steps:
       - name: Checkout exact built commit
         uses: actions/checkout@v6
@@ -102,7 +107,9 @@ jobs:
       - name: Check release approval and current main
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/card-catalog-release.mjs
+        run: |
+          node scripts/card-catalog-release.mjs
+          node --experimental-strip-types --input-type=module -e "import {coreReleaseContext} from './scripts/sync-core-catalogue.mjs'; coreReleaseContext(process.env);"
 
       - name: Install sync dependencies without lifecycle scripts
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -121,6 +128,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/sync-card-catalog.mjs --ci --apply --project history-discovery-center
+
+      - name: Sync and verify core teaching metadata
+        id: core-sync
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node --experimental-strip-types scripts/sync-core-catalogue.mjs --ci --apply --project history-discovery-center
+
+      - name: Retain core metadata backup and receipt
+        if: always() && steps.core-sync.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-catalogue-release-${{ github.sha }}
+          path: tmp/core-catalogue/*.json
+          if-no-files-found: ignore
+          retention-days: 30
 
       - name: Retain catalogue-only backup and receipt
         if: always() && steps.catalog-sync.outcome != 'skipped'

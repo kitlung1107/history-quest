@@ -15,6 +15,8 @@
     "test:full-card-rules": "node --test scripts/full-card-access-rules.test.mjs scripts/cloud-rules.test.mjs",
     "test:card-release": "node --test scripts/card-catalog-release.test.mjs",
     "cards:catalog-plan": "node scripts/sync-card-catalog.mjs --dry-run",
+    "core:catalog-plan": "node --experimental-strip-types scripts/sync-core-catalogue.mjs --dry-run",
+    "test:core-catalogue": "node --experimental-strip-types --test scripts/core-catalogue.test.mjs",
     "test:backgrounds": "node --experimental-strip-types --test client/src/lib/cardBackground.test.ts scripts/background-content.test.mjs",
     "test:teaching": "node --experimental-strip-types --test scripts/teaching.test.mjs scripts/admin-refresh.test.mjs scripts/mc-encouragement.test.mjs",
     "test:editor": "node --test scripts/editor.test.mjs scripts/image-position.test.mjs",

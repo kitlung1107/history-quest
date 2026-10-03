@@ -53,7 +53,7 @@ export default function Admin() {
       if (catalogue.status === "rejected") {
         setCatalogueNotice("題目設定同步失敗，本次未核算任何提交。請按「重新整理」重試。" + errorMessage(catalogue.reason));
       } else {
-        setCatalogueNotice("目前網站的題目、標準答案、配分及版本已同步至 Firestore。");
+        setCatalogueNotice("題庫、標準答案、配分及缺少的任務設定已同步。年級與停用設定以已發布教材為準。");
       }
       if (loaded.status === "rejected") throw loaded.reason;
       const { profiles, docs, pageCursor, hasMore, pageCount } = loaded.value;

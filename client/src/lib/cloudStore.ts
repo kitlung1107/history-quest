@@ -1,8 +1,9 @@
-import { collection, doc, getDoc, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where, writeBatch, type DocumentSnapshot } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import { HISTORY_TASKS, type TaskProgress } from "./historyQuest";
-import { assessmentVersion, getQuestions, markAnswers, percentage, type Answer, type Question, type SubmissionRow } from "./assessment";
+import { markAnswers, percentage, type Answer, type Question, type SubmissionRow } from "./assessment";
 import type { CloudProfile } from "@/contexts/StudentAccount";
+import { syncBrowserCore } from "./coreCatalogueStore";
 export type CloudSubmission = { studentId: string; taskId: string; version: string; answers: Answer[]; createdAt: { toDate: () => Date } | null; grade?: SubmissionRow };
 export async function submitCloud(sid: string, attemptId: string, taskId: string, version: string, answers: Answer[]) {
   const ref = doc(db,"submissions",attemptId);
@@ -28,17 +29,7 @@ export function asRow(id:string, data:CloudSubmission, profile?:CloudProfile):Su
   return {attempt_id:id, task_id:data.taskId, task_title:task?.title || data.taskId, timestamp:data.createdAt?.toDate().toISOString() || "", class_name:profile?.className || "", student_name:profile?.name || "", student_no:profile?.studentNo || "", score:null, progress:100, status:"pending", revision:0};
 }
 export async function syncCatalogue() {
-  const batch = writeBatch(db);
-  for (const task of HISTORY_TASKS) {
-    batch.set(doc(db,"taskAccess",task.id), { grade:task.grade, enabled:true });
-    const questions = getQuestions(task);
-    const source = task.type === "game" ? "game" : questions.length ? "assessment" : "none";
-    batch.set(doc(db,"rewardPolicies",task.id), { source, enabled:source === "assessment" });
-    // Preserve questionnaire grading while excluding it from reward sources.
-    if (!questions.length) continue;
-    batch.set(doc(db,"catalogue",`${task.id}--${assessmentVersion(questions)}`), {questions,title:task.title,source:source === "assessment" ? "assessment" : "questionnaire"});
-  }
-  await batch.commit();
+  return syncBrowserCore(HISTORY_TASKS);
 }
 export async function markSubmission(id:string) {
   const ref = doc(db,"submissions",id);

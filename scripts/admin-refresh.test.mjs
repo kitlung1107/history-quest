@@ -126,6 +126,7 @@ function cloud(grade) {
       }),
     },
     "./firebase": { db: {} }, "./historyQuest": { HISTORY_TASKS: [] },
+    "./coreCatalogueStore": { syncBrowserCore: async () => {} },
     "./assessment": { markAnswers: () => [], percentage: () => null },
     // The old minting hook must never be called by teacher grading anymore.
     "./coinStore": { prepareCoinAward: async (tx, ...args) => {
@@ -157,21 +158,21 @@ test("transaction uses submitted version and returns pending short-answer grade"
   assert.deepEqual(c.awards, []);
 });
 
-test("game questionnaires retain a grading catalogue without enabling a reward source", async () => {
-  const writes = [];
+test("teacher catalogue delegates only core metadata without writing reward policies", async () => {
+  const calls = [];
   const questions = [{ id: "q1", type: "choice", points: 100 }];
   const modules = {
     "firebase/firestore": {
       doc: (_, ...parts) => parts.join("/"),
-      writeBatch: () => ({ set: (ref, data) => writes.push({ ref, data }), commit: async () => {} }),
+      writeBatch: () => { throw Error("Legacy reward batch must not run"); },
     },
     "./firebase": { db: {} },
     "./historyQuest": { HISTORY_TASKS: [{ id: "maze", type: "game", grade: 5, title: "Maze", questions }] },
     "./assessment": { getQuestions: task => task.questions, assessmentVersion: () => "v1" },
+    "./coreCatalogueStore": { syncBrowserCore: async tasks => { calls.push(...tasks); return {synced:["maze"]}; } },
   };
   await compile("../client/src/lib/cloudStore.ts", modules).syncCatalogue();
-  assert.equal(writes.find(w => w.ref === "rewardPolicies/maze").data.enabled, false);
-  const catalogue = writes.find(w => w.ref === "catalogue/maze--v1").data;
-  assert.equal(catalogue.source, "questionnaire");
-  assert.equal(catalogue.questions, questions);
+  assert.equal(calls.length,1);
+  assert.equal(calls[0].id,"maze");
+  assert.equal(calls[0].questions,questions);
 });

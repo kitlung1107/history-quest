@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "1a3cf79d513399cb2cf0c773db96dc228d69b511",
+  "scope": "Explicit task IDs recovered from reachable main CMS history; not a database inventory.",
+  "tasks": [
+    { "id": "S1_AncientCivilisations_EgyptQuiz", "grade": 1 },
+    { "id": "S3_HK_Battle1941_Quiz", "grade": 3 },
+    { "id": "S3_HK_EarlyDevelopment_Reading", "grade": 2 },
+    { "id": "S5_ColdWar_Maze", "grade": 5 },
+    { "id": "task_c1cc8f27-d16d-4cd9-8efd-9cccfc7dfdce_aa2ed830", "grade": 1 }
+  ]
+}
