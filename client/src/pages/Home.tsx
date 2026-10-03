@@ -1,3 +1,4 @@
+import { localAssessments } from "@/lib/localAssessment";
 import {
   SITE_SETTINGS as defaults,
   PUBLIC_TOPICS,
@@ -80,7 +81,7 @@ export default function Home({
     setActiveGrade(grade);
     setActiveTopic(null);
   };
-  const [selectedTask, setSelectedTask] = useState<HistoryTask | null>(null);
+  const [selectedTask, setSelectedTask] = useState<HistoryTask | null>(()=>localAssessments ? HISTORY_TASKS.find(t=>t.id===new URLSearchParams(location.search).get("assessmentTask"))??null : null);
   useEffect(() => {
     if (activeGrade !== null && !canSeeGrade(identity, activeGrade)) {
       setActiveGrade(null);

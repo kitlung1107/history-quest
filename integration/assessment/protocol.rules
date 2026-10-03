@@ -1,0 +1,306 @@
+    // Local App integration. Answers are immutable before any grading probe.
+    function rrMeta(s) {
+      return get(/databases/$(database)/documents/assessmentVersions/$(s.taskId + '--' + s.version)).data;
+    }
+    function rrStudentApproved(sid,task) {
+      let a = get(/databases/$(database)/documents/access/$(request.auth.token.email)).data;
+      let t = get(/databases/$(database)/documents/taskAccess/$(task)).data;
+      return signed() && a.enabled == true && a.studentId == sid && t.enabled == true
+        && (a.get('testing',false) == true || gradeAllowed(sid,t.grade));
+    }
+    function rrApproved(sid,task) {
+      return teacher() || rrStudentApproved(sid,task);
+    }
+    function rrSource(s) {
+      let m = rrMeta(s);
+      return s.protocol == 'rules-assessment/1' && m.enabled == true
+        && m.questionCount >= 1 && m.questionCount <= 30
+        && m.taskId == s.taskId && m.version == s.version
+        && s.createdAt >= m.acceptFrom
+        && get(/databases/$(database)/documents/taskAccess/$(s.taskId)).data.enabled == true
+        && rrApproved(s.studentId,s.taskId);
+    }
+    function rrAnswer(m,a,i) {
+      return i >= m.questionCount || (a[i].keys().hasOnly(['question_id','value'])
+        && a[i].question_id == m.questions[i].id
+        && (m.questions[i].type == 'choice'
+          ? a[i].value is int && a[i].value >= 0 && a[i].value < m.questions[i].options.size()
+          : a[i].value is string && a[i].value.size() > 0 && a[i].value.size() <= 4000));
+    }
+    function rrShortMark(m,a,i) {
+      return i >= m.questionCount || (m.questions[i].type == 'choice' ? a[i] == null
+        : a[i] == null || (a[i] is number && a[i] >= 0 && a[i] <= m.questions[i].points));
+    }
+    function rrFilled(m,a,i) {
+      return i >= m.questionCount || m.questions[i].type == 'choice' || a[i] != null;
+    }
+    function rrShortValue(m,a,i) {
+      return i >= m.questionCount ? 0 : (a[i] == null ? 0 : a[i]);
+    }
+    function rrRule(task) {
+      let p = /databases/$(database)/documents/coinRules/$(task);
+      return exists(p) ? get(p).data : {'mode':'off','amount':0,'metric':'score','tiers':[]};
+    }
+    function rrTierBelow(r,v,min,i) {
+      return i >= r.tiers.size() || r.tiers[i].minimum > v || r.tiers[i].minimum <= min;
+    }
+    function rrQuote(r,score,amount,index) {
+      let v = r.metric == 'score' ? score : 100;
+      return amount is int && amount >= 0 && amount <= 100000 && index is int
+        && r.metric in ['score','progress']
+        && (r.mode == 'off' ? amount == 0 && index == -1
+          : r.mode == 'fixed' ? index == -1 && amount == r.amount
+          : r.mode == 'tiers' && r.tiers is list && r.tiers.size() <= 20
+            && index >= -1 && index < r.tiers.size()
+            && (index == -1 ? amount == 0
+              : v >= r.tiers[index].minimum && amount == r.tiers[index].amount
+                ));
+    }
+    function rrGrade(s,g,attempt) {
+      let m = rrMeta(s);
+      let a = get(/databases/$(database)/documents/assessmentGrading/$(attempt)).data;
+      let staged = teacher() && m.shortCount > 0 && g.revision > 1;
+      let id = attempt + '--' + string(g.revision);
+      let short = staged ? get(/databases/$(database)/documents/assessmentShortGrading/$(id)).data : {'index':m.questionCount,'shortPoints':0,'markedCount':0};
+      let complete = short.markedCount == m.shortCount;
+      let score = math.round(100.0 * (a.mcPoints + short.shortPoints) / m.totalPoints);
+      let quote = complete ? get(/databases/$(database)/documents/assessmentRewardQuotes/$(id)).data : {};
+      let r = complete ? rrRule(s.taskId) : {};
+      return rrSource(s) && a.index == m.questionCount && a.studentId == s.studentId
+        && g.keys().hasOnly(['status','score','mcPoints','shortMarks','revision','rewardAmount','tierIndex'])
+        && g.mcPoints == a.mcPoints && g.revision is int && g.revision >= 1
+        && g.shortMarks is list && g.shortMarks.size() == m.questionCount
+        && (staged ? short.index == m.questionCount
+            && g.shortMarks == get(/databases/$(database)/documents/assessmentShortDrafts/$(id)).data.marks
+          : g.shortMarks.toSet().hasOnly([null]))
+        && (complete ? g.status == 'graded' && g.score == score
+              && quote.score == score && quote.amount == g.rewardAmount && quote.tierIndex == g.tierIndex
+              && quote.rule == r && quote.checked == (r.mode == 'tiers' ? r.tiers.size() : 0)
+          : g.status == 'pending' && g.score == null && g.rewardAmount == 0 && g.tierIndex == -1);
+    }
+    function rrLedgerRequired(s,g,attempt) {
+      let p = /databases/$(database)/documents/coinAccounts/$(s.studentId)/entries/$(s.taskId);
+      // The ledger's own write rule verifies exact source/score/amount and an
+      // atomic grade revision. Existing positive entries are immutable.
+      // Reading the post-transaction entry once covers both cases.
+      return g.rewardAmount == 0 || getAfter(p).data.amount > 0;
+    }
+    function rrFeedbackReader(versionId) {
+      let sid = get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId;
+      let grant = get(/databases/$(database)/documents/assessmentFeedbackAccess/$(sid)/versions/$(versionId)).data;
+      let s = get(/databases/$(database)/documents/submissions/$(grant.attemptId)).data;
+      return owns(sid) && s.protocol == 'rules-assessment/1' && s.studentId == sid
+        && s.taskId + '--' + s.version == versionId && s.grade.status in ['pending','graded']
+        && get(/databases/$(database)/documents/assessmentGrading/$(grant.attemptId)).data.index == rrMeta(s).questionCount;
+    }
+    match /assessmentKeys/{version} {
+      allow get: if teacher() || (signed() && rrFeedbackReader(version));
+      allow create: if teacher() && request.resource.data.keys().hasOnly(['taskId','version','questions'])
+        && version == request.resource.data.taskId + '--' + request.resource.data.version
+        && !exists(/databases/$(database)/documents/assessmentVersions/$(version));
+      allow update, delete, list: if false;
+    }
+    match /assessmentFeedbackAccess/{sid}/versions/{versionId} {
+      allow get: if teacher() || owns(sid);
+      function validFeedback() {
+        let d = request.resource.data;
+        let s = get(/databases/$(database)/documents/submissions/$(d.attemptId)).data;
+        return d.keys().hasOnly(['attemptId','studentId','taskId','version'])
+          && rrSource(s) && s.studentId == sid && d.studentId == sid && d.taskId == s.taskId && d.version == s.version
+          && versionId == s.taskId + '--' + s.version && s.grade.status in ['pending','graded']
+          && get(/databases/$(database)/documents/assessmentGrading/$(d.attemptId)).data.index == rrMeta(s).questionCount;
+      }
+      allow create, update: if validFeedback();
+      allow delete, list: if false;
+    }
+    match /assessmentVersions/{version} {
+      allow get: if teacher() || (signed()
+        && owns(get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId)
+        && taskAllowed(get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId,resource.data.taskId));
+      function publicQuestion(d,i) {
+        // Only the verified teacher can publish. Detailed shape/points checks
+        // run in the CMS/exporter; the rule enforces secrecy for every question
+        // without exceeding the 1000-expression limit for 30-question saves.
+        return i >= d.questionCount || d.questions[i].keys().hasOnly(['id','type','prompt','points','options','image','imagePosition']);
+      }
+      function publicQuestions(d) {
+        return publicQuestion(d,0) && publicQuestion(d,1) && publicQuestion(d,2) && publicQuestion(d,3) && publicQuestion(d,4)
+          && publicQuestion(d,5) && publicQuestion(d,6) && publicQuestion(d,7) && publicQuestion(d,8) && publicQuestion(d,9)
+          && publicQuestion(d,10) && publicQuestion(d,11) && publicQuestion(d,12) && publicQuestion(d,13) && publicQuestion(d,14)
+          && publicQuestion(d,15) && publicQuestion(d,16) && publicQuestion(d,17) && publicQuestion(d,18) && publicQuestion(d,19)
+          && publicQuestion(d,20) && publicQuestion(d,21) && publicQuestion(d,22) && publicQuestion(d,23) && publicQuestion(d,24)
+          && publicQuestion(d,25) && publicQuestion(d,26) && publicQuestion(d,27) && publicQuestion(d,28) && publicQuestion(d,29);
+      }
+      allow create: if teacher() && request.resource.data.keys().hasOnly(['taskId','version','title','questions','questionCount','shortCount','totalPoints','enabled','acceptFrom'])
+        && version == request.resource.data.taskId + '--' + request.resource.data.version
+        && request.resource.data.acceptFrom == request.time
+        && request.resource.data.questionCount is int
+        && request.resource.data.questionCount >= 1 && request.resource.data.questionCount <= 30
+        && request.resource.data.questions.size() == request.resource.data.questionCount
+        && publicQuestions(request.resource.data)
+        && getAfter(/databases/$(database)/documents/assessmentKeys/$(version)).data.questions is list;
+      allow update, delete, list: if false;
+    }
+    match /submissions/{attempt} {
+      allow get: if teacher() || (resource == null && signed()) || owns(resource.data.studentId);
+      allow list: if teacher() || owns(resource.data.studentId);
+      allow create: if attempt.matches('[A-Za-z0-9_-]{1,150}') && rrSource(request.resource.data)
+        && request.resource.data.keys().hasOnly(['protocol','studentId','taskId','version','answers','createdAt'])
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.answers is list
+        && request.resource.data.answers.size() == rrMeta(request.resource.data).questionCount;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['grade'])
+        && rrGrade(resource.data,request.resource.data.grade,attempt)
+        && request.resource.data.grade.revision == (('grade' in resource.data) ? resource.data.grade.revision + 1 : 1)
+        && (teacher() || (!('grade' in resource.data)
+          && request.resource.data.grade.shortMarks.toSet().hasOnly([null])))
+        && rrLedgerRequired(resource.data,request.resource.data.grade,attempt);
+      allow delete: if false;
+    }
+    match /assessmentGrading/{attempt} {
+      function source() { return get(/databases/$(database)/documents/submissions/$(attempt)).data; }
+      allow get: if teacher() || (resource == null && signed()) || owns(resource.data.studentId);
+      allow create: if rrSource(source())
+        && request.resource.data.keys().hasOnly(['studentId','taskId','version','index','mcPoints'])
+        && request.resource.data.studentId == source().studentId && request.resource.data.taskId == source().taskId
+        && request.resource.data.version == source().version && request.resource.data.mcPoints == 0
+        && request.resource.data.index == 0;
+      function advance() {
+        let s = source();
+        let m = rrMeta(s);
+        let i = resource.data.index;
+        let p = /databases/$(database)/documents/assessmentMarks/$(attempt)/items/$(string(i));
+        return rrSource(s) && i < m.questionCount && rrAnswer(m,s.answers,i)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['index','mcPoints'])
+          && request.resource.data.index == i + 1
+          && (m.questions[i].type == 'short' ? request.resource.data.mcPoints == resource.data.mcPoints
+            : !exists(p) && getAfter(p).data.index == i && getAfter(p).data.createdAt == request.time
+              && request.resource.data.mcPoints == resource.data.mcPoints + getAfter(p).data.awarded);
+      }
+      allow update: if advance();
+      allow list, delete: if false;
+    }
+    match /assessmentMarks/{attempt}/items/{index} {
+      function source() { return get(/databases/$(database)/documents/submissions/$(attempt)).data; }
+      allow get, list: if teacher() || owns(source().studentId);
+      function validMark() {
+        let s = source();
+        let a = get(/databases/$(database)/documents/assessmentGrading/$(attempt)).data;
+        let next = getAfter(/databases/$(database)/documents/assessmentGrading/$(attempt)).data;
+        let m = rrMeta(s);
+        let q = m.questions[a.index];
+        let k = get(/databases/$(database)/documents/assessmentKeys/$(s.taskId + '--' + s.version)).data;
+        return rrSource(s) && index == string(a.index) && q.type == 'choice' && rrAnswer(m,s.answers,a.index)
+          && request.resource.data.keys().hasOnly(['index','awarded','createdAt'])
+          && request.resource.data.index == a.index && request.resource.data.createdAt == request.time
+          && k.questions[a.index].id == q.id
+          && request.resource.data.awarded == (s.answers[a.index].value == k.questions[a.index].answer ? q.points : 0)
+          && next.index == a.index + 1 && next.mcPoints == a.mcPoints + request.resource.data.awarded;
+      }
+      allow create: if validMark();
+      allow update, delete: if false;
+    }
+    match /assessmentShortDrafts/{revisionId} {
+      allow get: if teacher();
+      allow create: if teacher()
+        && request.resource.data.keys().hasOnly(['attemptId','revision','marks','createdAt'])
+        && revisionId == request.resource.data.attemptId + '--' + string(request.resource.data.revision)
+        && request.resource.data.revision == get(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data.grade.revision + 1
+        && rrSource(get(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data)
+        && request.resource.data.marks is list
+        && request.resource.data.marks.size() == rrMeta(get(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data).questionCount
+        && request.resource.data.createdAt == request.time;
+      allow update, delete, list: if false;
+    }
+    match /assessmentShortGrading/{revisionId} {
+      function draft() { return get(/databases/$(database)/documents/assessmentShortDrafts/$(revisionId)).data; }
+      allow get: if teacher();
+      allow create: if teacher()
+        && request.resource.data.keys().hasOnly(['index','shortPoints','markedCount'])
+        && draft().marks is list && request.resource.data.index == 0
+        && request.resource.data.shortPoints == 0 && request.resource.data.markedCount == 0;
+      function advanceShort() {
+        let d = draft();
+        let s = get(/databases/$(database)/documents/submissions/$(d.attemptId)).data;
+        let m = rrMeta(s);
+        let i = resource.data.index;
+        let mark = d.marks[i];
+        let short = m.questions[i].type == 'short';
+        return teacher() && rrSource(s) && i < m.questionCount
+          && (short ? mark == null || (mark is number && mark >= 0 && mark <= m.questions[i].points) : mark == null)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['index','shortPoints','markedCount'])
+          && request.resource.data.index == i + 1
+          && request.resource.data.shortPoints == resource.data.shortPoints + (mark == null ? 0 : mark)
+          && request.resource.data.markedCount == resource.data.markedCount + (short && mark != null ? 1 : 0);
+      }
+      allow update: if advanceShort();
+      allow delete, list: if false;
+    }
+    match /assessmentRewardQuotes/{revisionId} {
+      function source(attempt) { return get(/databases/$(database)/documents/submissions/$(attempt)).data; }
+      allow get: if teacher() || (resource == null && signed()) || owns(source(resource.data.attemptId).studentId);
+      function startQuote() {
+        let d = request.resource.data;
+        let s = source(d.attemptId);
+        let m = rrMeta(s);
+        let a = get(/databases/$(database)/documents/assessmentGrading/$(d.attemptId)).data;
+        let id = d.attemptId + '--' + string(d.revision);
+        let short = m.shortCount > 0 ? get(/databases/$(database)/documents/assessmentShortGrading/$(id)).data : {'index':m.questionCount,'shortPoints':0,'markedCount':0};
+        return rrSource(s) && d.keys().hasOnly(['attemptId','revision','score','amount','tierIndex','rule','checked'])
+          && revisionId == id && d.revision == (('grade' in s) ? s.grade.revision + 1 : 1)
+          && a.index == m.questionCount && short.index == m.questionCount && short.markedCount == m.shortCount
+          && d.score == math.round(100.0 * (a.mcPoints + short.shortPoints) / m.totalPoints)
+          && d.rule == rrRule(s.taskId) && d.checked == 0
+          && rrQuote(d.rule,d.score,d.amount,d.tierIndex);
+      }
+      function advanceQuote() {
+        let d = resource.data;
+        let r = d.rule;
+        let value = r.metric == 'score' ? d.score : 100;
+        let minimum = d.tierIndex == -1 ? -1 : r.tiers[d.tierIndex].minimum;
+        return rrApproved(source(d.attemptId).studentId,source(d.attemptId).taskId)
+          && r.mode == 'tiers' && d.checked < r.tiers.size()
+          && request.resource.data.diff(d).affectedKeys().hasOnly(['checked'])
+          && request.resource.data.checked == d.checked + 1
+          && rrTierBelow(r,value,minimum,d.checked);
+      }
+      allow create: if startQuote();
+      allow update: if advanceQuote() || startQuote();
+      allow delete, list: if false;
+    }
+    match /progress/{sid}/tasks/{taskId} {
+      allow get, list: if teacher() || owns(sid);
+      allow create, update: if (teacher() || owns(sid))
+        && request.resource.data.keys().hasOnly(['score','progress','attemptId','syncedAt'])
+        && request.resource.data.progress == 100 && request.resource.data.syncedAt == request.time
+        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data.studentId == sid
+        && getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data.taskId == taskId
+        && request.resource.data.score == (('grade' in getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data)
+          ? (getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data.grade.score == null ? 0
+            : getAfter(/databases/$(database)/documents/submissions/$(request.resource.data.attemptId)).data.grade.score) : 0);
+      allow delete: if false;
+    }
+    match /coinRules/{task} {
+      allow get: if teacher() || (signed() && owns(get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId)
+        && taskAllowed(get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId,task));
+      allow list, write: if teacher();
+    }
+    match /coinAccounts/{sid}/entries/{entry} {
+      allow get, list: if teacher() || owns(sid);
+      function positiveReward() {
+        let d = request.resource.data;
+        let p = /databases/$(database)/documents/submissions/$(d.attemptId);
+        let s = getAfter(p).data;
+        let previous = get(p).data;
+        return rrApproved(sid,entry) && s.studentId == sid && s.taskId == entry
+          && s.grade.revision == (('grade' in previous) ? previous.grade.revision + 1 : 1)
+          && s.grade.status == 'graded' && s.grade.score == d.score && s.grade.rewardAmount == d.amount
+          && d.keys().hasOnly(['kind','taskId','attemptId','amount','score','progress','rule','createdAt','tierIndex'])
+          && d.kind == 'taskReward' && d.taskId == entry && d.progress == 100
+          && d.createdAt == request.time && d.amount > 0 && d.rule == rrRule(entry)
+          && d.tierIndex == s.grade.tierIndex;
+      }
+      allow create: if positiveReward();
+      allow update: if resource.data.amount == 0 && positiveReward();
+      allow delete: if false;
+    }

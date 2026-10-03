@@ -1,18 +1,20 @@
+import { localAssessments, localIdentity } from "./localAssessment";
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, setPersistence, browserLocalPersistence, connectAuthEmulator, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getFirestore, initializeFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // Firebase web configuration is public. Access is enforced by Firestore rules.
 const gameEmulators = import.meta.env.DEV && import.meta.env.VITE_GAME_EMULATORS === '1';
 const app = initializeApp({
   apiKey: "AIzaSyAbFnza5Jm2yclov09oORwsR7C7OEb3Fng",
   authDomain: "history-discovery-center.firebaseapp.com",
-  projectId: gameEmulators ? "demo-game-sync" : "history-discovery-center",
+  projectId: localAssessments ? "demo-rules-rewards-app" : gameEmulators ? "demo-game-sync" : "history-discovery-center",
   messagingSenderId: "453548212735",
   appId: "1:453548212735:web:2bc1b3e40fc1d9633e67ca",
 });
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db = localAssessments ? initializeFirestore(app,{experimentalForceLongPolling:true,experimentalLongPollingOptions:{timeoutSeconds:5}}) : getFirestore(app);
+if (localAssessments) connectFirestoreEmulator(db, "127.0.0.1", 8191, {mockUserToken:{sub:localIdentity.uid,email:localIdentity.email,email_verified:true,firebase:{sign_in_provider:"google.com"}}});
 if (gameEmulators) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9098', { disableWarnings: true });
   connectFirestoreEmulator(db, '127.0.0.1', 8088);
@@ -45,9 +47,10 @@ if (import.meta.hot) import.meta.hot.dispose(() => {
   stopEpoch(); clearInterval(epochTimer); window.removeEventListener('storage', checkAuthEpoch); window.removeEventListener('focus', checkAuthEpoch);
 });
 export async function googleLogin() {
+  if(localAssessments){location.href="/?localRole=student";return;}
   await persistenceReady;
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
   return signInWithPopup(auth, provider);
 }
-export const googleLogout = () => signOut(auth);
+export const googleLogout = () => localAssessments ? Promise.resolve(location.assign("/?localRole=student")) : signOut(auth);

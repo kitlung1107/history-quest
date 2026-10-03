@@ -20,6 +20,7 @@ export type AnswerRecord = {
   feedback: string;
 };
 export type SubmissionRow = {
+  protocol?:string;
   attempt_id: string;
   task_id: string;
   task_title?: string;
@@ -53,6 +54,13 @@ export function getQuestions(task: {
   return task.question
     ? [{ ...task.question, id: "q1", type: "choice", points: 100 }]
     : [];
+}
+export function taskAssessmentVersion(task:Parameters<typeof getQuestions>[0]&{assessmentVersion?:string}){return task.assessmentVersion??assessmentVersion(getQuestions(task));}
+export function validatePublicAnswers(questions:Question[],answers:Answer[]){
+  if(answers.length!==questions.length||new Set(answers.map(a=>a.question_id)).size!==questions.length)throw Error("答案題數不符。");
+  for(const q of questions){const value=answers.find(a=>a.question_id===q.id)?.value;
+    if(q.type==="choice"? !Number.isInteger(value)||Number(value)<0||Number(value)>=(q.options?.length??0) : typeof value!=="string"||!value.trim()||value.length>4000)throw Error("請填妥所有題目後再提交。");
+  }
 }
 export function assessmentVersion(questions: Question[]) {
   const canonical = questions.map(q => ({

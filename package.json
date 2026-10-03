@@ -20,7 +20,11 @@
     "test:backgrounds": "node --experimental-strip-types --test client/src/lib/cardBackground.test.ts scripts/background-content.test.mjs",
     "test:teaching": "node --experimental-strip-types --test scripts/teaching.test.mjs scripts/admin-refresh.test.mjs scripts/mc-encouragement.test.mjs",
     "test:editor": "node --test scripts/editor.test.mjs scripts/image-position.test.mjs",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "assessment:rules": "node integration/assessment/build-compatible-rules.mjs",
+    "test:assessment": "node node_modules/vitest/vitest.mjs run --config integration/assessment/vitest.config.ts",
+    "assessment:seed": "node integration/assessment/seed-app.mjs",
+    "assessment:dev": "vite --host 127.0.0.1 --port 4201 --strictPort"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

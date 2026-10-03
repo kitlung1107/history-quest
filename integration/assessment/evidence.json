@@ -1,0 +1,72 @@
+{
+  "baseCommit": "17144db47aa2d41d3986ccb3afac0d898af63292",
+  "branch": "feat/rules-rewards-app-integration",
+  "localProject": "demo-rules-rewards-app",
+  "preview": "http://127.0.0.1:4201/",
+  "formalRulesChanged": false,
+  "formalRulesSha256": "6eae8191fd598fc7ef8f81168cb8ab9ccb79cb8c856fbf20a07e7a96aeed2446",
+  "compatibleRulesSha256": "513587603435c55b29cc58c07f4ee8cc2b99a839db9f84a28971fae7dd0c6147",
+  "rulesTests": {
+    "base": 38,
+    "baseFailed": 0,
+    "cms": 4,
+    "cmsFailed": 0,
+    "gameScope": 1,
+    "gameScopeFailed": 0,
+    "uniquePassed": 42
+  },
+  "browser": {
+    "initial": 18,
+    "remaining": 15,
+    "captures": 3,
+    "uncaughtExceptions": []
+  },
+  "artifactPrivacy": {
+    "scannedFiles": 464,
+    "privateExplanationValues": 12,
+    "leaks": []
+  },
+  "ledgerAtomicEvidence": [
+    {
+      "taskId": "local-assessment-mc-1",
+      "attemptId": "4044b1b8-8ba2-41c4-9e35-7e93859828fc",
+      "amount": 100,
+      "sourceUpdateTime": "2026-10-03T16:36:05.827363Z",
+      "ledgerUpdateTime": "2026-10-03T16:36:05.827363Z",
+      "sameTransactionTimestamp": true
+    },
+    {
+      "taskId": "local-assessment-mc-3",
+      "attemptId": "44de80eb-ed50-4856-a1dd-c79cfc9396f8",
+      "amount": 50,
+      "sourceUpdateTime": "2026-10-03T16:21:55.647151Z",
+      "ledgerUpdateTime": "2026-10-03T16:21:55.647151Z",
+      "sameTransactionTimestamp": true
+    },
+    {
+      "taskId": "local-assessment-mc-30",
+      "attemptId": "b15e2eb0-ec8f-4b5e-a3c0-86179f11bd66",
+      "amount": 77,
+      "sourceUpdateTime": "2026-10-03T16:58:19.211688Z",
+      "ledgerUpdateTime": "2026-10-03T16:58:19.211688Z",
+      "sameTransactionTimestamp": true
+    },
+    {
+      "taskId": "local-assessment-mixed-3",
+      "attemptId": "4beea5a6-3b8e-44d8-bc9b-4d72e4f89404",
+      "amount": 100,
+      "sourceUpdateTime": "2026-10-03T16:42:21.448272Z",
+      "ledgerUpdateTime": "2026-10-03T16:42:21.448272Z",
+      "sameTransactionTimestamp": true
+    },
+    {
+      "taskId": "local-assessment-short-3",
+      "attemptId": "a7548d64-b236-440b-930b-26f27dc3d2df",
+      "amount": 100,
+      "sourceUpdateTime": "2026-10-03T16:43:21.812833Z",
+      "ledgerUpdateTime": "2026-10-03T16:43:21.812833Z",
+      "sameTransactionTimestamp": true
+    }
+  ],
+  "formalPublished": false
+}

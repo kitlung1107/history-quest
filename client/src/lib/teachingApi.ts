@@ -1,12 +1,13 @@
+import { localAssessments,localTeacher } from "./localAssessment";
 import { collection, doc, getDoc, getDocs, runTransaction } from "firebase/firestore";
 import { auth, db, OWNER_EMAIL } from "./firebase";
 import { asRow, loadSubmissions, saveGrade, syncCatalogue, type CloudSubmission } from "./cloudStore";
 import type { CloudProfile } from "@/contexts/StudentAccount";
 import type { RosterStudent } from "./assessment";
-export async function serviceReady() { if (!auth.currentUser) throw new Error("請先登入 Google 帳戶。"); }
+export async function serviceReady() { if (!localAssessments && !auth.currentUser) throw new Error("請先登入 Google 帳戶。"); }
 export async function teachingApi<T>(body:Record<string,unknown>):Promise<T> {
   await serviceReady();
-  if(auth.currentUser?.email!==OWNER_EMAIL) throw new Error("需要教師權限。");
+  if(localAssessments ? !localTeacher : auth.currentUser?.email!==OWNER_EMAIL) throw new Error("需要教師權限。");
   let result:unknown;
   if(body.action==="admin") {
     const [page,profiles]=await Promise.all([loadSubmissions(),getDocs(collection(db,"profiles"))]);

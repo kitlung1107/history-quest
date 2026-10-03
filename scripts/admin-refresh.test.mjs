@@ -5,6 +5,7 @@ import vm from "node:vm";
 import ts from "typescript";
 
 function compile(path, modules) {
+  modules={"@/lib/localAssessment":{localAssessments:false},"./localAssessment":{localAssessments:false},"./rulesAssessmentStore":{isRulesSubmission:()=>false},...modules};
   const source = fs.readFileSync(new URL(path, import.meta.url), "utf8")
     .replaceAll("import.meta.env.BASE_URL", '"/"');
   const js = ts.transpileModule(source, { compilerOptions: {

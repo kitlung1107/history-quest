@@ -1,3 +1,4 @@
+import AssessmentCMS from "@/pages/AssessmentCMS";
 import GameRecords from "@/pages/GameRecords";
 import ConnectedGame from "@/components/ConnectedGame";
 import { games } from "@/lib/games/registry";
@@ -92,6 +93,7 @@ function Routes() {
           <GameLanding />
         </StudentArea>
       </Route>
+      <Route path="/assessment-cms"><StudentArea teacherPage><AssessmentCMS/></StudentArea></Route>
       <Route path="/admin">
         <StudentArea teacherPage>
           <Admin />

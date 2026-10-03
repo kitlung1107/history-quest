@@ -1,3 +1,4 @@
+import { assessmentContentPlugin } from "./integration/assessment/public-content-plugin.mjs";
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
@@ -204,7 +205,7 @@ function vitePluginStorageProxy(): Plugin {
 }
 
 // Do not record authenticated students' sessions or network payloads.
-const plugins = [react(), tailwindcss(), jsxLocPlugin()];
+const plugins = [assessmentContentPlugin(PROJECT_ROOT), react(), tailwindcss(), jsxLocPlugin()];
 
 export default defineConfig({
   // GitHub Pages 使用儲存庫子路徑；本機與 Manus 預覽維持根路徑。
@@ -238,7 +239,7 @@ export default defineConfig({
     ],
     fs: {
       strict: true,
-      deny: ["**/.*"],
+      deny: ["**/.*", "**/private-assessments/**", "**/integration/**", "**/tmp/**"],
     },
   },
 });

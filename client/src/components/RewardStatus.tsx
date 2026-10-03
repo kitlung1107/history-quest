@@ -1,3 +1,4 @@
+import RulesRewardStatus from "./RulesRewardStatus";
 import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import {
@@ -12,7 +13,9 @@ const functions = getFunctions(db.app, "asia-east2");
 if (import.meta.env.DEV && import.meta.env.VITE_GAME_EMULATORS === "1")
   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 
-export default function RewardStatus({
+type RewardProps={taskId:string;sourceId:string;kind?:"taskReward"|"gameReward";studentId?:string;rulesAssessment?:boolean};
+export default function RewardStatus(props:RewardProps){return props.rulesAssessment ? <RulesRewardStatus {...props}/> : <LegacyRewardStatus {...props}/>;}
+function LegacyRewardStatus({
   taskId,
   sourceId,
   kind = "taskReward",

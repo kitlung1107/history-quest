@@ -14,7 +14,7 @@ vm.runInContext(
 const model = ctx.HQEditor;
 const tasks = fs
   .readdirSync(new URL("../client/src/content/tasks/", import.meta.url))
-  .filter(f => f.endsWith(".json"))
+  .filter(f => f.endsWith(".json") && !f.startsWith("local-assessment-"))
   .map(f =>
     JSON.parse(
       fs.readFileSync(

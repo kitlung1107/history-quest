@@ -40,6 +40,7 @@ export type QuizQuestion = {
 };
 
 export type HistoryTask = {
+  assessmentVersion?: string;
   id: string;
   topicId: string;
   visible: boolean;

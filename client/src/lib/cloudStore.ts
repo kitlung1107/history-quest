@@ -1,11 +1,14 @@
+import { localAssessments } from "./localAssessment";
+import { isRulesSubmission,submitRulesCloud,assessmentMetadata,cachedRulesRow,readRulesResult,resumeRulesSubmission,saveRulesGrade,privateQuestions,recoverGradingOutbox } from "./rulesAssessmentStore";
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import { HISTORY_TASKS, type TaskProgress } from "./historyQuest";
 import { markAnswers, percentage, type Answer, type Question, type SubmissionRow } from "./assessment";
 import type { CloudProfile } from "@/contexts/StudentAccount";
 import { syncBrowserCore } from "./coreCatalogueStore";
-export type CloudSubmission = { studentId: string; taskId: string; version: string; answers: Answer[]; createdAt: { toDate: () => Date } | null; grade?: SubmissionRow };
+export type CloudSubmission = { protocol?:string; studentId: string; taskId: string; version: string; answers: Answer[]; createdAt: { toDate: () => Date } | null; grade?: SubmissionRow };
 export async function submitCloud(sid: string, attemptId: string, taskId: string, version: string, answers: Answer[]) {
+  if(localAssessments){const meta=await getDoc(doc(db,"assessmentVersions",`${taskId}--${version}`));if(meta.exists()){await submitRulesCloud(sid,attemptId,taskId,version,answers);return;}}
   const ref = doc(db,"submissions",attemptId);
   await runTransaction(db, async tx => {
     const previous = await tx.get(ref);
@@ -20,18 +23,23 @@ export async function loadCloudProgress(sid:string): Promise<TaskProgress> {
 }
 export async function loadSubmissions(sid?:string, cursor?:DocumentSnapshot) {
   const constraints = [...(sid ? [where("studentId","==",sid)] : []), orderBy("createdAt","desc"), ...(cursor ? [startAfter(cursor)] : []), limit(100)];
+  if(localAssessments)await recoverGradingOutbox();
   const snapshot = await getDocs(query(collection(db,"submissions"),...constraints));
+  if(localAssessments){await Promise.all(snapshot.docs.filter(d=>isRulesSubmission(d.data())).map(d=>readRulesResult(d.id,d.data())));}
   return { docs:snapshot.docs, cursor:snapshot.docs.at(-1), more:snapshot.size===100 };
 }
 export function asRow(id:string, data:CloudSubmission, profile?:CloudProfile):SubmissionRow {
+  if(isRulesSubmission(data)){const row=cachedRulesRow(id);if(row)return row;return {attempt_id:id,task_id:data.taskId,timestamp:"",class_name:profile?.className??"",student_name:profile?.name??"",student_no:profile?.studentNo??"",score:data.grade?.score??null,progress:100,status:data.grade?.status??"pending",revision:data.grade?.revision??0};}
   if (data.grade) return data.grade;
   const task = HISTORY_TASKS.find(t=>t.id===data.taskId);
   return {attempt_id:id, task_id:data.taskId, task_title:task?.title || data.taskId, timestamp:data.createdAt?.toDate().toISOString() || "", class_name:profile?.className || "", student_name:profile?.name || "", student_no:profile?.studentNo || "", score:null, progress:100, status:"pending", revision:0};
 }
 export async function syncCatalogue() {
-  return syncBrowserCore(HISTORY_TASKS);
+  const tasks=localAssessments?await Promise.all(HISTORY_TASKS.map(async task=>task.assessmentVersion?{...task,question:undefined,questions:await privateQuestions(task)}:task)):HISTORY_TASKS;
+  return syncBrowserCore(tasks);
 }
 export async function markSubmission(id:string) {
+  if(localAssessments){const s=await getDoc(doc(db,"submissions",id));if(isRulesSubmission(s.data()))return resumeRulesSubmission(id); }
   const ref = doc(db,"submissions",id);
   return runTransaction(db,async tx=>{
     const snapshot = await tx.get(ref);
@@ -54,6 +62,7 @@ export async function markSubmission(id:string) {
   });
 }
 export async function saveGrade(id:string, revision:number, marks:{question_id:string;awarded:number;feedback?:string}[], feedback:string) {
+  if(localAssessments){const source=await getDoc(doc(db,"submissions",id));if(isRulesSubmission(source.data()))return saveRulesGrade(id,revision,marks,feedback);}
   await runTransaction(db,async tx=>{
     const ref=doc(db,"submissions",id);
     const snapshot=await tx.get(ref);

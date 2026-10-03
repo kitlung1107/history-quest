@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import {assertPublicSafe} from "../integration/assessment/export-content.mjs";
 import { z } from "zod";
 import {
   backgroundReferenceWarnings,
@@ -103,11 +104,14 @@ export function validateContent() {
         .nullish(),
     })
     .parse(read("settings/site.json"));
+  const rawTasks=entries("tasks");
+  for(const task of rawTasks)if(task.assessmentVersion)assertPublicSafe(task);
   const tasks = z
     .array(
       z
         .object({
           task_id: id,
+          assessmentVersion:z.string().regex(/^[A-Za-z0-9_-]{1,100}$/).optional(),
           type: z.enum(["article", "game", "quiz"]),
           article: z.string().optional(),
           gameUrl: z.string().optional(),
@@ -143,8 +147,7 @@ export function validateContent() {
                     q.type === "short" ||
                     (q.options?.length >= 2 &&
                       q.options?.length <= 6 &&
-                      q.answer >= 0 &&
-                      q.answer < q.options.length),
+                      (q.answer === undefined || (q.answer >= 0 && q.answer < q.options.length))),
                   "選擇題須有 2 至 6 個選項及有效答案序號"
                 )
             )
@@ -166,12 +169,14 @@ export function validateContent() {
           "遊戲連結必須使用 HTTPS"
         )
     )
-    .parse(entries("tasks"));
+    .parse(rawTasks);
   unique(
     tasks.map(t => t.task_id),
     "任務識別碼"
   );
   for (const task of tasks) {
+    if(task.assessmentVersion){if(task.question||task.questions?.some(q=>q.answer!==undefined||q.explanation!==undefined))throw Error("公開版本不可含標準答案或解說。");}
+    else if(task.questions?.some(q=>q.type==="choice"&&q.answer===undefined))throw Error("舊格式選擇題須有標準答案。");
     if (task.questions)
       unique(
         task.questions.map(q => q.id),

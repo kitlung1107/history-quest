@@ -1,3 +1,5 @@
+import { readRulesResult,privateQuestions } from "@/lib/rulesAssessmentStore";
+import { rulesAssessmentEnabled } from "@/lib/localAssessment";
 import McFeedback from "./McFeedback";
 import RewardStatus from "./RewardStatus";
 import { getMcEncouragement } from "@/lib/mcEncouragement";
@@ -6,7 +8,8 @@ import { Streamdown, defaultRehypePlugins } from "streamdown";
 import "./task-quiz.css";
 import {
   getQuestions,
-  assessmentVersion,
+  taskAssessmentVersion,
+  validatePublicAnswers,
   markAnswers,
   percentage,
   type Answer,
@@ -99,7 +102,7 @@ export default function TaskQuiz({
   task: HistoryTask;
   preview?: boolean;
 }) {
-  const questions = getQuestions(task);
+  const publicQuestions=getQuestions(task);
   const [values, setValues] = useState<Record<string, string | number>>({});
   const [result, setResult] = useState<AnswerRecord[] | null>(null);
   const [attemptId, setAttemptId] = useState("");
@@ -108,6 +111,8 @@ export default function TaskQuiz({
   const [current, setCurrent] = useState(0);
   const [review, setReview] = useState(false);
   const [visitedReview, setVisitedReview] = useState(false);
+  const [feedbackQuestions,setFeedbackQuestions]=useState<Question[]|null>(null);
+  const questions=feedbackQuestions??publicQuestions;
   const heading = useRef<HTMLHeadingElement>(null);
   const submitting = useRef(false);
   useEffect(() => {
@@ -156,11 +161,17 @@ export default function TaskQuiz({
         question_id: q.id,
         value: values[q.id],
       }));
-      let marked = markAnswers(questions, answers);
-      if (preview) setAttemptId(crypto.randomUUID());
+      validatePublicAnswers(publicQuestions,answers);
+      let marked:AnswerRecord[];
+      if (preview) {
+        const previewQuestions=rulesAssessmentEnabled(task)?await privateQuestions(task):questions;
+        marked=markAnswers(previewQuestions,answers);
+        setFeedbackQuestions(previewQuestions);
+        setAttemptId(crypto.randomUUID());
+      }
       else {
         const submitted = await completeTask(task, answers);
-        if (submitted.version !== assessmentVersion(questions)) {
+        if (submitted.version !== taskAssessmentVersion(task)) {
           throw new Error(
             "先前作答已傳送，但題目版本已更新。請到「我的提交」查看該次結果，或重新作答目前版本。"
           );
@@ -171,7 +182,8 @@ export default function TaskQuiz({
             submitted.answers.map(answer => [answer.question_id, answer.value])
           )
         );
-        marked = markAnswers(questions, submitted.answers);
+        if(rulesAssessmentEnabled(task)){const trusted=await readRulesResult(submitted.id);marked=trusted.row.answers!;setFeedbackQuestions(trusted.questions);}
+        else marked = markAnswers(questions, submitted.answers);
       }
       setResult(marked);
     } catch (e) {
@@ -364,19 +376,19 @@ export default function TaskQuiz({
         <div className="result-strip mt-6">
           <McFeedback
             feedback={getMcEncouragement(attemptId, result)}
-            provisional
+            provisional={preview || !rulesAssessmentEnabled(task)}
           />
           <strong>
             {percentage(result) === null
               ? "非 MC 題目等待老師批改。"
-              : `暫計成績：${percentage(result)} / 100`}
+              : `${preview || !rulesAssessmentEnabled(task) ? "暫計成績" : "正式成績"}：${percentage(result)} / 100`}
           </strong>
           <p>
             {preview
               ? "這是預覽，沒有儲存或傳送學生資料。"
               : "答案已保留。正式成績與老師評語可在「我的提交」查看。"}
           </p>
-          {!preview && <RewardStatus taskId={task.id} sourceId={attemptId} />}
+          {!preview && <RewardStatus taskId={task.id} sourceId={attemptId} rulesAssessment={rulesAssessmentEnabled(task)} />}
         </div>
       ) : null}
       {!preview && syncError && (

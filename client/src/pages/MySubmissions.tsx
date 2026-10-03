@@ -2,6 +2,7 @@ import McFeedback from "@/components/McFeedback";
 import RewardStatus from "@/components/RewardStatus";
 import {
   getSubmissionMcEncouragement,
+  getMcEncouragement,
   type McEncouragement,
 } from "@/lib/mcEncouragement";
 import { HISTORY_TASKS } from "@/lib/historyQuest";
@@ -31,7 +32,7 @@ export default function MySubmissions() {
         const task = HISTORY_TASKS.find(t => t.id === submission.taskId);
         return {
           ...asRow(d.id, submission, profile!),
-          mcFeedback: getSubmissionMcEncouragement(
+          mcFeedback: submission.protocol === "rules-assessment/1" ? getMcEncouragement(d.id,asRow(d.id,submission,profile!).answers??[]) : getSubmissionMcEncouragement(
             d.id,
             submission,
             task ? getQuestions(task) : undefined
@@ -87,7 +88,7 @@ export default function MySubmissions() {
                 : "已收到答案，待教師核算或批改"}
             </p>
             <McFeedback feedback={r.mcFeedback} provisional={!r.revision} />
-            <RewardStatus taskId={r.task_id} sourceId={r.attempt_id} />
+            <RewardStatus rulesAssessment={r.protocol === "rules-assessment/1"} taskId={r.task_id} sourceId={r.attempt_id} />
             {r.answers?.map(a => (
               <div key={a.question_id} className="mt-3 border-t p-3">
                 <strong>{a.prompt}</strong>

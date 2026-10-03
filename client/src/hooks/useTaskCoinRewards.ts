@@ -1,3 +1,4 @@
+import { rulesAssessmentEnabled } from "@/lib/localAssessment";
 import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useOptionalStudentAccount } from "@/contexts/StudentAccount";
@@ -187,7 +188,7 @@ export function useTaskCoinRewards(
             tiers: [],
           },
         ];
-      const enabled = preview
+      const enabled = rulesAssessmentEnabled(task) ? state.scope===scope && Boolean(rules[task.id]) : preview
         ? previewRules !== undefined
         : state.scope === scope && state.ready && state.enabled[task.id];
       const source = rewardSource(task);

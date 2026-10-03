@@ -4,6 +4,7 @@ import { readFile, readdir, mkdir, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import {hydratePrivateCoreTasks} from "../integration/assessment/private-core-source.mjs";
 import { publicTasks, publicTopics } from "../client/src/lib/contentModel.ts";
 import {
   planCoreCatalogue,
@@ -42,7 +43,7 @@ export async function localCoreSource(base = root) {
   const rawTasks = await jsonFolder(
     path.join(base, "client/src/content/tasks")
   );
-  const tasks = publicTasks(rawTasks, publicTopics(topics, grades));
+  const tasks = publicTasks(await hydratePrivateCoreTasks(rawTasks,base), publicTopics(topics, grades));
   const legacy = await json(
     path.join(base, "scripts/core-catalogue-legacy-ids.json")
   );

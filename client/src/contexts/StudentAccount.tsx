@@ -1,3 +1,4 @@
+import { localAssessments, localIdentity, localTeacher } from "@/lib/localAssessment";
 import { displayClass } from "@/lib/classOptions";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { onIdTokenChanged, type User } from "firebase/auth";
@@ -54,7 +55,21 @@ export function useStudentAccount() {
   if (!context) throw new Error("請先以 Google 帳戶登入。");
   return context;
 }
-export function AccountGate({
+export function AccountGate(props:{children:React.ReactNode;teacherPage?:boolean}) {
+  return localAssessments ? <LocalAssessmentGate {...props}/> : <AuthenticatedAccountGate {...props}/>;
+}
+function LocalAssessmentGate({children,teacherPage=false}:{children:React.ReactNode;teacherPage?:boolean}) {
+  const [profile,setProfile]=useState<CloudProfile|null>(null);
+  const [error,setError]=useState("");
+  async function refresh(){try{const snapshot=await getDoc(doc(db,"profiles",localIdentity.studentId));setProfile(snapshot.data() as CloudProfile);}catch(e){setError(e instanceof Error?e.message:"無法讀取本機資料。");}}
+  useEffect(()=>{void refresh();},[]);
+  if(error)return <main className="paper-texture p-10" role="alert">{error}</main>;
+  if(!profile)return <main className="paper-texture p-10">正在讀取本機預覽資料…</main>;
+  if(teacherPage&&!localTeacher)return <main className="paper-texture p-10">請切換教師預覽。<a href="/admin?localRole=teacher">教師工作室</a></main>;
+  return <Context.Provider value={{user:{uid:localIdentity.uid,email:localIdentity.email} as User,studentId:localIdentity.studentId,profile,teacher:localTeacher,testingAccount:true,fullCardAccess:localTeacher,refresh}}>
+    <div className="border-b-2 bg-gold/30 px-4 py-2 text-sm">本機 App 預覽 · 合成帳戶與模擬探索幣 · <a href="/?localRole=student">學生</a> · <a href="/admin?localRole=teacher">教師工作室</a> · <a href="/assessment-cms?localRole=teacher">私有題庫 CMS</a></div>{children}</Context.Provider>;
+}
+function AuthenticatedAccountGate({
   children,
   teacherPage = false,
 }: {
