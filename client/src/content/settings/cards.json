@@ -58,7 +58,7 @@
       "id": "wwi-s3-explorer-boy",
       "role": "studentBoy",
       "edition": "wwi-s3",
-      "name": "WWI S3・戰地通信（男）",
+      "name": "戰地通信（男）",
       "image": "/history-quest/uploads/wwi-s3-boy-v1.png",
       "backgroundId": "wwi-s3-field-post",
       "enabled": true
@@ -67,7 +67,7 @@
       "id": "wwi-s3-explorer-girl",
       "role": "studentGirl",
       "edition": "wwi-s3",
-      "name": "WWI S3・戰地通信（女）",
+      "name": "戰地通信（女）",
       "image": "/history-quest/uploads/wwi-s3-girl-v1.png",
       "backgroundId": "wwi-s3-field-post",
       "enabled": true
@@ -76,7 +76,7 @@
       "id": "wwi-s4-explorer-boy",
       "role": "studentBoy",
       "edition": "wwi-s4",
-      "name": "WWI S4・戰壕前進掩護（男）",
+      "name": "戰壕前進掩護（男）",
       "image": "/history-quest/uploads/wwi-s4-battle-boy-v1.png",
       "backgroundId": "wwi-s4-trench-cover",
       "enabled": true
@@ -85,7 +85,7 @@
       "id": "wwi-s4-explorer-girl",
       "role": "studentGirl",
       "edition": "wwi-s4",
-      "name": "WWI S4・戰壕前進掩護（女）",
+      "name": "戰壕前進掩護（女）",
       "image": "/history-quest/uploads/wwi-s4-battle-girl-v1.png",
       "backgroundId": "wwi-s4-trench-cover",
       "enabled": true
@@ -114,6 +114,7 @@
       "edition": "age-of-discovery",
       "name": "航海大發現 (男)",
       "image": "/history-quest/uploads/age-of-discovery-boy-v1.png",
+      "backgroundId": "",
       "enabled": true
     },
     {
@@ -122,6 +123,7 @@
       "edition": "age-of-discovery",
       "name": "航海大發現 (女)",
       "image": "/history-quest/uploads/age-of-discovery-girl-v1.png",
+      "backgroundId": "",
       "enabled": true
     },
     {
