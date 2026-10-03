@@ -73,7 +73,7 @@ test("same attempt agrees across immediate, ungraded history and graded history;
 });
 
 function compile(path, modules, suffix = "") {
-  modules = { "./RewardStatus": { default: () => null }, "@/components/RewardStatus": { default: () => null }, ...modules };
+  modules = { "./RewardStatus": { default: () => null }, "@/components/RewardStatus": { default: () => null }, "./task-quiz.css": {}, streamdown: { Streamdown: ({ children }) => children }, ...modules };
   // Match Vite's build-time replacement before running the CommonJS test module.
   const source = fs.readFileSync(new URL(path, import.meta.url), "utf8")
     .replaceAll("import.meta.env.BASE_URL", '"/history-quest/"') + suffix;
@@ -105,7 +105,7 @@ test("immediate pure MC, mixed and non-MC results label only MC feedback as prov
   for (const items of [[choice(true)], [choice(true), short], [short]]) {
     const values = [{}, items, "a", false, ""];
     const TaskQuiz = compile("../client/src/components/TaskQuiz.tsx", {
-      "react/jsx-runtime": jsx, react: { useState: () => [values.shift(), () => {}] },
+      "react/jsx-runtime": jsx, react: { useState: () => [values.shift(), () => {}], useEffect() {}, useRef: value => ({ current: value }) },
       "./McFeedback": { default: McFeedback }, "@/lib/mcEncouragement": encouragement,
       "@/lib/assessment": assessment, "@/contexts/ScoreSyncContext": { useScoreSync: () => ({}) },
     }).default;
@@ -115,18 +115,40 @@ test("immediate pure MC, mixed and non-MC results label only MC feedback as prov
   }
 });
 
+test("result symbols use real points and keep pending, partial and all short-answer marks neutral", () => {
+  const Feedback = compile("../client/src/components/TaskQuiz.tsx", {
+    "react/jsx-runtime": jsx, react: React,
+    "./McFeedback": { default: McFeedback }, "@/lib/mcEncouragement": encouragement,
+    "@/lib/assessment": assessment, "@/contexts/ScoreSyncContext": {},
+  }, "\nexport { QuestionFeedback };").QuestionFeedback;
+  for (const [type, awarded, expected] of [["choice", 7, "correct"], ["choice", 0, "wrong"], ["choice", 3, "neutral"], ["short", null, "neutral"], ["short", 3, "neutral"], ["short", 0, "neutral"], ["short", 7, "neutral"]]) {
+    const question = { id: "q", type, points: 7, options: ["甲", "乙"], answer: 1, explanation: "原有解說" };
+    const html = renderToStaticMarkup(React.createElement(Feedback, { question, answer: { awarded } }));
+    assert.ok(html.includes(`data-state="${expected}"`));
+    assert.equal(html.includes("✓"), expected === "correct");
+    assert.equal(html.includes("✗"), expected === "wrong");
+    assert.equal(html.includes("正確答案："), expected === "wrong");
+    assert.equal(html.includes("你的答案："), false);
+    assert.ok(html.includes(awarded === null ? "待老師批改" : `本題 ${awarded} / 7 分`));
+    assert.ok(html.includes("原有解說"));
+  }
+});
+
 test("submitting uses the persisted attempt ID and answers for immediate feedback", async () => {
   const state = [{ q1: 1, q2: "new input" }];
   let index = 0;
   const pending = { id: "queued-attempt", version: assessment.assessmentVersion(questions), answers };
   const TaskQuiz = compile("../client/src/components/TaskQuiz.tsx", {
     "react/jsx-runtime": jsx,
-    react: { useState(value) { const i = index++; if (!(i in state)) state[i] = value; return [state[i], next => { state[i] = next; }]; } },
+    react: { useEffect() {}, useRef: value => ({ current: value }), useState(value) { const i = index++; if (!(i in state)) state[i] = value; return [state[i], next => { state[i] = next; }]; } },
     "./McFeedback": { default: McFeedback }, "@/lib/mcEncouragement": encouragement,
     "@/lib/assessment": assessment,
     "@/contexts/ScoreSyncContext": { useScoreSync: () => ({ completeTask: async () => pending }) },
   }).default;
   const render = () => { index = 0; return TaskQuiz({ task: { questions } }); };
+  await render().props.onSubmit({ preventDefault() {} });
+  assert.equal(state[1], null, "submit before overview must not mark answers");
+  state[6] = true; // The student has opened the answer overview.
   await render().props.onSubmit({ preventDefault() {} });
   assert.equal(state[2], pending.id);
   assert.equal(state[0].q1, 0);
