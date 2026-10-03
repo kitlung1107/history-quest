@@ -14,14 +14,13 @@ function FittedLabel({
   kind,
 }: {
   text: string;
-  kind: "nickname" | "identity" | "metadata";
+  kind: "nickname" | "identity";
 }) {
   const ref = useRef<HTMLButtonElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
-  const maximum = kind === "nickname" ? 21 : kind === "metadata" ? 11 : 14;
+  const maximum = kind === "nickname" ? 21 : 14;
   const minimum = kind === "nickname" ? 11 : 10;
-  const label =
-    kind === "nickname" ? "暱稱" : kind === "metadata" ? "班別及學號" : "姓名";
+  const label = kind === "nickname" ? "暱稱" : "身份資料";
   const [fit, setFit] = useState({ size: maximum, lines: 1, truncated: false });
 
   useLayoutEffect(() => {
@@ -163,12 +162,6 @@ export default function ExplorerCard({
         />
         <FittedLabel text={nickname} kind="nickname" />
         <FittedLabel text={identity} kind="identity" />
-        {card.edition === "hk-port" && (
-          <FittedLabel
-            text={`班別：${profile.className}　學號：${profile.studentNo}`}
-            kind="metadata"
-          />
-        )}
       </div>
     </figure>
   );
