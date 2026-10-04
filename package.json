@@ -11,6 +11,7 @@
     "check": "node scripts/check-content.mjs && tsc --noEmit",
     "test:content": "node --experimental-strip-types --test client/src/lib/contentModel.test.ts",
     "test:cards": "node --experimental-strip-types --test client/src/lib/cardModel.test.ts",
+    "test:enrollment-pages": "node --experimental-strip-types --test client/src/lib/enrollmentAuditPages.test.ts client/src/lib/accountRoster.test.ts",
     "test:full-cards": "node --experimental-strip-types --test client/src/lib/fullCardAccess.test.ts scripts/card-catalog.test.mjs",
     "test:full-card-rules": "node --test scripts/full-card-access-rules.test.mjs scripts/cloud-rules.test.mjs",
     "test:card-release": "node --test scripts/card-catalog-release.test.mjs",

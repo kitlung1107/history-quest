@@ -1,9 +1,10 @@
 import {
-  collection, doc, getDoc, getDocs, getDocsFromServer, limit, query, runTransaction, serverTimestamp,
-  type Firestore, type Transaction,
+  collection, doc, documentId, getDoc, getDocs, getDocsFromServer, limit, orderBy, query, runTransaction, serverTimestamp, startAfter,
+  type Firestore, type QueryDocumentSnapshot, type Transaction,
 } from "firebase/firestore";
 import { isDrawCertified } from "./drawQualification.ts";
-import { auditDrawLedger, MAX_AUDIT_ENTRIES } from "./drawLedgerAudit.ts";
+import { auditDrawLedger } from "./drawLedgerAudit.ts";
+import { collectEnrollmentAuditPages } from "./enrollmentAuditPages.ts";
 
 export const ENROLLMENT_QUALIFICATION_PROTOCOL = "teacher-enrollment/1";
 // Each row introduces distinct getAfter profile/access checks. Four rows leave
@@ -28,13 +29,16 @@ const idOK = (id: string) => /^[A-Za-z0-9_-]{1,150}$/.test(id);
 export async function auditEnrollmentLedger(tx: Transaction, db: Firestore, sid: string, requireZero: boolean) {
   const wallet = await tx.get(doc(db, "coinAccounts", sid));
   const groups = await Promise.all([
-    getDocsFromServer(query(collection(db, "coinAccounts", sid, "entries"), limit(MAX_AUDIT_ENTRIES + 1))),
-    getDocsFromServer(query(collection(db, "coinAccounts", sid, "creditClaims"), limit(MAX_AUDIT_ENTRIES + 1))),
-    getDocsFromServer(query(collection(db, "cardDrawReceipts", sid, "requests"), limit(MAX_AUDIT_ENTRIES + 1))),
-  ]);
-  if (groups.some(group => group.size > MAX_AUDIT_ENTRIES)) throw Error("帳項超出安全核算上限；未儲存、未扣款。");
-  if (requireZero && (wallet.exists() || groups.some(group => !group.empty))) throw Error("新 SID 已有歷史帳項；請核對並連結原有帳戶，未儲存、未扣款。");
-  const rows = await Promise.all(groups.map(group => Promise.all(group.docs.map(async row => {
+    collection(db, "coinAccounts", sid, "entries"),
+    collection(db, "coinAccounts", sid, "creditClaims"),
+    collection(db, "cardDrawReceipts", sid, "requests"),
+  ].map(source => collectEnrollmentAuditPages<QueryDocumentSnapshot>(async (size, after) => {
+    const page = await getDocsFromServer(query(source, orderBy(documentId()),
+      ...(after ? [startAfter(after)] : []), limit(size)));
+    return page.docs;
+  })));
+  if (requireZero && (wallet.exists() || groups.some(group => group.length > 0))) throw Error("新 SID 已有歷史帳項；請核對並連結原有帳戶，未儲存、未扣款。");
+  const rows = await Promise.all(groups.map(group => Promise.all(group.map(async row => {
     const current = await tx.get(row.ref);
     if (!current.exists()) throw Error("核算期間帳項改變；請重試，未儲存、未扣款。");
     return { id: row.id, data: current.data() };

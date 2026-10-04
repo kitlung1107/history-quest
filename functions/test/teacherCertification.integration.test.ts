@@ -9,6 +9,8 @@ import { commitEnrollmentChunk, importStudentEnrollments, reviewStudentAccessReq
 import { requirePreparedDrawQualification } from "../../client/src/lib/drawQualification.ts";
 import { drawBrowserCard } from "../../client/src/lib/browserDraw.ts";
 import { buildCardCatalog } from "../../scripts/card-catalog.mjs";
+import { ENROLLMENT_AUDIT_PAGE_SIZE } from "../../client/src/lib/enrollmentAuditPages.ts";
+import { MAX_AUDIT_ENTRIES } from "../../client/src/lib/drawLedgerAudit.ts";
 if (process.env.FIRESTORE_EMULATOR_HOST !== "127.0.0.1:8185") throw Error("Synthetic emulator only");
 process.env.METADATA_SERVER_DETECTION = "none";
 const projectId = "demo-browser-teacher-certification-tests", app = initializeApp({ projectId }, "teacher-certification-tests"), admin = getFirestore(app);
@@ -55,6 +57,66 @@ test("old unlinked SID reserves every historical debit and retains old cards/rol
  assert.equal(cert.legacySpent, 75); assert.equal(cert.verifiedAtLedgerBalance, 100); assert.deepEqual(cert.legacyDebits, { legacy: -75 });
  assert.deepEqual(await snapshot("profiles/" + sid), prior); assert.equal(await exists("coinAccounts/" + sid), false);
  assert.equal((await snapshot(`coinAccounts/${sid}/entries/legacy`))!.amount, -75);
+});
+
+test("server pagination reads all entries, credit proofs and receipts while preserving wallet and inventory", async () => {
+ const count = ENROLLMENT_AUDIT_PAGE_SIZE + 1;
+ await admin.doc("profiles/" + sid).set(profile);
+ const writer = admin.bulkWriter();
+ for (let i = 0; i < count; i++) {
+  const suffix = String(i).padStart(5, "0"), creditId = "reward-" + suffix, requestId = "receipt-" + suffix;
+  void writer.set(admin.doc(`coinAccounts/${sid}/entries/${creditId}`), { kind: "taskReward", amount: 2 });
+  void writer.set(admin.doc(`coinAccounts/${sid}/creditClaims/${creditId}`), { creditId, amount: 2, revision: i + 1 });
+  void writer.set(admin.doc(`coinAccounts/${sid}/entries/draw_${requestId}`), { kind: "cardDraw", amount: -1, requestId, cardId: "nile-explorer-boy" });
+  void writer.set(admin.doc(`cardDrawReceipts/${sid}/requests/${requestId}`), { requestId, cardId: "nile-explorer-boy", price: 1, revision: i + 1 });
+ }
+ await writer.close();
+ const wallet = { schemaVersion: 1, balance: count, credited: count * 2, spent: count, creditRevision: count, drawRevision: count, lastCreditId: "reward-01000", lastRequestId: "receipt-01000" };
+ await admin.doc("coinAccounts/" + sid).set(wallet);
+ const result = await commitEnrollmentChunk(teacher(), [{ id: sid, email, requireExisting: true }], 0);
+ assert.equal(result.preparations[0].ready, true);
+ const cert = (await snapshot("cardDrawEligibility/" + sid))!;
+ assert.equal(cert.entryCount, count * 2); assert.equal(cert.verifiedAtLedgerBalance, count);
+ assert.deepEqual(await snapshot("coinAccounts/" + sid), wallet); assert.deepEqual(await snapshot("profiles/" + sid), profile);
+ assert.equal((await admin.collection(`coinAccounts/${sid}/creditClaims`).get()).size, count);
+ assert.equal((await admin.collection(`cardDrawReceipts/${sid}/requests`).get()).size, count);
+});
+
+test("server overflow probe rejects 10001 entries atomically and retains existing history", async () => {
+ await admin.doc("profiles/" + sid).set(profile);
+ const writer = admin.bulkWriter();
+ for (let i = 0; i <= MAX_AUDIT_ENTRIES; i++)
+  void writer.set(admin.doc(`coinAccounts/${sid}/entries/reward-${String(i).padStart(5, "0")}`), { kind: "taskReward", amount: 1 });
+ await writer.close();
+ await assert.rejects(commitEnrollmentChunk(teacher(), [{ id: sid, email, requireExisting: true }], 0), /超出安全核算上限/);
+ assert.equal(await exists("access/" + email), false); assert.equal(await exists("cardDrawEligibility/" + sid), false);
+ assert.equal((await snapshot("metadata/enrollment"))!.revision, 0); assert.deepEqual(await snapshot("profiles/" + sid), profile);
+ assert.equal((await admin.collection(`coinAccounts/${sid}/entries`).get()).size, MAX_AUDIT_ENTRIES + 1);
+});
+
+test("last-page historical debit and concurrent zero-to-positive reward are reread in the transaction", async () => {
+ await admin.doc("profiles/" + sid).set(profile);
+ const writer = admin.bulkWriter();
+ for (let i = 0; i < ENROLLMENT_AUDIT_PAGE_SIZE; i++)
+  void writer.set(admin.doc(`coinAccounts/${sid}/entries/a-${String(i).padStart(5, "0")}`), { kind: "taskReward", amount: 1 });
+ void writer.set(admin.doc(`coinAccounts/${sid}/entries/z-debit`), { kind: "legacyDebit", amount: -75 });
+ void writer.set(admin.doc(`coinAccounts/${sid}/entries/z-reward`), { kind: "taskReward", amount: 0 });
+ await writer.close();
+ let changed = false;
+ const db = teacher();
+ const audit = await runTransaction(db, async tx => {
+  const guarded = new Proxy(tx, { get(target, key) {
+   if (key === "get") return async (ref: any) => {
+    if (ref.path.endsWith("/entries/z-reward") && !changed) { changed = true; await admin.doc(ref.path).set({ kind: "taskReward", amount: 120 }); }
+    return target.get(ref);
+   };
+   const value = Reflect.get(target, key); return typeof value === "function" ? value.bind(target) : value;
+  }});
+  return auditEnrollmentLedger(guarded, db, sid, false);
+ });
+ assert.equal(audit.entryCount, 1_002); assert.equal(audit.legacySpent, 75); assert.equal(audit.verifiedAtLedgerBalance, 1_045);
+ assert.deepEqual(audit.legacyDebits, { "z-debit": -75 });
+ assert.equal(await exists("cardDrawEligibility/" + sid), false);
 });
 
 for (const [path, data] of [

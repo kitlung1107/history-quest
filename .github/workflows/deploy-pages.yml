@@ -41,6 +41,7 @@ jobs:
       - name: Content and teaching tests
         run: |
           pnpm test:content
+          pnpm test:enrollment-pages
           pnpm test:teaching
           pnpm test:editor
           pnpm test:full-cards
