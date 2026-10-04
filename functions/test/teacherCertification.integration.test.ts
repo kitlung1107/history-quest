@@ -165,3 +165,16 @@ test("qualified old SID credits ledger once, pays100, grants once and retries sa
  assert.equal((await admin.collection(`cardDrawReceipts/${sid}/requests`).get()).size, 1);
  assert.equal((await snapshot("profiles/" + sid))!.ownedCardIds.length, profile.ownedCardIds.length + 1);
 });
+
+test("existing unlinked teacher prepares only own access and eligibility, preserving profile and wallet", async () => {
+ const ownSid = "teacher_uid";
+ await admin.doc("profiles/" + ownSid).set(profile);
+ await admin.doc(`coinAccounts/${ownSid}/entries/old-earned`).set({ kind: "taskReward", amount: 175 });
+ const before = await snapshot("profiles/" + ownSid);
+ const result = await commitEnrollmentChunk(teacher(), [{ id: ownSid, email: teacherEmail, enabled: true, requireExisting: true }], 0);
+ assert.equal(result.preparations[0].ready, true);
+ assert.deepEqual(await snapshot("profiles/" + ownSid), before);
+ assert.equal(await exists("coinAccounts/" + ownSid), false);
+ assert.equal((await snapshot("access/" + teacherEmail))!.studentId, ownSid);
+ assert.equal((await snapshot("cardDrawEligibility/" + ownSid))!.verifiedAtLedgerBalance, 175);
+});
