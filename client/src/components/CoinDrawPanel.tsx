@@ -196,26 +196,13 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
   };
   return (
     <>
-      {local && (
+      {local && (recover || needsRefresh) && (
         <section className="local-draw-status">
-          <strong>本機隔離免費示範</strong>
-          <span>
-            示範探索幣：{balance ?? "載入中"}；不使用正式帳戶或真餘額。
-          </span>
-          <button
-            onClick={() => {
-              resetLocalDraw();
-              location.reload();
-            }}
-          >
-            重新開始示範
-          </button>
           {recover && (
             <button onClick={() => void draw()} disabled={busy.current}>
               恢復／重試上次抽卡
             </button>
           )}
-          {error && <p role="alert">{error}</p>}
           {needsRefresh && (
             <button onClick={() => location.reload()}>重新整理卡庫</button>
           )}
@@ -225,21 +212,20 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
         new URLSearchParams(location.search).get("scenario") === "earn" && (
           <LocalDrawEarnTask onEarn={refresh} />
         )}
-      {active && !local && (
+      {active && !local && (recover || needsRefresh) && (
         <section className="local-draw-status">
-          <span>探索幣：{balance ?? "載入中"}</span>
           {recover && (
             <button onClick={() => void draw()}>恢復／重試上次抽卡</button>
           )}
-          {error && <p role="alert">{error}</p>}
           {needsRefresh && (
             <button onClick={() => location.reload()}>重新整理卡庫</button>
           )}
         </section>
       )}
+      {error && <p role="alert" className="sr-only">{error}</p>}
       {!local && teacherSelf && !teacherPrepared && (
         <div className="my-4 border-2 p-3">
-          <p>老師帳戶首次抽卡前，先準備本人的抽卡資料；不會派幣或派卡。</p>
+          <p className="sr-only">老師帳戶首次抽卡前，先準備本人的抽卡資料；不會派幣或派卡。</p>
           <button
             className="pixel-button pixel-button-paper mt-2"
             disabled={preparingTeacher}
@@ -280,7 +266,15 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
             }
             onChange={() => {}}
           />
-          <p>示範卡庫；抽卡不會自動更換原展示卡。</p>
+          <p className="sr-only">示範卡庫；抽卡不會自動更換原展示卡。</p>
+          <button
+            onClick={() => {
+              resetLocalDraw();
+              location.reload();
+            }}
+          >
+            重新開始示範
+          </button>
         </section>
       )}
     </>

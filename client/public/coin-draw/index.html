@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'"><title>探索抽卡機</title><link rel="stylesheet" href="./style.css"></head>
 <body>
-<p id="feature-status" class="feature-status" role="status">抽卡功能尚未啟用，不會扣探索幣或派發卡片</p>
+<p id="feature-status" class="feature-status" role="status" hidden>抽卡功能尚未啟用，不會扣探索幣或派發卡片</p>
 <main>
 <section id="stage" class="stage" aria-label="探索抽卡機">
 <canvas id="scene" width="1205" height="960" role="img" aria-label="原創探索抽卡機與老師按鍵、出卡及揭卡效果"></canvas>
@@ -10,7 +10,7 @@
 <button id="start" class="art-button price" aria-label="100探索幣一次" aria-describedby="feature-status" disabled><img src="./assets/price-button-clean.png" alt="100探索幣一次"></button>
 <button id="join" class="art-button join" aria-label="加入卡片庫，返回抽卡畫面" aria-describedby="feature-status" hidden><img src="./assets/join-button-clean.png" alt="加入卡片庫"></button>
 </section>
-<p id="caption" class="caption" role="status" aria-live="polite"></p>
+<p id="caption" class="caption" role="status" aria-live="polite" hidden></p>
 <button id="resume" class="resume" hidden>繼續效果示範</button>
 </main><script type="module" src="./presentation.js"></script>
 </body></html>
