@@ -37,12 +37,15 @@ import CoinBalance from "@/components/CoinBalance";
 import { EXPLORER_CARDS } from "@/lib/cards";
 import { resolveAccountCard } from "@/lib/fullCardAccess";
 import { useEffect, useId, useRef, useState } from "react";
+import CoinDrawEntry from "./CoinDrawEntry";
 
 type SidebarProps = {
   previewSettings?: typeof defaults;
   previewProfile?: CloudProfile;
   previewFullCardAccess?: boolean;
   onChangeCharacter?: () => void;
+  onCoinDraw?: () => void;
+  coinDrawDemo?: boolean;
   student: StudentProfile;
   activeGrade: number | null;
   activeTopic: string | null;
@@ -59,6 +62,8 @@ function SidebarBody({
   previewProfile,
   previewFullCardAccess = false,
   onChangeCharacter,
+  onCoinDraw,
+  coinDrawDemo,
 }: SidebarProps) {
   // Keep transient touch/pen feedback separate from the selected topic.
   const [pressedTopic, setPressedTopic] = useState<string | null>(null);
@@ -86,6 +91,7 @@ function SidebarBody({
           <span className="character-preview-label">角色展示</span>
         )}
       </div>
+      {onCoinDraw && <CoinDrawEntry onClick={onCoinDraw} demo={coinDrawDemo} />}
       <Accordion type="single" collapsible className="mt-4 space-y-2">
         {GRADES.filter(({ grade }) => canSeeGrade(previewSettings ? { ...account, profile: student } : account, grade)).map(({ grade, title }) => {
           const topics = PUBLIC_TOPICS.filter(topic => topic.grade === grade);
@@ -274,6 +280,10 @@ export default function HistorySidebar({
             <div className="h-full overflow-y-auto p-4">
               <SidebarBody
                 {...props}
+                onCoinDraw={props.onCoinDraw ? () => {
+                  setOpen(false);
+                  props.onCoinDraw?.();
+                } : undefined}
                 onTopicChange={(grade, topic) => {
                   props.onTopicChange(grade, topic);
                   setOpen(false);

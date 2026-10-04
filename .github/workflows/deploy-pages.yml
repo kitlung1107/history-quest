@@ -59,8 +59,9 @@ jobs:
       - name: Build static site
         env:
           GITHUB_ACTIONS: "true"
-          # Formal assessment activation requires a separate reviewed release.
-          VITE_RULES_ASSESSMENT_ENABLED: "0"
+          # Approved Rules/private-version release; protected core validation
+          # still runs before this artifact can reach Pages.
+          VITE_RULES_ASSESSMENT_ENABLED: "1"
           VITE_ASSESSMENT_EMULATORS: "0"
         run: pnpm build
 

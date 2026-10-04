@@ -74,6 +74,9 @@ const publicTaskModules = import.meta.glob(["../content/tasks/*.json","!../conte
 }) as Record<string, CmsTask>;
 const localTaskModules=import.meta.env.VITE_ASSESSMENT_EMULATORS==='1'?import.meta.glob('../content/tasks/local-assessment-*.json',{eager:true,import:'default'}):{};
 const taskModules={...publicTaskModules,...localTaskModules} as Record<string,CmsTask>;
+export const CMS_TASK_SOURCES=Object.fromEntries(Object.entries(taskModules).map(([source,raw])=>[
+  raw.task_id,{path:`client/src/content/tasks/${source.split('/').pop()}`,raw},
+]));
 
 // Only publicly visible tasks enter student navigation and progress counts.
 export const HISTORY_TASKS: HistoryTask[] = publicTasks(

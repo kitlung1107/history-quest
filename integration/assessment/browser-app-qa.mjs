@@ -61,7 +61,7 @@ try{
   await navigate('/submissions?localRole=student');await until(`document.body.innerText.includes('老師評語驗收')`);
   await check('student receives final mixed grade and teacher comments',`document.body.innerText.includes('老師評語驗收')&&document.body.innerText.includes('100')`);await shot('mixed-final');
   const ledgerDocuments=await(await fetch('http://127.0.0.1:8191/v1/projects/demo-rules-rewards-app/databases/(default)/documents/coinAccounts/learner/entries',{headers:{Authorization:'Bearer owner'}})).json();const balance=ledgerDocuments.documents.reduce((n,d)=>n+Number(d.fields.amount.integerValue),0);await navigate('/?localRole=student');await evaluate(`[...document.querySelectorAll('button[aria-label="開啟年級選單"]')].find(e=>e.getClientRects().length)?.click();void 0;`);await until(`document.querySelector('.coin-balance')?.innerText.includes(${JSON.stringify(String(balance))})`);await check('original balance updates from existing ledger',`document.querySelector('.coin-balance').innerText.includes(${JSON.stringify(String(balance))})`);await shot('original-balance');
-  await navigate('/assessment-cms?localRole=teacher');await until(`document.querySelectorAll('form fieldset').length>0`);
+  await navigate('/assessment-cms?localRole=teacher');await until(`document.querySelectorAll('form fieldset[data-assessment-question]').length>0`);
   await shot('private-cms');
   await check('CMS loads private answers in original App teacher route',`[...document.querySelectorAll('label')].some(e=>e.textContent.includes('標準答案'))`);
   // Public source and raw query checks use an existing raw-keyed assessment.

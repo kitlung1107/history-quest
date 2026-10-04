@@ -51,8 +51,8 @@ test('cutover review keeps pending legacy attempts and immutable positive ledger
   expect(p.writes).toBe(false);expect(p.backfill).toBe(false);expect(p.tasks[0].legacyReviewAttemptIds).toEqual(['old']);expect(p.tasks[0].existingPositiveEntries).toBe(1);
   expect(()=>assessmentCutoverPlan({tasks:[{taskId:'game',version:'v',type:'game'}]})).toThrow();
 });
-test('formal build and workflow remain disabled, with public-only build planning and protected key read approval',()=>{
-  const workflow=readFileSync('.github/workflows/deploy-pages.yml','utf8');expect(workflow).toContain('VITE_RULES_ASSESSMENT_ENABLED: "0"');expect(workflow).toContain('VITE_ASSESSMENT_EMULATORS: "0"');expect(workflow).toContain('--public-plan');expect(workflow).toContain('ASSESSMENT_PRIVATE_INPUT_APPROVED');
+test('approved formal build enables the writer, excludes emulators and retains protected private core validation before Pages',()=>{
+  const workflow=readFileSync('.github/workflows/deploy-pages.yml','utf8');expect(workflow).toContain('VITE_RULES_ASSESSMENT_ENABLED: "1"');expect(workflow).toContain('VITE_ASSESSMENT_EMULATORS: "0"');expect(workflow).toContain('--public-plan');expect(workflow).toContain('ASSESSMENT_PRIVATE_INPUT_APPROVED');expect(workflow.indexOf('Sync and verify core teaching metadata')).toBeLessThan(workflow.indexOf('Deploy to GitHub Pages'));
 });
 test('new core versions use the published opaque version and protocol tag while legacy hashes remain unchanged',()=>{
   const legacy=planCoreCatalogue([{...task,questions}],[])[0].documents.find(d=>d.path.startsWith('catalogue/'))!;

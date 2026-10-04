@@ -78,7 +78,8 @@ test("type-specific required fields allow reading and games without a quiz", () 
 test("all existing tasks round-trip through grouped editor without changing stored content", () => {
   for (const task of tasks) {
     assert.deepEqual(json(model.flatten(model.group(task))), task);
-    assert.deepEqual(json(model.issues(model.group(task))), []);
+    if(task.assessmentVersion)assert.match(model.issues(model.group(task)).join(), /私有題庫 CMS/);
+    else assert.deepEqual(json(model.issues(model.group(task))), []);
   }
 });
 test("invalid cover, quiz answer and external links are reported before saving", () => {

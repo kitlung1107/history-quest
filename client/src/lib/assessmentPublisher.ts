@@ -3,13 +3,16 @@ import {db} from './firebase';
 import {requireAssessmentActor} from './assessmentSession';
 import {assertPublicAssessment,prepareAssessmentVersion,type AuthorQuestion} from './assessmentPublication';
 import type {HistoryTask} from './historyQuest';
-export async function saveAssessmentVersion(task:HistoryTask,questions:AuthorQuestion[],title:string,description:string){
+import {validateCoinRule,type CoinRule} from './coinModel';
+export async function saveAssessmentVersion(task:HistoryTask,questions:AuthorQuestion[],title:string,description:string,rule?:CoinRule){
   await requireAssessmentActor(undefined,true);
+  if(rule)validateCoinRule(rule);
   const version=crypto.randomUUID().replaceAll('-','');
   const split=prepareAssessmentVersion(task,questions,title,description,version),id=`${task.id}--${version}`;
   const batch=writeBatch(db);
   batch.set(doc(db,'assessmentKeys',id),split.privateKey);
   batch.set(doc(db,'assessmentVersions',id),{...split.metadata,acceptFrom:serverTimestamp()});
+  if(rule)batch.set(doc(db,'coinRules',task.id),rule);
   await batch.commit();
   const saved=await getDocFromServer(doc(db,'assessmentVersions',id));
   if(!saved.exists())throw Error('私有版本未能確認，未匯出公開教材。');

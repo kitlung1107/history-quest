@@ -65,8 +65,8 @@ try{
   await setField('#qa-coin-rules select','local-assessment-mc-30','select');await until(`!document.querySelector('#qa-coin-rules fieldset').disabled`);
   await setField('#qa-coin-rules fieldset select','fixed','select');await setField('#qa-coin-rules input[type=number]','77','input');await click('儲存探索幣設定');await until(`document.body.innerText.includes('探索幣設定已儲存')`);
   assert('original CoinRuleEditor writes existing fixed reward policy',JSON.stringify((await getDocFromServer(doc(db,'coinRules','local-assessment-mc-30'))).data())===JSON.stringify({mode:'fixed',amount:77,metric:'score',tiers:[]})||(await getDocFromServer(doc(db,'coinRules','local-assessment-mc-30'))).data().amount===77);await shot('cms-coin-rule');
-  await navigate('/assessment-cms?localRole=teacher');await until(`document.querySelectorAll('form fieldset').length>0`);
-  await setField('form>label select','local-assessment-mc-30','select');await until(`document.querySelectorAll('form fieldset').length===30&&!document.querySelector('form fieldset').disabled`);
+  await navigate('/assessment-cms?localRole=teacher');await until(`document.querySelectorAll('form fieldset[data-assessment-question]').length>0`);
+  await setField('form>label select','local-assessment-mc-30','select');await until(`document.querySelectorAll('form fieldset[data-assessment-question]').length===30&&!document.querySelector('form fieldset[data-assessment-question]').disabled`);
   const oldPublic=await(await fetch(origin+'/src/content/tasks/local-assessment-mc-30.json')).json();
   await setField('textarea[aria-label="第 1 題題幹"]','CMS 公開題幹驗收：選擇老師指定的項目。');await setField('select[aria-label="第 1 題標準答案"]','1','select');await setField('textarea[aria-label="第 1 題解說"]','CMS 私有解說驗收：只有提交後或教師可讀。');await shot('cms-private-edit');
   await click('儲存私有答案及匯出公開教材');

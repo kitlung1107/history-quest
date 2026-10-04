@@ -1,8 +1,37 @@
 # 原 App 小測與 Rules 獎勵整合預覽
 
-此版本在獨立 worktree 與分支 `feat/rules-rewards-app-integration` 製作，最初 main 基準為 `17144db47aa2d41d3986ccb3afac0d898af63292`。第一輪版本已由用戶提交為 `64d50357f26dc7f58be442cb4d1d4de70d0c45fb`；本輪變更留在該提交之上的工作目錄，代理未 commit、push、merge 或部署。所有驗收使用本機合成帳戶／探索幣及 demo emulator。正式 `firestore.rules` 與 IAM 未修改；Functions 和發布工作流程有待審的程式草稿，但沒有發布到正式環境。
+> 2026-10-04 正式啟用更新：用戶已批准 main 發布、相容 Rules、私有題庫和派幣開關；以下預覽段落保留原驗收歷史。當前部署順序及回復方式見 [`docs/RULES_ASSESSMENT_ACTIVATION.md`](../../docs/RULES_ASSESSMENT_ACTIVATION.md)。真實 Kitlung 教師身份已唯讀核實，Rules 與石器重溫私有版本已讀回驗證；正式網站與真人结算結果以本輪 CI／Firestore 收據為準。Cloud Functions 服務停用，本輪不部署 Functions，不新增 IAM 或計費。
 
-## 本輪正式接線準備（預設關閉）
+此版本在獨立 worktree 與分支 `feat/rules-rewards-app-integration` 製作，最初 main 基準為 `17144db47aa2d41d3986ccb3afac0d898af63292`。第一輪版本由用戶提交為 `64d50357f26dc7f58be442cb4d1d4de70d0c45fb`，正式接線準備由用戶提交及推送為 `98eda2428e6585debe685f3ab9e5c5d915f61a6a`。本輪依批准將最新 main 整合至此工作目錄，停在尚未提交的 merge；代理沒有 commit、push 或部署。所有驗收使用本機合成帳戶／探索幣及 demo emulator。正式 `firestore.rules` 與 IAM 未修改；Functions 和發布工作流程有待審的程式草稿，但沒有發布到正式環境。
+
+## 最新 main 整合驗收（2026-10-04）
+
+Summary：整合 main 的抽卡 UI，保留逐題小測、答案總覽、教師批改和私有 CMS；修正並行評分遇到過時檢查點或相同成績已提交時的恢復處理。正式 writer 仍關閉。
+
+Description：從 `98eda242` 執行 `git merge --no-commit --no-ff f172efdee05700db75a1bc87a6983a3e843e91f6`，沒有文字衝突。HEAD 仍為 `98eda242`，MERGE_HEAD 為 `f172efde`；21 個 main 檔案由 merge 暫存。抽卡專用檔案與 main 完全一致，App／Home 同時保留小測和抽卡接線。另有引擎、並行回歸測試及本文三個未暫存修正供審閱，沒有處理另一個抽卡後端 worktree。
+
+| 最新合併版本驗收 | 結果 |
+| --- | --- |
+| Rules／可信評分／正式準備 | 54 / 54；新增八個獨立 SDK 客戶端同時完成同一新提交 |
+| 原 Functions 與協定隔離 | 17 / 17 |
+| 原流程與公私匯出回歸 | 69 / 69 |
+| HTTP 公開管線 | 3 / 3 |
+| 原 App 操作 | 18 + 16 項通過：往返保留、總覽修改、缺題提醒、圖片、30 題、批改和獎勵設定 |
+| 真正 Google Auth emulator token／access 接線 | 21 / 21；未處理瀏覽器例外 0 |
+| main 抽卡 UI 的實際操作 | 17 / 17；鍵盤完整動畫 319 個繪製影格，手機／iPad、離開重進及減少動態皆通過 |
+| 型別／內容／正式旗標關閉的 Vite、server、Functions 建置 | 通過；既有 bundle 大小警告保留 |
+| 正式公開產物隔離 | 477 檔、6 組合成題目 ID、私有新版本值外洩 0 |
+| 已出版 CMS 的私有 core 輸入 | 精確 2 次本機 GET，版本及 hydration 核對通過，0 寫入 |
+
+原始 Auth 並行失敗的 Rules coverage 顯示 `request.resource.data.checked == d.checked + 1` 為 false，access 已通過；並未證實 map 欄位順序錯誤。新增獨立客戶端測試也重現最後 grade 交易已由另一個完成者提交後的拒絕。修正只在伺服器新讀確認相同 immutable quote 已推進，或同一提交已有完全相同 grade／revision 時續行；其他 permission-denied 仍拋出。原 Rules、coinRules 和單次正數 ledger 政策不變。原先失敗且已封存的提交也實際續傳至 revision 1／100 分，答案及既有正數帳本均未改動。
+
+抽卡首輪的鍵盤與手機失敗屬驗收工具：CDP Enter 缺少原生 char 事件、以及在 Sheet 關閉動畫結束前讀取版面。補正事件及等待後重跑全部 17 項。正式 Home 抽卡保持「尚未啟用」、100 幣按鈕停用；DEV demo 只演示動畫，前後帳本及 ownedCardIds 相同。Java emulator 曾因 zh_HK 驗證訊息資源缺失回傳 500，改以 en_US 啟動後排除；沒有因此改產品程式。
+
+本輪可攜報告在 `tmp/main-integration-review.html`、`tmp/main-integration-evidence.json`，截圖在 `tmp/main-merge-app-qa/`、`tmp/main-merge-auth-qa/`、`tmp/main-merge-draw-qa/`，Library 交付 ID 在 `tmp/main-integration-library-delivery.json`。最初失敗、Rules coverage 摘要及修復後結果分別保留在 `tmp/main-merge-auth-qa/first-concurrency-failure.json`、`tmp/main-integration-checkpoint-diagnosis.json`、`tmp/main-integration-finalizers-first-failure.json`、`tmp/main-integration-rules-results.json` 及 `tmp/main-integration-original-attempt-recovery.json`。三份用戶未追蹤的舊報告 SHA-256 保持不變。
+
+後續抽卡後端接線須另行審核：使用已驗證 access.studentId；新版小測來源標示 `rules-assessment/1`；保留 `coinAccounts/{studentId}/entries/{taskId}` 已有 immutable 正數任務獎勵，不覆寫、補發或用作抽卡扣款。抽卡交易及卡片所有權應有獨立、避免與現有 task ledger 衝突的協定，並保留既有 rewardAutomation 啟用時間。此輪沒有新增該後端或接上正式資料。
+
+## 正式接線準備（98eda242 歷史驗收，預設關閉）
 
 本輪 Summary：準備 Google 登入與 access.studentId 接線、私有題庫出版、受保護核心同步的私有版本輸入，以及新舊評分協定的切換保護；正式開關保持關閉。
 
@@ -24,7 +53,7 @@ Rules 核驗沿用現有 coinRules，並尊重既有 rewardAutomation 啟用時�
 
 本輪報告為 `formal-readiness-review.html`（內嵌截圖，可單獨開啟）、`readiness-evidence.json` 及 `formal-library-delivery.json`。原始結果保留於 `tmp/formal-readiness-results.json`、`tmp/formal-legacy-functions-results.txt`、`tmp/formal-regression-results.txt`、`tmp/auth-qa/results.json`、`tmp/formal-artifact-audit.json`。前一輪 `review-record.html`／`evidence.json` 是歷史紀錄。
 
-最新 main `f172efdee05700db75a1bc87a6983a3e843e91f6` 的抽卡 PR #5 已做靜態相容性檢查。21 個改動檔案中只有 App.tsx／Home.tsx 與整合分支重疊，三方文字預覽沒有衝突且保留抽卡入口。此 worktree 沒有合併 main，沒有合併後運行驗證，也沒有改其他 worktree。正式 Rules 與該 main 一致。
+98eda242 階段只完成 main 抽卡 PR #5 的靜態相容性檢查；本輪已完成上方所列的未提交整合及運行驗收。正式 Rules 與該 main 一致。
 
 ## 開啟預覽
 
@@ -33,6 +62,8 @@ Rules 核驗沿用現有 coinRules，並尊重既有 rewardAutomation 啟用時�
 - 原 App 私有題庫 CMS：http://127.0.0.1:4201/assessment-cms?localRole=teacher
 - 我的提交：http://127.0.0.1:4201/submissions?localRole=student
 - Google Auth emulator 接線預覽：http://127.0.0.1:4202/?assessmentTask=local-assessment-mc-3
+- main 抽卡 UI：在 4201 首頁開啟年級選單，再按「探索幣抽卡」（尚未啟用）
+- DEV 抽卡完整動畫：http://127.0.0.1:4201/__coin-draw-demo?view=home （按側欄抽卡入口後可用 Enter）
 
 4201 是便於直接審閱的合成身分預覽。4202 使用正常 AccountGate／Firebase Auth emulator／access 身分映射，測試瀏覽器已登入合成學生；其他瀏覽器可在 Auth emulator 配置合成 Google 帳戶。Firestore 在 8191、Auth 在 9191，均限 loopback。正式 build 的 `VITE_RULES_ASSESSMENT_ENABLED=0`、`VITE_ASSESSMENT_EMULATORS=0`；本機 `.env.local` 不得用於發布。
 
@@ -97,7 +128,7 @@ HTTP 管線測試需先開啟 4201 並完成合成 MC 30 教材的 CMS 儲存。
 
 本輪已把下列準備工作落實成可審查程式；啟用仍需用戶批准，順序如下：
 
-1. 用戶審閱本輪 diff 並自行提交；另行授權整合最新 main，保留抽卡入口，再對合併版本驗證抽卡及小測運行。這一步本輪未執行。
+1. 最新 main 已依批准整合並完成本機驗收；用戶審閱暫存 merge 及三個未暫存修正後自行提交。正式啟用仍需另外批准。
 2. 先批准及部署舊 Functions 的協定隔離草稿，確認 legacy／遊戲仍按原政策處理；讓舊政策可繼續完成 pending 舊提交，同時不接管新版提交。
 3. 批准及部署 `compatible.rules` 的具體差異，保留現有遊戲、卡片、profile、舊提交、ledger 及 core 授權。本輪沒有覆蓋正式 `firestore.rules`。
 4. 明確批准轉換 taskId 清單、私有新版本的正式儲存，以及正式教師的題庫出版開關；先存私有 key／公開 metadata 並驗證，再審閱公開教材 JSON。保持 taskId，舊提交和正數帳本不轉換、不追補。

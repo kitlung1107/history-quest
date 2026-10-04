@@ -61,6 +61,14 @@ test('CMS creates immutable private key and public version atomically; students 
   unsafe.set(doc(teacher,'assessmentKeys',leakId),leak.key);unsafe.set(doc(teacher,'assessmentVersions',leakId),{...leak.meta,acceptFrom:serverTimestamp(),questions:[{...leak.meta.questions[0],answer:0}]});
   await assertFails(unsafe.commit());
 });
+test('CMS saves private/public version and its reward settings in one batch or rolls all three back',async()=>{
+  const f=makeAssessment('cms-settings',1),id=`${f.meta.taskId}--${f.meta.version}`,rule={mode:'tiers',amount:0,metric:'score',tiers:[{minimum:70,amount:69},{minimum:90,amount:87}]};
+  const batch=writeBatch(teacher);batch.set(doc(teacher,'assessmentKeys',id),f.key);batch.set(doc(teacher,'assessmentVersions',id),{...f.meta,acceptFrom:serverTimestamp()});batch.set(doc(teacher,'coinRules',f.meta.taskId),rule);
+  await assertSucceeds(batch.commit());expect((await getDoc(doc(teacher,'coinRules',f.meta.taskId))).data()).toEqual(rule);
+  const bad=makeAssessment('cms-rollback',1),badId=`${bad.meta.taskId}--${bad.meta.version}`,unsafe=writeBatch(teacher);
+  unsafe.set(doc(teacher,'assessmentKeys',badId),bad.key);unsafe.set(doc(teacher,'assessmentVersions',badId),{...bad.meta,acceptFrom:serverTimestamp(),questions:[{...bad.meta.questions[0],answer:0}]});unsafe.set(doc(teacher,'coinRules',bad.meta.taskId),rule);
+  await assertFails(unsafe.commit());expect((await getDoc(doc(teacher,'assessmentVersions',badId))).exists()).toBe(false);expect((await getDoc(doc(teacher,'coinRules',bad.meta.taskId))).exists()).toBe(false);
+});
 for(const count of [3,10,30])test(`CMS publishes ${count} public questions without exposing answer fields`,async()=>{
   const f=makeAssessment(`cms-${count}`,count),id=`${f.meta.taskId}--${f.meta.version}`;
   const batch=writeBatch(teacher);batch.set(doc(teacher,'assessmentKeys',id),f.key);batch.set(doc(teacher,'assessmentVersions',id),{...f.meta,acceptFrom:serverTimestamp()});
@@ -91,6 +99,22 @@ test('simultaneous fresh attempts retain a single first-positive ledger and no g
   const grades=await Promise.all(['parallel-1','parallel-2','parallel-3'].map(id=>submitAndSettle(student,id,'learner',f.meta,answers(f))));
   expect(grades.every(g=>g.score===100)).toBe(true);expect((await getDocs(collection(student,'coinAccounts','learner','entries'))).size).toBe(1);
   for(const id of ['parallel-1','parallel-2','parallel-3'])expect((await getDoc(doc(student,'submissions',id))).data()?.grade.revision).toBe(1);
+});
+test('concurrent finalizers advance one fresh reward quote and settle its grade exactly once',async()=>{
+  const f=await fixture('parallel-finalizers',3),id='shared-fresh-attempt';
+  await sealAnswers(student,id,'learner',f.meta,answers(f));
+  await verifyMC(student,id);
+  const workers=Array.from({length:8},()=>env.authenticatedContext('learner-uid',claims('learner@prototype.test')).firestore());
+  const settled=await Promise.allSettled(workers.map(worker=>finishAssessment(worker,id)));
+  const failures=settled.filter(result=>result.status==='rejected').map(result=>{const e=(result as PromiseRejectedResult).reason;return{code:e.code,message:e.message,stage:e.assessmentStage};});
+  if(failures.length)throw Error('Concurrent finalizer failures: '+JSON.stringify(failures));
+  const grades=settled.map(result=>(result as PromiseFulfilledResult<Awaited<ReturnType<typeof finishAssessment>>>).value);
+  expect(grades.every(g=>g.score===100&&g.revision===1)).toBe(true);
+  const proof=(await getDoc(doc(student,'assessmentRewardQuotes',`${id}--1`))).data()!;
+  expect(proof.checked).toBe(proof.rule.tiers.length);
+  expect((await getDocs(collection(student,'coinAccounts','learner','entries'))).size).toBe(1);
+  expect((await ledger(student,f.meta.taskId)).data()?.amount).toBe(100);
+  expect((await getDoc(doc(student,'submissions',id))).data()?.grade.revision).toBe(1);
 });
 // Never reset the active preview project's submissions or user outbox.
 const projectId='demo-rules-rewards-integration-tests';

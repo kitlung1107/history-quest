@@ -26,6 +26,7 @@ import {
   Trophy,
 } from "lucide-react";
 import HistorySidebar from "@/components/HistorySidebar";
+import CoinDrawPanel from "@/components/CoinDrawPanel";
 import {
   useOptionalStudentAccount,
   type CloudProfile,
@@ -49,6 +50,9 @@ export default function Home({
   previewFullCardAccess = false,
   previewCoinRules,
   onChangeCharacter,
+  coinDrawDemo = false,
+  initialCoinDrawOpen = false,
+  initialSidebarOpen = false,
 }: {
   previewSettings?: typeof defaults;
   previewTasks?: HistoryTask[];
@@ -56,6 +60,9 @@ export default function Home({
   previewFullCardAccess?: boolean;
   previewCoinRules?: Record<string, CoinRule>;
   onChangeCharacter?: () => void;
+  coinDrawDemo?: boolean;
+  initialCoinDrawOpen?: boolean;
+  initialSidebarOpen?: boolean;
 } = {}) {
   const settings = previewSettings || defaults;
   const account = useOptionalStudentAccount();
@@ -73,11 +80,13 @@ export default function Home({
   const allowed = (task: HistoryTask) => canPlayGrade(identity, task.grade);
   const [activeGrade, setActiveGrade] = useState<number | null>(null);
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
-  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(initialSidebarOpen);
+  const [coinDrawOpen, setCoinDrawOpen] = useState(initialCoinDrawOpen);
   useEffect(() => {
     document.title = settings.title;
   }, [settings.title]);
   const changeGrade = (grade: number | null) => {
+    setCoinDrawOpen(false);
     setActiveGrade(grade);
     setActiveTopic(null);
   };
@@ -122,16 +131,20 @@ export default function Home({
             previewProfile={previewProfile}
             previewFullCardAccess={previewFullCardAccess}
             onChangeCharacter={onChangeCharacter}
+            onCoinDraw={() => setCoinDrawOpen(true)}
+            coinDrawDemo={import.meta.env.DEV && coinDrawDemo}
             student={student}
             activeGrade={activeGrade}
             onGradeChange={changeGrade}
             activeTopic={activeTopic}
             onTopicChange={(grade, topic) => {
+              setCoinDrawOpen(false);
               setActiveGrade(grade);
               setActiveTopic(topic);
             }}
           />
-          <main className="home-main min-w-0 pb-20 md:pb-6">
+          <main className={`home-main min-w-0 pb-20 md:pb-6 ${coinDrawOpen ? "coin-draw-main" : ""}`}>
+            {coinDrawOpen ? <CoinDrawPanel demo={coinDrawDemo} /> : <>
             <div className="home-status" role="status">
               {previewSettings ? (
                 "預覽模式 · 不儲存成績"
@@ -287,6 +300,7 @@ export default function Home({
             </div>
             {locked && <GradeLock identity={identity} />}
             </div>
+            </>}
           </main>
           <nav className="mobile-bottom-nav md:hidden">
             <button onClick={() => changeGrade(null)}>
