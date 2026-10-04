@@ -493,7 +493,7 @@ export function ProfileEditor({
           <fieldset className="card-picker">
             <legend>首次選擇角色</legend>
             <p className="my-3">
-              儲存後角色永久固定。所有年級獲贈新手卡，中一另獲贈同角色尼羅河卡。
+              儲存後角色永久固定。所有年級只獲贈同性別新手卡。
             </p>
             <div className="card-picker-grid">
               {STUDENT_ROLES.map(role => (
