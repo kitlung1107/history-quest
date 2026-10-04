@@ -14,12 +14,6 @@ export default function CardPicker({
   onChange: (id: string) => void;
 }) {
   const cards = availableAccountCards(EXPLORER_CARDS, collection, fullCardAccess);
-  const locked = EXPLORER_CARDS.filter(
-    c =>
-      !fullCardAccess && c.enabled &&
-      c.role === collection.role &&
-      !collection.ownedCardIds?.includes(c.id)
-  );
   return (
     <fieldset className="card-picker">
       <legend>我的收藏卡</legend>
@@ -46,11 +40,6 @@ export default function CardPicker({
           </label>
         ))}
       </div>
-      {locked.map(card => (
-        <p className="my-3" key={card.id}>
-          {card.name} · 未擁有（其他獲得方式尚未開放）
-        </p>
-      ))}
     </fieldset>
   );
 }

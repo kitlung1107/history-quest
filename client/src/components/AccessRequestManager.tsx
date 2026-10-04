@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db as defaultDb } from "@/lib/firebase";
 import {
   CLASS_OPTIONS,
   isCurrentClass,
@@ -9,15 +9,20 @@ import {
 import { reviewAccessRequest, type AccessRequest } from "@/lib/accessRequests";
 import type { CloudProfile } from "@/contexts/StudentAccount";
 
+import type { Firestore } from "firebase/firestore";
+import { enrollmentNotice } from "@/lib/enrollment";
 export default function AccessRequestManager({
   onChanged,
   embedded = false,
   previewOnly = false,
+  database = defaultDb,
 }: {
   onChanged: () => Promise<void>;
   embedded?: boolean;
   previewOnly?: boolean;
+  database?: Firestore;
 }) {
+  const db = database;
   const [requests, setRequests] = useState<
     (AccessRequest & { email: string })[]
   >([]);
@@ -112,18 +117,19 @@ export default function AccessRequestManager({
       };
     }
     if (approve && mode === "link" && !sid) throw new Error("請選擇對應學生。");
-    await reviewAccessRequest(
+    const preparation = await reviewAccessRequest(
       selected,
       approve ? (profile ? crypto.randomUUID() : sid) : null,
       reason,
-      profile
+      profile,
+      db
     );
     setSelected("");
     await refresh();
     await onChanged();
     setNotice(
       approve
-        ? "已批准申請，學生可按重新檢查進入。"
+        ? "已批准申請，學生可按重新檢查進入。" + (preparation ? enrollmentNotice(preparation) : "")
         : "已拒絕申請，學生可查看原因並修正資料。"
     );
   }

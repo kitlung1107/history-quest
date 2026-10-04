@@ -6,8 +6,9 @@ import {
   getDoc,
   getDocs,
   runTransaction,
+  type Firestore,
 } from "firebase/firestore";
-import { db, OWNER_EMAIL } from "@/lib/firebase";
+import { db as defaultDb, OWNER_EMAIL } from "@/lib/firebase";
 import {
   csvText,
   downloadCsv,
@@ -16,16 +17,20 @@ import {
 } from "@/lib/csv";
 import type { CloudProfile } from "@/contexts/StudentAccount";
 import AccessRequestManager from "./AccessRequestManager";
+import { commitEnrollmentChunk, importStudentEnrollments, waitForEnrollmentPreparations, enrollmentNotice } from "@/lib/enrollment";
 type Entry = { id: string; profile: CloudProfile };
 type Access = { email: string; studentId: string; enabled: boolean; testing?: boolean };
 type Plan = { row: AccountRosterRow; id: string; existing: boolean };
 export default function AccountManager({
   onChanged,
   previewOnly = false,
+  database = defaultDb,
 }: {
   onChanged: () => Promise<void>;
   previewOnly?: boolean;
+  database?: Firestore;
 }) {
+  const db = database;
   const [profiles, setProfiles] = useState<Entry[]>([]),
     [access, setAccess] = useState<Access[]>([]);
   const [csv, setCsv] = useState(""),
@@ -127,54 +132,16 @@ export default function AccountManager({
     )
       throw new Error("此班別及學號已有學生，請編輯現有學生或連結 Gmail。");
     const id = editor.id || crypto.randomUUID();
-    await runTransaction(db, async tx => {
-      const metaRef = doc(db, "metadata", "enrollment");
-      const meta = await tx.get(metaRef);
-      if ((meta.data()?.revision || 0) !== revision)
-        throw new Error("名單已變更，請重新讀取名單後再儲存。");
-      const profileRef = doc(db, "profiles", id);
-      const current = await tx.get(profileRef);
-      const bindingRef = doc(db, "access", nextEmail);
-      const binding = await tx.get(bindingRef);
-      const oldBinding = editor.oldEmail
-        ? await tx.get(doc(db, "access", editor.oldEmail))
-        : null;
-      if (editor.id && !current.exists())
-        throw new Error("學生紀錄不存在，請重新讀取名單。");
-      if (binding.exists() && binding.data().studentId !== id)
-        throw new Error("此電郵已連結另一名學生，不能覆蓋。");
-      if (
-        oldBinding &&
-        (!oldBinding.exists() || oldBinding.data()?.studentId !== id)
-      )
-        throw new Error("電郵連結已變更，請重新讀取名單。");
-      const profile: CloudProfile = current.exists()
-        ? { ...(current.data() as CloudProfile), ...identity }
-        : {
-            ...identity,
-            nickname: identity.name.slice(0, 20),
-            avatar: "explorer",
-            configured: false,
-          };
-      tx.set(profileRef, profile);
-      tx.set(bindingRef, {
-        studentId: id,
-        enabled: binding.exists()
-          ? binding.data().enabled
-          : (oldBinding?.data()?.enabled ?? true),
-        testing: binding.exists() ? binding.data().testing === true : oldBinding?.data()?.testing === true,
-      });
-      if (editor.oldEmail && editor.oldEmail !== nextEmail)
-        tx.delete(doc(db, "access", editor.oldEmail));
-      tx.set(metaRef, { revision: revision + 1 });
-    });
+    const result = await commitEnrollmentChunk(db, [{ id, email: nextEmail, identity,
+      oldEmail: editor.oldEmail || undefined, requireExisting: !!editor.id, requireNew: !editor.id }], revision);
+    const preparation = await waitForEnrollmentPreparations(db, result.preparations);
     setEditor(null);
     setAddMode(null);
     setPlan([]);
     setNotice(
       editor.id
-        ? "學生資料已更新，原有進度及成績保留。"
-        : "已新增學生並連結登入電郵。"
+        ? "學生資料已更新，原有進度及成績保留。" + enrollmentNotice(preparation)
+        : "已新增學生並連結登入電郵。" + enrollmentNotice(preparation)
     );
     await refresh();
     await onChanged();
@@ -312,43 +279,13 @@ export default function AccountManager({
   }
   async function commit() {
     if (previewOnly) throw new Error("示範預覽：不會匯入真實帳戶。");
-    let expected = revision;
-    let saved = 0;
     try {
-      for (let offset = 0; offset < plan.length; offset += 100) {
-        const chunk = plan.slice(offset, offset + 100);
-        await runTransaction(db, async tx => {
-          const metaRef = doc(db, "metadata", "enrollment");
-          const meta = await tx.get(metaRef);
-          if ((meta.data()?.revision || 0) !== expected)
-            throw new Error("名單已被其他操作更新，請重新檢查匯入。");
-          for (const item of chunk) {
-            const prior = profiles.find(p => p.id === item.id)?.profile;
-            const { email, ...identity } = item.row;
-            const profile: CloudProfile = {
-              ...identity,
-              nickname: prior?.nickname || identity.name.slice(0, 20),
-              avatar: prior?.avatar || "explorer",
-              configured: prior?.configured || false,
-            };
-            tx.set(doc(db, "profiles", item.id), profile);
-            tx.set(doc(db, "access", email), {
-              studentId: item.id,
-              enabled: true,
-            }, { merge: true });
-          }
-          tx.set(metaRef, { revision: expected + 1 });
-        });
-        expected++;
-        saved += chunk.length;
-      }
-      setNotice(`已匯入 ${saved} 人。學生登入後會自動帶出身分。`);
-      setPlan([]);
-      setCsv("");
-    } catch (e) {
-      throw new Error(
-        `已完成 ${saved} 人；${e instanceof Error ? e.message : "未能完成"}。重新讀取名單後可重試。`
-      );
+      const result = await importStudentEnrollments(db, plan.map(item => {
+        const { email, ...identity } = item.row;
+        return { id: item.id, email, identity, enabled: true, requireExisting: item.existing, requireNew: !item.existing };
+      }), revision, saved => setNotice(`已匯入 ${saved} 人，正在準備抽卡資料。`));
+      setNotice(`已匯入 ${result.saved} 人。` + enrollmentNotice(result.report));
+      setPlan([]); setCsv("");
     } finally {
       await refresh();
       await onChanged();
@@ -356,17 +293,9 @@ export default function AccountManager({
   }
   async function link(email: string, studentId: string, enabled: boolean) {
     if (previewOnly) throw new Error("示範預覽：不會修改真實電郵連結。");
-    await runTransaction(db, async tx => {
-      const ref = doc(db, "metadata", "enrollment");
-      const meta = await tx.get(ref);
-      if ((meta.data()?.revision || 0) !== revision)
-        throw new Error("名單已變更，請重新載入後再操作。");
-      const profile = await tx.get(doc(db, "profiles", studentId));
-      const binding = await tx.get(doc(db, "access", email));
-      if (!profile.exists()) throw new Error("學生紀錄不存在。");
-      tx.set(doc(db, "access", email), { studentId, enabled, testing: binding.data()?.studentId === studentId && binding.data()?.testing === true });
-      tx.set(ref, { revision: revision + 1 });
-    });
+    const result = await commitEnrollmentChunk(db, [{ id: studentId, email, enabled, requireExisting: true }], revision);
+    const preparation = await waitForEnrollmentPreparations(db, result.preparations);
+    setNotice("登入連結已更新。" + enrollmentNotice(preparation));
     await refresh();
     setPlan([]);
   }
@@ -701,7 +630,6 @@ export default function AccountManager({
                       );
                     await link(clean, sid, true);
                     setEmail("");
-                    setNotice("已核准 Gmail，角色及進度共用同一份紀錄。");
                   });
                 }}
               >
@@ -744,6 +672,7 @@ export default function AccountManager({
           {addMode === "manual" && editorForm}
           {addMode === "requests" && (
             <AccessRequestManager
+        database={db}
               embedded
               previewOnly={previewOnly}
               onChanged={async () => {

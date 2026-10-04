@@ -64,6 +64,8 @@ jobs:
           # still runs before this artifact can reach Pages.
           VITE_RULES_ASSESSMENT_ENABLED: "1"
           VITE_ASSESSMENT_EMULATORS: "0"
+          # Draw has a separate approval and server eligibility gate.
+          VITE_CARD_DRAW_ENABLED: "1"
         run: pnpm build
 
       - name: Add SPA fallback

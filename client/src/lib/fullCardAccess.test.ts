@@ -40,7 +40,7 @@ test('active own binding is required; owner fallback is only the owner UID with 
   assert.equal(hasFullCardSessionAccess(claims(approved[1]), 'uid', 'uid', { enabled: false, studentId: 'uid' }), false);
 });
 
-test('full selection uses current enabled catalogue across roles; ordinary gifts stay unchanged', () => {
+test('full selection uses current enabled catalogue across roles; ordinary gifts are starter only', () => {
   assert.deepEqual(availableAccountCards(cards, profile).map(c => c.id), ['starter-explorer-boy']);
   assert.deepEqual(availableAccountCards(cards, profile, true).map(c => c.id), ['starter-explorer-boy', 'future-girl']);
   assert.equal(resolveAccountCard(cards, 'future-girl', profile), null);
@@ -49,7 +49,7 @@ test('full selection uses current enabled catalogue across roles; ordinary gifts
   const added = { ...cards[1], id: 'next-cms-card' };
   assert.equal(resolveAccountCard([...cards, added], added.id, profile, true)?.id, added.id);
   assert.deepEqual(giftCards('studentBoy', '2A'), ['starter-explorer-boy']);
-  assert.deepEqual(giftCards('studentGirl', '1E'), ['starter-explorer-girl', 'nile-explorer-girl']);
+  assert.deepEqual(giftCards('studentGirl', '1E'), ['starter-explorer-girl']);
 });
 
 test('background presentation follows selected cross-role card without mutating saved role or ownership', () => {

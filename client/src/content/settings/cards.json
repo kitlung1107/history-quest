@@ -162,5 +162,6 @@
       "backgroundId": "renaissance-art-studio",
       "enabled": true
     }
-  ]
+  ],
+  "drawPrice": 100
 }

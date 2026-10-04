@@ -43,7 +43,8 @@ service cloud.firestore {
     match /cardCatalog/{card} {
       // Only the separately reviewed privileged release tool can sync metadata.
       // No client (including the existing teacher) can mint catalogue entries.
-      allow read, write: if false;
+      allow get: if signed();
+      allow list, write: if false;
     }
     // Grade comes only from the teacher-managed profile, never the submitted payload.
     function rosterGrade(sid) {
@@ -88,28 +89,149 @@ service cloud.firestore {
         && d.avatar in ['explorer', 'scholar', 'archaeologist', 'navigator', 'studentBoy', 'studentGirl', 'detective', 'conservator', 'ancientScholar', 'cartographer'];
     }
     function starter(d) { return d.role == 'studentBoy' ? 'starter-explorer-boy' : 'starter-explorer-girl'; }
-    function nile(d) { return d.role == 'studentBoy' ? 'nile-explorer-boy' : 'nile-explorer-girl'; }
-    function gifts(d) { return d.className.matches('1[A-E]') ? [starter(d), nile(d)] : [starter(d)]; }
+    function gifts(d) { return [starter(d)]; }
     function collectionOK(d, sid) {
       return d.role in ['studentBoy', 'studentGirl']
         && d.ownedCardIds is list
         && d.ownedCardIds.size() == d.ownedCardIds.toSet().size()
-        && d.ownedCardIds.hasOnly([starter(d), nile(d)])
-        && d.ownedCardIds.hasAll([starter(d)])
         && selectedCardOK(d, sid);
     }
     function studentCollectionUpdate(sid) {
       let old = resource.data;
       let next = request.resource.data;
       return next.configured == true && collectionOK(next, sid)
-        && ((!('role' in old)
-          && next.ownedCardIds.toSet() == gifts(next).toSet()
-          && ((!('cardId' in old) && !('legacyCardId' in next)) || next.legacyCardId == old.cardId))
-        || ('role' in old && next.role == old.role
-          && next.ownedCardIds.hasAll(old.ownedCardIds)
-          && next.ownedCardIds.hasAll(gifts(next))
-          && next.ownedCardIds.hasOnly(old.ownedCardIds.concat(gifts(next)))
-          && !next.diff(old).affectedKeys().hasAny(['legacyCardId'])));
+        && (!('role' in old)
+          ? (next.ownedCardIds.toSet() == old.get('ownedCardIds', []).concat(gifts(next)).toSet()
+            && next.get('legacyCardId', '') == old.get('cardId', ''))
+          : (next.role == old.role
+            && next.ownedCardIds.toSet() == old.get('ownedCardIds', []).toSet()
+            && !next.diff(old).affectedKeys().hasAny(['legacyCardId'])));
+    }
+    // Teacher roster edits and privileged card selection cannot mint/revoke
+    // inventory. Browser draws must satisfy the separate atomic proof below.
+    function teacherCollectionUpdate() {
+      let old = resource.data;
+      let next = request.resource.data;
+      return !('role' in next)
+        ? (!('role' in old) && next.get('ownedCardIds', []) == old.get('ownedCardIds', []))
+        : (!('role' in old)
+          ? next.ownedCardIds.toSet() == old.get('ownedCardIds', []).concat(gifts(next)).toSet()
+          : (next.role == old.role && next.ownedCardIds.toSet() == old.get('ownedCardIds', []).toSet()));
+    }
+    // Browser-selected draw. Fair selection is a UI policy; all value and
+    // ownership invariants below remain authoritative in Security Rules.
+    // Trusted automatic audit accounts for every historical negative using a
+    // signed reserve. Clients cannot declare their own historical funds/debt.
+    function historicalDrawReserve(sid) {
+      return get(/databases/$(database)/documents/cardDrawEligibility/$(sid)).data.get('legacySpent', 0);
+    }
+    function drawWalletAuthorized(sid) {
+      let status = get(/databases/$(database)/documents/cardDraw/status).data;
+      let approval = get(/databases/$(database)/documents/cardDrawEligibility/$(sid)).data;
+      return status.enabled == true && status.protocolVersion == 1
+        && approval.walletModel == 'immutable-positive-rewards-v1'
+        && approval.openingBalance == 0 && approval.verified == true
+        && approval.get('legacySpent', 0) is int && approval.get('legacySpent', 0) >= 0
+        && approval.get('legacySpent', 0) <= 9007199254740991;
+    }
+    function emptyDrawWallet() {
+      return {'schemaVersion': 1, 'balance': 0, 'credited': 0, 'spent': 0,
+        'creditRevision': 0, 'drawRevision': 0, 'lastCreditId': '', 'lastRequestId': ''};
+    }
+    function drawWalletBefore(sid) {
+      return exists(/databases/$(database)/documents/coinAccounts/$(sid))
+        ? get(/databases/$(database)/documents/coinAccounts/$(sid)).data : emptyDrawWallet();
+    }
+    function drawWalletShape(w) {
+      return w.keys().hasOnly(['schemaVersion', 'balance', 'credited', 'spent', 'creditRevision', 'drawRevision', 'lastCreditId', 'lastRequestId'])
+        && w.schemaVersion == 1 && w.balance is int && w.balance >= 0
+        && w.credited is int && w.credited >= 0 && w.credited <= 9007199254740991
+        && w.spent is int && w.spent >= 0 && w.spent <= w.credited
+        && w.balance == w.credited - w.spent
+        && w.creditRevision is int && w.creditRevision >= 0 && w.creditRevision <= 9007199254740991
+        && w.drawRevision is int && w.drawRevision >= 0 && w.drawRevision <= 9007199254740991
+        && w.lastCreditId is string && w.lastRequestId is string;
+    }
+    // Each immutable positive reward can back the spend wallet exactly once.
+    // This moves no coins and edits no reward: it records a verified lower bound
+    // until the browser has claimed all of its existing positive ledger rows.
+    function creditClaimTransition(sid, creditId) {
+      let old = drawWalletBefore(sid);
+      let next = getAfter(/databases/$(database)/documents/coinAccounts/$(sid)).data;
+      let reward = get(/databases/$(database)/documents/coinAccounts/$(sid)/entries/$(creditId)).data;
+      let proof = getAfter(/databases/$(database)/documents/coinAccounts/$(sid)/creditClaims/$(creditId)).data;
+      return owns(sid) && creditId.matches('[A-Za-z0-9_-]{1,150}')
+        && drawWalletShape(old) && drawWalletShape(next)
+        && reward.kind in ['taskReward', 'gameReward'] && reward.amount is int && reward.amount > 0
+        && !exists(/databases/$(database)/documents/coinAccounts/$(sid)/creditClaims/$(creditId))
+        && proof.keys().hasOnly(['creditId', 'amount', 'revision', 'createdAt'])
+        && proof.creditId == creditId && proof.amount == reward.amount
+        && proof.revision == old.creditRevision + 1 && proof.createdAt == request.time
+        && next.creditRevision == old.creditRevision + 1 && next.lastCreditId == creditId
+        && next.credited == old.credited + reward.amount && next.balance == old.balance + reward.amount
+        && next.spent == old.spent && next.drawRevision == old.drawRevision
+        && next.lastRequestId == old.lastRequestId;
+    }
+    // Wallet forces a new receipt and matching debit. Receipt independently
+    // forces the exact profile change; each artifact validates its own fields.
+    // This proof graph avoids repeating every condition for all four writes.
+    function browserDrawTransition(sid, requestId) {
+      let old = drawWalletBefore(sid);
+      let next = getAfter(/databases/$(database)/documents/coinAccounts/$(sid)).data;
+      let receipt = getAfter(/databases/$(database)/documents/cardDrawReceipts/$(sid)/requests/$(requestId)).data;
+      let catalog = get(/databases/$(database)/documents/cardCatalog/current).data;
+      let debit = getAfter(/databases/$(database)/documents/coinAccounts/$(sid)/entries/$(('draw_' + requestId))).data;
+      let price = catalog.get('drawPrice', 100);
+      return owns(sid) && requestId.matches('[A-Za-z0-9_-]{3,80}')
+        && old.schemaVersion == 1 && old.balance is int && old.spent is int
+        && next.diff(old).affectedKeys().hasOnly(['balance', 'spent', 'drawRevision', 'lastRequestId'])
+        && price is int && price >= 1 && price <= 100000 && old.balance >= price + historicalDrawReserve(sid)
+        && !exists(/databases/$(database)/documents/cardDrawReceipts/$(sid)/requests/$(requestId))
+        && receipt.requestId == requestId && receipt.price == price && receipt.createdAt == request.time
+        && next.balance == old.balance - price && next.spent == old.spent + price
+        && next.drawRevision == old.drawRevision + 1 && next.drawRevision <= 9007199254740991
+        && next.lastRequestId == requestId
+        && receipt.balance == next.balance - historicalDrawReserve(sid) && receipt.revision == next.drawRevision
+        && debit.kind == 'cardDraw' && debit.requestId == requestId && debit.cardId == receipt.cardId
+        && debit.amount == -price && debit.createdAt == request.time;
+    }
+    function browserDrawReceipt(sid, requestId, receipt) {
+      let before = get(/databases/$(database)/documents/profiles/$(sid)).data;
+      let after = getAfter(/databases/$(database)/documents/profiles/$(sid)).data;
+      let catalog = get(/databases/$(database)/documents/cardCatalog/current).data;
+      let wallet = getAfter(/databases/$(database)/documents/coinAccounts/$(sid)).data;
+      let oldWallet = drawWalletBefore(sid);
+      return owns(sid) && requestId.matches('[A-Za-z0-9_-]{3,80}')
+        && receipt.keys().hasOnly(['requestId', 'cardId', 'price', 'balance', 'revision', 'role', 'catalogHash', 'clientCatalogHash', 'createdAt'])
+        && receipt.requestId == requestId && receipt.cardId is string && receipt.cardId.matches('[A-Za-z0-9_-]{3,80}')
+        && receipt.createdAt == request.time && receipt.price == catalog.get('drawPrice', 100)
+        && catalog.schemaVersion == 1 && receipt.catalogHash == catalog.sourceSha256
+        && receipt.clientCatalogHash == catalog.sourceSha256
+        && before.configured == true && before.role in ['studentBoy', 'studentGirl'] && receipt.role == before.role
+        && receipt.cardId in catalog.cards && catalog.cards[receipt.cardId].enabled == true
+        && catalog.cards[receipt.cardId].get('drawEnabled', true) == true && catalog.cards[receipt.cardId].role == before.role
+        && !(receipt.cardId in before.ownedCardIds)
+        && after.ownedCardIds.size() == after.ownedCardIds.toSet().size()
+        && after.ownedCardIds.toSet() == before.ownedCardIds.concat([receipt.cardId]).toSet()
+        && after.diff(before).affectedKeys().hasOnly(['ownedCardIds'])
+        && wallet.drawRevision == oldWallet.drawRevision + 1 && wallet.lastRequestId == requestId
+        && receipt.revision == wallet.drawRevision && receipt.balance == wallet.balance - historicalDrawReserve(sid);
+    }
+    function browserDrawDebit(sid, entry, debit) {
+      let receipt = getAfter(/databases/$(database)/documents/cardDrawReceipts/$(sid)/requests/$(debit.requestId)).data;
+      return owns(sid) && debit.keys().hasOnly(['kind', 'requestId', 'cardId', 'amount', 'createdAt'])
+        && debit.kind == 'cardDraw' && entry == 'draw_' + debit.requestId
+        && !exists(/databases/$(database)/documents/cardDrawReceipts/$(sid)/requests/$(debit.requestId))
+        && receipt.createdAt == request.time && debit.createdAt == request.time
+        && debit.cardId == receipt.cardId && debit.amount == -receipt.price;
+    }
+    function studentBrowserDrawUpdate(sid) {
+      let wallet = getAfter(/databases/$(database)/documents/coinAccounts/$(sid)).data;
+      let receipt = getAfter(/databases/$(database)/documents/cardDrawReceipts/$(sid)/requests/$(wallet.lastRequestId)).data;
+      return receipt.createdAt == request.time
+        && !exists(/databases/$(database)/documents/cardDrawReceipts/$(sid)/requests/$(wallet.lastRequestId))
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ownedCardIds'])
+        && request.resource.data.ownedCardIds.toSet() == resource.data.ownedCardIds.concat([receipt.cardId]).toSet();
     }
     match /access/{email} {
       allow get: if teacher() || (signed() && request.auth.token.email == email);
@@ -163,10 +285,12 @@ service cloud.firestore {
     }
     match /profiles/{sid} {
       allow read: if teacher() || owns(sid);
-      allow create: if teacher() && profileOK(request.resource.data, sid) && request.resource.data.className.matches('([1-3][A-E]|S[4-6]|Other)');
-      allow update: if profileOK(request.resource.data, sid) && (request.resource.data.className.matches('([1-3][A-E]|S[4-6]|Other)') || request.resource.data.className == resource.data.className) && (teacher() || (owns(sid)
+      allow create: if teacher() && profileOK(request.resource.data, sid)
+        && (!('role' in request.resource.data) || request.resource.data.ownedCardIds.toSet() == gifts(request.resource.data).toSet())
+        && request.resource.data.className.matches('([1-3][A-E]|S[4-6]|Other)');
+      allow update: if profileOK(request.resource.data, sid) && (request.resource.data.className.matches('([1-3][A-E]|S[4-6]|Other)') || request.resource.data.className == resource.data.className) && ((teacher() && teacherCollectionUpdate()) || (owns(sid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nickname', 'configured', 'cardId', 'role', 'ownedCardIds', 'legacyCardId'])
-        && studentCollectionUpdate(sid)));
+        && (studentCollectionUpdate(sid) || studentBrowserDrawUpdate(sid))));
     }
     match /submissions/{attempt} {
       allow get: if teacher() || (resource == null && signed()) || owns(resource.data.studentId);
@@ -315,6 +439,72 @@ service cloud.firestore {
       allow read: if teacher();
       allow write: if false;
     }
+    // Local proposal: no generic wallet writes or extra administrator rights.
+    match /cardDraw/{key} { allow get: if signed(); allow list, write: if false; }
+    // Restricted, explicitly approved teacher certifier. A full history audit is
+    // trusted to the existing verified Google Kitlung teacher; students and the
+    // Tang full-card account never obtain this authority. No money is writable.
+    function teacherDrawCertificate(sid) {
+      let d = request.resource.data;
+      let before = exists(/databases/$(database)/documents/metadata/enrollment)
+        ? get(/databases/$(database)/documents/metadata/enrollment).data.get('revision', 0) : 0;
+      let revision = getAfter(/databases/$(database)/documents/metadata/enrollment).data.revision;
+      let access = getAfter(/databases/$(database)/documents/access/$(d.email)).data;
+      return teacher() && sid.matches('[A-Za-z0-9_-]{1,150}')
+        && d.keys().hasOnly(['verified','walletModel','openingBalance','legacySpent','legacyDebits','ledgerHash','entryCount','verifiedAtLedgerBalance','studentId','email','enrollmentRevision','nonce','protocol','verifiedAt'])
+        && d.verified == true && d.walletModel == 'immutable-positive-rewards-v1' && d.openingBalance == 0
+        && d.protocol == 'teacher-browser-ledger-audit/1' && d.verifiedAt == request.time
+        && d.studentId == sid && d.email is string && d.email.size() >= 3 && d.email.size() <= 254
+        && d.nonce is string && d.nonce.matches('[A-Za-z0-9_-]{3,150}')
+        && d.legacySpent is int && d.legacySpent >= 0 && d.legacySpent <= 9007199254740991
+        && d.legacyDebits is map && d.entryCount is int && d.entryCount >= 0 && d.entryCount <= 10000
+        && d.ledgerHash is string && d.ledgerHash.matches('[a-f0-9]{64}')
+        && d.verifiedAtLedgerBalance is int && d.verifiedAtLedgerBalance >= -9007199254740991 && d.verifiedAtLedgerBalance <= 9007199254740991
+        && d.enrollmentRevision is int && d.enrollmentRevision == revision && revision == before + 1
+        && access.studentId == sid && access.enabled == true
+        && existsAfter(/databases/$(database)/documents/profiles/$(sid));
+    }
+    match /cardDrawEligibility/{sid} {
+      allow get: if owns(sid) || teacher();
+      allow create: if teacherDrawCertificate(sid);
+      allow update: if resource.data.get('verified', false) != true && teacherDrawCertificate(sid);
+      allow list, delete: if false;
+    }
+    function qualificationRequestOK(sid) {
+      let d = request.resource.data;
+      let status = get(/databases/$(database)/documents/cardDraw/status).data;
+      return owns(sid) && sid.matches('[A-Za-z0-9_-]{1,150}')
+        && status.enabled == true && status.protocolVersion == 1 && status.get('automaticQualificationEnabled', false) == true
+        && d.keys().hasOnly(['studentId','uid','email','nonce','status','requestedAt'])
+        && d.studentId == sid && d.uid == request.auth.uid && d.email == request.auth.token.email
+        && d.nonce is string && d.nonce.matches('[A-Za-z0-9_-]{3,80}')
+        && d.status == 'pending' && d.requestedAt == request.time;
+    }
+    match /cardDrawQualificationRequests/{sid} {
+      allow get: if owns(sid) || teacher();
+      allow list, delete: if false;
+      allow create: if qualificationRequestOK(sid);
+      allow update: if qualificationRequestOK(sid) && request.resource.data.nonce != resource.data.nonce
+        && request.time >= resource.data.requestedAt + duration.value(30, 's');
+    }
+    match /cardDrawReceipts/{sid}/requests/{requestId} {
+      allow read: if teacher() || owns(sid);
+      allow create: if browserDrawReceipt(sid, requestId, request.resource.data);
+      allow update, delete: if false;
+    }
+    match /coinAccounts/{sid} {
+      allow read: if teacher() || owns(sid);
+      allow create: if drawWalletAuthorized(sid) && creditClaimTransition(sid, request.resource.data.lastCreditId);
+      allow update: if drawWalletAuthorized(sid) && (request.resource.data.creditRevision == resource.data.creditRevision + 1
+        ? creditClaimTransition(sid, request.resource.data.lastCreditId)
+        : browserDrawTransition(sid, request.resource.data.lastRequestId));
+      allow delete: if false;
+    }
+    match /coinAccounts/{sid}/creditClaims/{creditId} {
+      allow read: if teacher() || owns(sid);
+      allow create: if creditClaimTransition(sid, creditId);
+      allow update, delete: if false;
+    }
     match /coinAccounts/{sid}/entries/{entry} {
       allow read: if teacher() || owns(sid);
       function submissionEvidence(d) {
@@ -338,7 +528,9 @@ service cloud.firestore {
         && ((request.resource.data.kind == 'taskReward' && submissionEvidence(request.resource.data))
           || (request.resource.data.kind == 'gameReward' && gameEvidence(request.resource.data)));
       }
-      allow create: if positiveReward();
+      allow create: if request.resource.data.kind == 'cardDraw'
+        ? browserDrawDebit(sid, entry, request.resource.data)
+        : positiveReward();
       allow update: if resource.data.amount == 0 && positiveReward();
       allow delete: if false;
     }

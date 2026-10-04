@@ -102,7 +102,7 @@ test('fixed student role, earned collection, identity and legacy fields remain p
 test('first role setup can select a cross-role card while receiving only normal gifts', async () => {
   await admin(db => setDoc(doc(db, 'profiles', 'tang-profile'), { className: '1A', studentNo: '01', name: 'Test Student', nickname: 'Explorer', avatar: 'explorer', configured: false }));
   await assertSucceeds(updateDoc(doc(dbFor(tang), 'profiles', 'tang-profile'), {
-    configured: true, role: 'studentBoy', ownedCardIds: ['starter-explorer-boy', 'nile-explorer-boy'], cardId: 'future-cms-girl',
+    configured: true, role: 'studentBoy', ownedCardIds: ['starter-explorer-boy'], cardId: 'future-cms-girl',
   }));
 });
 test('legacy onboarding cannot use retained-selection exception to activate an unknown old card', async () => {
@@ -119,14 +119,15 @@ test('existing owner without access/profile may create own profile only; no stud
   await assertFails(setDoc(doc(dbFor(owner), 'profiles', 'unrelated'), { ...base, cardId: 'future-cms-girl' }));
   await assertFails(setDoc(doc(dbFor(tang), 'profiles', 'new-profile'), base));
 });
-test('atomic catalogue replacement handles new, removed, disabled cards; old selection does not break top-ups', async () => {
+test('atomic catalogue replacement handles new, removed, disabled cards; old selection remains editable without new grants', async () => {
   const ref = doc(dbFor(tang), 'profiles', 'tang-profile');
   await assertSucceeds(updateDoc(ref, { cardId: 'future-cms-girl' }));
   await admin(async db => {
     await setDoc(doc(db, 'cardCatalog', 'current'), buildCardCatalog({ cards: [...source.cards, { id: 'next-cms-boy', role: 'studentBoy', enabled: true }] }));
     await updateDoc(doc(db, 'profiles', 'tang-profile'), { className: '1A' });
   });
-  await assertSucceeds(updateDoc(ref, { ownedCardIds: ['starter-explorer-boy', 'nile-explorer-boy'] }));
+  await assertFails(updateDoc(ref, { ownedCardIds: ['starter-explorer-boy', 'nile-explorer-boy'] }));
+  await assertSucceeds(updateDoc(ref, { ownedCardIds: ['starter-explorer-boy'] }));
   await assertSucceeds(updateDoc(doc(dbFor(owner), 'profiles', 'tang-profile'), { nickname: 'Roster edit' }));
   await assertSucceeds(updateDoc(ref, { cardId: 'next-cms-boy' }));
   await assertFails(updateDoc(ref, { cardId: 'future-cms-girl' }));

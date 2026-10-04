@@ -6,6 +6,7 @@ export type ExplorerCard = {
   name: string;
   image: string;
   enabled: boolean;
+  drawEnabled?: boolean;
   role: StudentRole;
   edition: "starter" | "nile" | "stone-age" | "wwi-s3" | "wwi-s4" | "hk-port" | "age-of-discovery" | "kabuki" | "renaissance";
   /** Shared CMS background reference; older cards have no assignment. */
@@ -14,12 +15,13 @@ export type ExplorerCard = {
 export function isStudentRole(value: unknown): value is StudentRole {
   return value === "studentBoy" || value === "studentGirl";
 }
-export function giftCards(role: StudentRole, className: string): string[] {
-  const suffix = role === "studentBoy" ? "boy" : "girl";
-  return [
-    `starter-explorer-${suffix}`,
-    ...(/^1[A-E]$/.test(className) ? [`nile-explorer-${suffix}`] : []),
-  ];
+export function giftCards(role: StudentRole, _className: string): string[] {
+  return [role === "studentBoy" ? "starter-explorer-boy" : "starter-explorer-girl"];
+}
+/** Preserve every existing holding; initialization never replaces inventory. */
+export function initialOwnedCards(collection: CardCollection, role: StudentRole, className: string): string[] {
+  return collection.role ? [...(collection.ownedCardIds ?? [])]
+    : Array.from(new Set([...(collection.ownedCardIds ?? []), ...giftCards(role, className)]));
 }
 export function availableCards(
   cards: readonly ExplorerCard[],

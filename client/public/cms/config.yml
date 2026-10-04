@@ -57,12 +57,19 @@ collections:
         label: 收藏卡上載、排序與啟用
         file: client/src/content/settings/cards.json
         fields:
+          - label: 每次抽卡探索幣
+            name: drawPrice
+            widget: number
+            value_type: int
+            min: 1
+            max: 100000
+            default: 100
           - label: 收藏卡
             name: cards
             widget: list
             required: false
             summary: "{{fields.name}}"
-            hint: 只展示固定角色已擁有的卡。停用卡不會自動換成其他卡；新增卡款需同步安全規則與發放模型。
+            hint: 普通學生只展示已擁有的卡。可供抽取卡按同性別、不限年級、尚未擁有的卡等機率抽取；設定須經受信任卡目錄發布後才生效。
             fields:
               - label: 永久識別碼
                 name: id
@@ -109,6 +116,12 @@ collections:
                 multiple: false
                 required: false
                 hint: 先到「首頁背景庫」新增背景，再按名稱選取。多張卡可選同一背景，毋須重複上載；留空或配對失效時使用「網站與首頁設定」的首頁預設背景。
+              - label: 可供抽取
+                name: drawEnabled
+                widget: boolean
+                default: true
+                required: false
+                hint: 停用抽取不會撤回任何既有持卡。正式啟用須另行批准 Rules 及權威卡目錄發布。
               - label: 可供學生選用
                 name: enabled
                 widget: boolean

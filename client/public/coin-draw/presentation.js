@@ -1,17 +1,19 @@
-// Presentation only: no account, wallet, lottery pool, persistence or card grants.
+// Animation is a presentation client. Integrated local mode waits for a committed server receipt.
 const $=id=>document.getElementById(id),canvas=$('scene'),ctx=canvas.getContext('2d');
 const demo=['127.0.0.1','localhost','[::1]'].includes(location.hostname)&&new URLSearchParams(location.search).get('mode')==='demo';
+const integrated=['127.0.0.1','localhost','[::1]'].includes(location.hostname)&&new URLSearchParams(location.search).get('mode')==='integrated';
+const active=demo||integrated;
 const W=1205,H=960,AX={x:630,y:550},START=-55*Math.PI/180;
-const art={},names=['scene-no-tray',...(demo?['scene-present','card-back','card-white','card-art']:[])];
+const art={},names=['scene-no-tray',...(active?['scene-present','card-back','card-white','card-art']:[])];
 let current=null,phase='loading',token=0,locked=false,speed=1,model=initialModel();
 const media=matchMedia('(prefers-reduced-motion: reduce)'),reduced=()=>media.matches;
 const stats={paintedFrames:0,angles:[],growth:[],push:[],poses:[],fall:[]};
 const easing=t=>t*t*(3-2*t),mix=(a,b,t)=>a+(b-a)*t,clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
-$('feature-status').textContent=demo?'效果示範，不扣探索幣或派發卡片':'抽卡功能尚未啟用，不會扣探索幣或派發卡片';
+$('feature-status').textContent=integrated?'本機隔離示範；交易成功後播放':demo?'效果示範，不扣探索幣或派發卡片':'抽卡功能尚未啟用，不會扣探索幣或派發卡片';
 function say(s){$('caption').textContent=s;}
-function controls(){$('start').hidden=phase!=='idle';$('start').disabled=!demo||locked;$('join').hidden=phase!=='revealed';$('resume').hidden=phase!=='paused';}
+function controls(){$('start').hidden=phase!=='idle';$('start').disabled=!active||locked;$('join').hidden=phase!=='revealed';$('resume').hidden=phase!=='paused';}
 async function savePhase(){} // Deliberately no result saving or transaction in a UI-only effect.
-function halt(){if(!demo||!current)return;token++;locked=false;model.pageGlow=0;phase='paused';controls();paint();say('效果示範已暫停。');}
+function halt(){if(!active||!current)return;token++;locked=false;model.pageGlow=0;phase='paused';controls();paint();say('效果示範已暫停。');}
 function initialModel(){return {angle:0,push:0,fall:0,land:0,grow:0,pageGlow:0,cardGlow:1,reveal:0,approach:0,reach:0,grip:0,shakeX:0,shakeY:0};}
 function isPresent(){return ['screenfade','cardfade','revealing','revealed'].includes(phase)||(phase==='growing'&&model.grow>.965);}
 function background(){ctx.drawImage(art[isPresent()?'scene-present':'scene-no-tray'],0,0,W,H);if(!isPresent()&&(model.shakeX||model.shakeY)){ctx.save();ctx.beginPath();ctx.roundRect(185,150,510,615,25);ctx.clip();ctx.translate(model.shakeX||0,model.shakeY||0);ctx.drawImage(art['scene-no-tray'],0,0,W,H);ctx.restore();}}
@@ -44,7 +46,7 @@ function paint(){
  if(phase==='landing'){floorShadow(1);littleCard(landedCard(model.land));const a=Math.sin(Math.PI*model.land);ctx.save();ctx.globalAlpha=a;strokeLine(474,896,463-8*a,888,'#e8ab34',3);strokeLine(558,897,568+8*a,890,'#e8ab34',3);ctx.restore();}
  if(phase==='growing'){const r=cardRect(),flip=clamp(model.grow/.19),cos=Math.cos(flip*Math.PI);drawCard(flip<.5?art['card-back']:art['card-white'],r,cos,flip>=.5?1:0);}
  if(phase==='screenfade'||phase==='cardfade')drawCard(art['card-white'],finalRect,1,model.cardGlow);
- if(phase==='revealing'||phase==='revealed'){drawCard(art['card-white'],finalRect);ctx.save();ctx.globalAlpha=model.reveal;drawCard(resultCardImage(),finalRect);ctx.restore();}
+ if(phase==='revealing'||phase==='revealed'){drawCard(art['card-white'],finalRect);ctx.save();ctx.globalAlpha=model.reveal;if(!integrated)drawCard(resultCardImage(),finalRect);ctx.restore();}
  if(!['growing','screenfade','cardfade'].includes(phase))model.pageGlow=0;$('white-overlay').style.opacity=String(model.pageGlow);stats.paintedFrames++;canvas.dataset.phase=phase;canvas.dataset.angle=String(model.angle);canvas.dataset.card=JSON.stringify(cardRect());canvas.dataset.pageGlow=String(model.pageGlow);
 }
 
@@ -80,14 +82,28 @@ async function reveal(){
  await completeReveal();
 }
 
-async function completeReveal(){if(!demo)return;phase='revealed';locked=false;model.grow=1;model.reveal=1;model.pageGlow=0;model.cardGlow=0;controls();paint();say('示範揭卡效果；沒有派發卡片。');$('join').focus({preventScroll:true});}
-async function start(){if(!demo||locked||phase!=='idle')return;current={cardId:'effect-sample'};await playButton();}
-function join(){if(!demo||phase!=='revealed'||locked)return;token++;current=null;phase='idle';model=initialModel();controls();paint();say('');$('start').focus({preventScroll:true});}
+async function completeReveal(){if(!active)return;phase='revealed';locked=false;model.grow=1;model.reveal=1;model.pageGlow=0;model.cardGlow=0;controls();paint();if(integrated){$('result-card-host').dataset.revealed='true';say('新卡已保存；加入卡片庫只返回，不會再次派卡或更換展示卡。');}else say('示範揭卡效果；沒有派發卡片。');$('join').focus({preventScroll:true});}
+async function start(){if(!active||locked||phase!=='idle')return;
+ if(integrated){locked=true;phase='purchasing';controls();say('正在確認抽卡，成功後才播放……');parent.postMessage({kind:'coin-draw-request'},location.origin);return;}
+ current={cardId:'effect-sample'};await playButton();}
+function join(){if(!active||phase!=='revealed'||locked)return;if(integrated){$('result-card-host').dataset.revealed='false';parent.postMessage({kind:'coin-draw-return'},location.origin);}token++;current=null;phase='idle';model=initialModel();controls();paint();say('');$('start').focus({preventScroll:true});}
 const overlay=document.createElement('div');overlay.id='white-overlay';overlay.setAttribute('aria-hidden','true');document.body.append(overlay);
-$('start').onclick=start;$('join').onclick=join;$('resume').onclick=()=>{if(demo&&phase==='paused')playButton();};
+$('start').onclick=start;$('join').onclick=join;$('resume').onclick=()=>{if(active&&phase==='paused')playButton();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!['idle','loading','paused','revealed'].includes(phase))halt();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&!['idle','loading','paused','revealed'].includes(phase))halt();});
 media.addEventListener('change',()=>{if(reduced()&&current&&!['idle','loading','paused','revealed'].includes(phase)){token++;model.shakeX=0;model.shakeY=0;completeReveal();}});
-window.coinDrawPresentation={get phase(){return phase;},get mode(){return demo?'demo':'unavailable';},get stats(){return stats;},get model(){return {...model};}};
+window.addEventListener('message',event=>{
+ if(!integrated||event.origin!==location.origin||event.source!==parent)return;
+ if(event.data?.kind==='coin-draw-committed'&&['idle','purchasing'].includes(phase)){
+   if(typeof event.data.cardId!=='string'||typeof event.data.requestId!=='string')return;
+   current={cardId:event.data.cardId,requestId:event.data.requestId};void playButton();
+ }
+ if(event.data?.kind==='coin-draw-error'&&phase==='purchasing'){locked=false;phase='idle';controls();say(String(event.data.message||'請重試。'));}
+ if(event.data?.kind==='coin-draw-config'&&Number.isSafeInteger(event.data.price)&&event.data.price>0){
+   const label=event.data.price+'探索幣一次';$('start').setAttribute('aria-label',label);
+   if(event.data.price!==100){$('start').querySelector('img').hidden=true;const span=document.createElement('span');span.textContent=label;$('start').replaceChildren(span);}
+ }
+});
+window.coinDrawPresentation={get phase(){return phase;},get mode(){return integrated?'integrated':demo?'demo':'unavailable';},get stats(){return stats;},get model(){return {...model};}};
 try{await Promise.all(names.map(name=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{art[name]=img;resolve();};img.onerror=()=>reject(new Error('抽卡畫面未能載入，請重新整理。'));img.src='./assets/'+(name==='card-back'?'card-back-clean':name)+'.png';})));await Promise.all([...document.querySelectorAll('#teacher-actor img')].map(img=>img.decode()));phase='idle';controls();paint();}catch(e){say(e.message);$('start').disabled=true;}
 const reportSize=()=>parent.postMessage({kind:'coin-draw-size',height:Math.ceil(document.body.getBoundingClientRect().height)},location.origin);new ResizeObserver(reportSize).observe(document.body);reportSize();

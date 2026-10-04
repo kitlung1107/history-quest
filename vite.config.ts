@@ -1,4 +1,5 @@
 import { assessmentContentPlugin } from "./integration/assessment/public-content-plugin.mjs";
+import { cardDrawVersionPlugin } from "./scripts/card-draw-version-plugin.mjs";
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
@@ -205,7 +206,7 @@ function vitePluginStorageProxy(): Plugin {
 }
 
 // Do not record authenticated students' sessions or network payloads.
-const plugins = [assessmentContentPlugin(PROJECT_ROOT), react(), tailwindcss(), jsxLocPlugin()];
+const plugins = [cardDrawVersionPlugin(PROJECT_ROOT), assessmentContentPlugin(PROJECT_ROOT), react(), tailwindcss(), jsxLocPlugin()];
 
 export default defineConfig({
   // GitHub Pages 使用儲存庫子路徑；本機與 Manus 預覽維持根路徑。
