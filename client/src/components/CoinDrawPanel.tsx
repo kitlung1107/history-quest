@@ -14,7 +14,10 @@ import {
 } from "@/lib/localDrawClient";
 import type { CloudProfile } from "@/contexts/StudentAccount";
 import { useOptionalStudentAccount } from "@/contexts/StudentAccount";
-import { db } from "@/lib/firebase";
+import { db, OWNER_EMAIL } from "@/lib/firebase";
+import { doc, getDocFromServer } from "firebase/firestore";
+import { commitEnrollmentChunk } from "@/lib/enrollment";
+import { isDrawCertified } from "@/lib/drawQualification";
 import { createCardDrawClient } from "@/lib/cardDrawClient";
 import cardStyles from "@/cards.css?inline";
 import { CLIENT_CARD_DRAW_PRICE } from "virtual:card-draw-catalog";
@@ -39,6 +42,12 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
     demo &&
     ["localhost", "127.0.0.1"].includes(location.hostname);
   const account = useOptionalStudentAccount();
+  const teacherSelf =
+    account?.teacher &&
+    account.user.email === OWNER_EMAIL &&
+    account.studentId === account.user.uid;
+  const [teacherPrepared, setTeacherPrepared] = useState(false);
+  const [preparingTeacher, setPreparingTeacher] = useState(false);
   const accountClient = useMemo(
     () =>
       account?.studentId
@@ -61,8 +70,49 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
     const state = local ? await localDrawState() : await accountClient!.state();
     setProfile(state.profile);
     setBalance(state.balance);
+    if (!local && teacherSelf)
+      setTeacherPrepared(
+        isDrawCertified(
+          (
+            await getDocFromServer(
+              doc(db, "cardDrawEligibility", account!.studentId)
+            )
+          ).data()
+        )
+      );
     setRecover(!!(local ? pendingLocalDraw() : accountClient!.pending()));
     return state;
+  };
+  const prepareTeacher = async () => {
+    if (!teacherSelf || preparingTeacher || busy.current) return;
+    setPreparingTeacher(true);
+    setError("");
+    try {
+      const revision =
+        (await getDocFromServer(doc(db, "metadata", "enrollment"))).data()
+          ?.revision || 0;
+      await commitEnrollmentChunk(
+        db,
+        [
+          {
+            id: account!.user.uid,
+            email: OWNER_EMAIL,
+            enabled: true,
+            requireExisting: true,
+          },
+        ],
+        revision
+      );
+      await refresh();
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "未能準備本人抽卡資料；未扣款。"
+      );
+    } finally {
+      setPreparingTeacher(false);
+    }
   };
   const draw = async () => {
     if (!active || busy.current) return;
@@ -98,7 +148,7 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
   useEffect(() => {
     let disposed = false;
     if (active)
-      void refresh().catch((e) => {
+      void refresh().catch(e => {
         if (!disposed) setError(e.message);
       });
     const receive = (event: MessageEvent) => {
@@ -186,6 +236,18 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
           )}
         </section>
       )}
+      {!local && teacherSelf && !teacherPrepared && (
+        <div className="my-4 border-2 p-3">
+          <p>老師帳戶首次抽卡前，先準備本人的抽卡資料；不會派幣或派卡。</p>
+          <button
+            className="pixel-button pixel-button-paper mt-2"
+            disabled={preparingTeacher}
+            onClick={() => void prepareTeacher()}
+          >
+            {preparingTeacher ? "正在準備…" : "準備我的抽卡資料"}
+          </button>
+        </div>
+      )}
       <iframe
         ref={frame}
         onLoad={setupFrame}
@@ -200,7 +262,7 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
         profile &&
         createPortal(
           <ExplorerCard
-            card={EXPLORER_CARDS.find((c) => c.id === receipt.cardId) ?? null}
+            card={EXPLORER_CARDS.find(c => c.id === receipt.cardId) ?? null}
             profile={profile}
           />,
           host
