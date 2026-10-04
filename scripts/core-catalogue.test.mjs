@@ -355,7 +355,34 @@ test("REST core adapter rejects collection listing and needs only exact document
   await assert.rejects(s.read("taskAccess"), /Non-core/);
 });
 test("migration seed and current CMS supply explicit IDs without fixing future task or question counts", async () => {
-  const source = await localCoreSource();
+  // This source-shape test must also run in a clean checkout. The private
+  // resolver supplies synthetic values; real answer keys stay outside Git.
+  const resolved = [];
+  const source = await localCoreSource(undefined, {
+    resolvePrivate: async task => {
+      resolved.push(task.task_id);
+      return {
+        privateKey: {
+          taskId: task.task_id,
+          version: task.assessmentVersion,
+          questions: task.questions.map(question => ({
+            id: question.id,
+            answer: question.type === "choice" ? 0 : null,
+          })),
+        },
+        metadata: {
+          taskId: task.task_id,
+          version: task.assessmentVersion,
+          questions: structuredClone(task.questions),
+        },
+      };
+    },
+  });
+  const publicSource = await localCoreSource(undefined, { publicOnly: true });
+  assert.deepEqual(
+    resolved.sort(),
+    publicSource.publicTasks.filter(task => task.privateVersion).map(task => task.id).sort()
+  );
   assert.ok(
     source.knownTasks.some(t => t.id === "S1_AncientCivilisations_EgyptQuiz")
   );
