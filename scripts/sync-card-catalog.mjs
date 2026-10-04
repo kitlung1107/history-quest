@@ -30,7 +30,7 @@ if (!apply) {
   let request;
   if (emulator) {
     assert.match(emulator, /^(127\.0\.0\.1|localhost):\d+$/, 'Emulator must use loopback');
-    assert.equal(project, 'demo-full-card-access', 'Emulator applies are restricted to demo-full-card-access');
+    assert.ok(['demo-full-card-access','demo-browser-draw-preview'].includes(project), 'Emulator applies are restricted to the named synthetic catalogue/draw projects');
     request = async (method, resource, body) => {
       const response = await fetch(`http://${emulator}/v1/${resource}`, {
         method, headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },

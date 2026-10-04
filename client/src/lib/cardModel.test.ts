@@ -21,7 +21,7 @@ const cards: ExplorerCard[] = ["boy", "girl"].flatMap(sex =>
       }) as ExplorerCard
   )
 );
-test("all six grades receive own starter; only form one receives own Nile", () => {
+test("all six grades receive only their own starter", () => {
   for (const role of ["studentBoy", "studentGirl"] as const)
     for (const c of [
       "1A",
@@ -36,7 +36,7 @@ test("all six grades receive own starter; only form one receives own Nile", () =
       "6E",
     ]) {
       const gifts = giftCards(role, c);
-      assert.equal(gifts.length, c.startsWith("1") ? 2 : 1);
+      assert.equal(gifts.length, 1);
       assert.ok(
         gifts.every(id => id.endsWith(role === "studentBoy" ? "boy" : "girl"))
       );

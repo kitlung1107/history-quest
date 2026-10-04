@@ -25,6 +25,7 @@ import { EXPLORER_CARDS } from "@/lib/cards";
 import { hasFullCardSessionAccess, resolveAccountCard } from "@/lib/fullCardAccess";
 import {
   giftCards,
+  initialOwnedCards,
   isStudentRole,
   STUDENT_ROLES,
   type StudentRole,
@@ -114,24 +115,6 @@ function AuthenticatedAccountGate({
       const result = await getDoc(doc(db, "profiles", studentId));
       if (!isCurrent()) return;
       let profile = result.exists() ? (result.data() as CloudProfile) : null;
-      if (!teacher && isStudentRole(profile?.role)) {
-        profile = await runTransaction(db, async tx => {
-          const ref = doc(db, "profiles", studentId);
-          const latest = await tx.get(ref);
-          const current = latest.data() as CloudProfile;
-          if (!isStudentRole(current?.role)) return current;
-          const ownedCardIds = Array.from(
-            new Set([
-              ...(current.ownedCardIds || []),
-              ...giftCards(current.role, current.className),
-            ])
-          );
-          if (ownedCardIds.length !== current.ownedCardIds?.length)
-            tx.update(ref, { ownedCardIds });
-          return { ...current, ownedCardIds };
-        });
-        if (!isCurrent()) return;
-      }
       if (!teacher && profile) {
         await runTransaction(db, async tx => {
           const ref = doc(db, "studentLogins", studentId);
@@ -348,12 +331,7 @@ export function ProfileForm({ onDone }: { onDone?: () => void }) {
           if (!isStudentRole(profile.role)) throw new Error("請選擇角色。");
           if (current.role && current.role !== profile.role)
             throw new Error("角色已鎖定，請重新載入。");
-          const ownedCardIds = Array.from(
-            new Set([
-              ...(current.role ? current.ownedCardIds || [] : []),
-              ...giftCards(profile.role, current.className),
-            ])
-          );
+          const ownedCardIds = initialOwnedCards(current, profile.role, current.className);
           if (
             !resolveAccountCard(EXPLORER_CARDS, profile.cardId, {
               role: profile.role,

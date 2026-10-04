@@ -1,5 +1,5 @@
 import {doc,getDoc as firestoreGetDoc,getDocFromServer,runTransaction as firestoreRunTransaction,serverTimestamp,type Firestore} from 'firebase/firestore';
-import {coinAward,defaultCoinRule,type CoinRule} from './coinModel';
+import {coinAward,defaultCoinRule,type CoinRule} from './coinModel.ts';
 export type PublicQuestion={id:string;type:'choice'|'short';prompt:string;points:number;options?:string[];image?:string;imagePosition?:{x:number;y:number}};
 export type PublicAssessment={taskId:string;version:string;title:string;questions:PublicQuestion[];questionCount:number;shortCount:number;totalPoints:number};
 export type RawAnswer={question_id:string;value:number|string};
@@ -38,6 +38,7 @@ export function requireLocal(db:Firestore){
   const host=delegate._getSettings?.().host??delegate._settings?.host;
   const project=delegate.app.options.projectId;
   if(project?.startsWith('demo-rules-rewards')&&['127.0.0.1:8191','localhost:8191'].includes(host))return;
+  if(['demo-browser-draw-preview','demo-browser-draw-tests','demo-teacher-sync-rewards'].includes(project)&&['127.0.0.1:8185','localhost:8185'].includes(host))return;
   if(import.meta.env?.VITE_RULES_ASSESSMENT_ENABLED==='1'&&project==='history-discovery-center'&&host==='firestore.googleapis.com')return;
   throw new Error('此評分傳輸尚未啟用；只容許本機 demo 或已批准的正式設定。');
 }

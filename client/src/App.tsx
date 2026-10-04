@@ -41,6 +41,9 @@ const RolePreview = import.meta.env.DEV
 const LocalCoinDrawDemo = import.meta.env.DEV
   ? lazy(() => import("./pages/LocalCoinDrawDemo"))
   : null;
+const LocalEnrollmentDemo = import.meta.env.DEV
+  ? lazy(() => import("./pages/LocalEnrollmentDemo"))
+  : null;
 
 function SessionContent({ children }: { children: React.ReactNode }) {
   const account = useOptionalStudentAccount();
@@ -75,6 +78,7 @@ function GameLanding() {
 function Routes() {
   return (
     <Switch>
+      {LocalEnrollmentDemo && <Route path="/__enrollment-demo"><Suspense fallback={<p>載入名單示範…</p>}><LocalEnrollmentDemo /></Suspense></Route>}
       {LocalCoinDrawDemo && (
         <Route path="/__coin-draw-demo">
           <Suspense fallback={<p>載入抽卡畫面…</p>}>
