@@ -1,7 +1,7 @@
 // Animation is a presentation client. Integrated local mode waits for a committed server receipt.
 const $=id=>document.getElementById(id),canvas=$('scene'),ctx=canvas.getContext('2d');
 const demo=['127.0.0.1','localhost','[::1]'].includes(location.hostname)&&new URLSearchParams(location.search).get('mode')==='demo';
-const integrated=['127.0.0.1','localhost','[::1]'].includes(location.hostname)&&new URLSearchParams(location.search).get('mode')==='integrated';
+const integrated=new URLSearchParams(location.search).get('mode')==='integrated';
 const active=demo||integrated;
 const W=1205,H=960,AX={x:630,y:550},START=-55*Math.PI/180;
 const art={},names=['scene-no-tray',...(active?['scene-present','card-back','card-white','card-art']:[])];
@@ -9,7 +9,7 @@ let current=null,phase='loading',token=0,locked=false,speed=1,model=initialModel
 const media=matchMedia('(prefers-reduced-motion: reduce)'),reduced=()=>media.matches;
 const stats={paintedFrames:0,angles:[],growth:[],push:[],poses:[],fall:[]};
 const easing=t=>t*t*(3-2*t),mix=(a,b,t)=>a+(b-a)*t,clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
-$('feature-status').textContent=integrated?'本機隔離示範；交易成功後播放':demo?'效果示範，不扣探索幣或派發卡片':'抽卡功能尚未啟用，不會扣探索幣或派發卡片';
+$('feature-status').textContent=integrated?'交易成功後自動播放；加入卡片庫只會返回':demo?'效果示範，不扣探索幣或派發卡片':'抽卡功能尚未啟用，不會扣探索幣或派發卡片';
 function say(s){$('caption').textContent=s;}
 function controls(){$('start').hidden=phase!=='idle';$('start').disabled=!active||locked;$('join').hidden=phase!=='revealed';$('resume').hidden=phase!=='paused';}
 async function savePhase(){} // Deliberately no result saving or transaction in a UI-only effect.
