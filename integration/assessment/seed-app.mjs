@@ -21,7 +21,8 @@ for(const f of readdirSync(tasks).filter(f=>f.endsWith('.json')))plugin.transfor
 const env=await initializeTestEnvironment({projectId,firestore:{host:'127.0.0.1',port:8191,rules:readFileSync('integration/assessment/compatible.rules','utf8')}});
 // Idempotent fixture preparation. Does not clear any project or submissions.
 await env.withSecurityRulesDisabled(async c=>{
-  const db=c.firestore();await seedIdentity(db);
+  const db=c.firestore();await seedIdentity(db,{automation:false});
+  if(!(await getDoc(doc(db,'rewardAutomation','status'))).exists())await setDoc(doc(db,'rewardAutomation','status'),{enabled:true,activatedAt:Timestamp.fromMillis(0)});
   const profile={className:'1A',studentNo:'1',name:'本機預覽學生',nickname:'小探索家',avatar:'studentBoy',configured:true,role:'studentBoy',cardId:'starter-explorer-boy',ownedCardIds:['starter-explorer-boy','nile-explorer-boy']};
   await setDoc(doc(db,'profiles','learner'),profile);await setDoc(doc(db,'profiles','teacher-uid'),{...profile,name:'本機教師',nickname:'老師'});
   await setDoc(doc(db,'access','kitlung1107@gmail.com'),{studentId:'teacher-uid',enabled:true,testing:true});

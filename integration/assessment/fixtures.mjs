@@ -10,7 +10,8 @@ export function makeAssessment(taskId,count,{shortIndexes=[],weights,correctAnsw
   const key={taskId,version:meta.version,questions:questions.map((q,i)=>({id:q.id,answer:q.type==='choice'?(correctAnswers?.[i]??i%3):null,explanation:'這是本機合成題的提交後解說。'}))};
   return{meta,key};
 }
-export async function seedIdentity(db){
+export async function seedIdentity(db,{automation=true}={}){
+  if(automation)await setDoc(doc(db,'rewardAutomation','status'),{enabled:true,activatedAt:Timestamp.fromMillis(0)});
   for(const [email,sid,enabled] of [['learner@prototype.test','learner',true],['other@prototype.test','other',true],['disabled@prototype.test','disabled',false]]){
     await setDoc(doc(db,'access',email),{studentId:sid,enabled,testing:true});
     await setDoc(doc(db,'profiles',sid),{className:'1A',configured:true,name:'本機測試資料',studentNo:'1'});

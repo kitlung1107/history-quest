@@ -205,7 +205,7 @@ test("Pages cannot deploy before successful core sync; dry-run/build checks requ
       w.indexOf("Deploy to GitHub Pages")
   );
   assert.ok(w.includes("CORE_CATALOG_SYNC_ENABLED"));
-  assert.ok(w.includes("pnpm core:catalog-plan"));
+  assert.ok(w.includes("scripts/sync-core-catalogue.mjs --public-plan"));
   assert.ok(w.includes("coreReleaseContext(process.env)"));
 });
 test("exact-ID migration revokes known removed tasks and deliberately leaves unknown orphans untouched", async () => {

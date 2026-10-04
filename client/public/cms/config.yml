@@ -349,6 +349,9 @@ collections:
         widget: live-preview
         kind: tasks
         required: false
+      - name: assessmentVersion
+        widget: hidden
+        required: false
       - label: task_id（不可重複）
         name: task_id
         widget: uuid
@@ -598,6 +601,9 @@ collections:
         widget: live-preview
         kind: tasks
         required: false
+      - name: assessmentVersion
+        widget: hidden
+        required: false
       - label: task_id（不可重複）
         name: task_id
         widget: uuid
@@ -760,6 +766,9 @@ collections:
         name: _preview
         widget: live-preview
         kind: tasks
+        required: false
+      - name: assessmentVersion
+        widget: hidden
         required: false
       - label: task_id（不可重複）
         name: task_id

@@ -26,8 +26,9 @@ test('core planning hydrates exact private version; missing or mismatched privat
   const task={task_id:'task-test',assessmentVersion:'opaque',questions:[{id:'q1',type:'choice',prompt:'Public',points:10,options:['A','B']}]};
   await assert.rejects(hydratePrivateCoreTasks([task],base),/私有版本未準備/);
   const file=path.join(base,'private-assessments','task-test--opaque.json');
-  await writeFile(file,JSON.stringify({privateKey:{taskId:'task-test',version:'opaque',questions:[{id:'other',answer:1}]}}));
-  await assert.rejects(hydratePrivateCoreTasks([task],base),/題目 ID 不符/);
-  await writeFile(file,JSON.stringify({privateKey:{taskId:'task-test',version:'opaque',questions:[{id:'q1',answer:1,explanation:'Private'}]}}));
+  const metadata={taskId:'task-test',version:'opaque',questions:task.questions};
+  await writeFile(file,JSON.stringify({metadata,privateKey:{taskId:'task-test',version:'opaque',questions:[{id:'other',answer:1}]}}));
+  await assert.rejects(hydratePrivateCoreTasks([task],base),/題目 ID/);
+  await writeFile(file,JSON.stringify({metadata,privateKey:{taskId:'task-test',version:'opaque',questions:[{id:'q1',answer:1,explanation:'Private'}]}}));
   const [hydrated]=await hydratePrivateCoreTasks([task],base);assert.equal(hydrated.questions[0].answer,1);assert.equal(task.questions[0].answer,undefined);
 });

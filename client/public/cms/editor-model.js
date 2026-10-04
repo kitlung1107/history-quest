@@ -59,6 +59,7 @@
   function issues(input, kind = "tasks") {
     const d = flatten(input),
       errors = [];
+    if(kind==='tasks'&&d.assessmentVersion)return ['此教材使用私有題庫版本，請使用教師工作室的私有題庫 CMS。'];
     const need = (key, label) => {
       if (!present(d[key])) errors.push(`請填寫${label}。`);
     };

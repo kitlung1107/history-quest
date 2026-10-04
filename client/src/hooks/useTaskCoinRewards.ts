@@ -188,7 +188,7 @@ export function useTaskCoinRewards(
             tiers: [],
           },
         ];
-      const enabled = rulesAssessmentEnabled(task) ? state.scope===scope && Boolean(rules[task.id]) : preview
+      const enabled = rulesAssessmentEnabled(task) ? state.scope===scope && state.ready && Boolean(rules[task.id]) : preview
         ? previewRules !== undefined
         : state.scope === scope && state.ready && state.enabled[task.id];
       const source = rewardSource(task);

@@ -1,12 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { submissionErrorMessage } from "@/lib/submissionError";
+import {requireAssessmentEnabled} from '@/lib/assessmentSession';
 import { canPlayGrade } from "@/lib/gradeAccess";
 import { toast } from "sonner";
 import { HISTORY_TASKS, type HistoryTask, type TaskProgress } from "@/lib/historyQuest";
 import { getQuestions, taskAssessmentVersion, validatePublicAnswers, type Answer } from "@/lib/assessment";
 import { loadCloudProgress, submitCloud } from "@/lib/cloudStore";
 import { useOptionalStudentAccount } from "./StudentAccount";
-type Pending={id:string;taskId:string;version:string;answers:Answer[]};
+type Pending={id:string;taskId:string;version:string;answers:Answer[];protocol?:'rules-assessment/1'};
 type Value={progress:TaskProgress;completeTask:(task:HistoryTask,answers:Answer[])=>Promise<Pending>;syncing:boolean;syncError:string;retry:()=>Promise<void>};
 const Context=createContext<Value|null>(null);
 export function ScoreSyncProvider({children}:{children:React.ReactNode}) {
@@ -24,7 +25,7 @@ export function ScoreSyncProvider({children}:{children:React.ReactNode}) {
     active.current=true; setSyncing(true); setError("");
     try {
       for(const pending of read()) {
-        await submitCloud(sid,pending.id,pending.taskId,pending.version,pending.answers);
+        await submitCloud(sid,pending.id,pending.taskId,pending.version,pending.answers,pending.protocol);
         sessionStorage.setItem(key,JSON.stringify(read().filter(p=>p.id!==pending.id)));
       }
       setProgress(await loadCloudProgress(sid));
@@ -34,10 +35,11 @@ export function ScoreSyncProvider({children}:{children:React.ReactNode}) {
   useEffect(()=>{setProgress({});void retry();const online=()=>void retry();window.addEventListener("online",online);return()=>window.removeEventListener("online",online);},[retry]);
   async function completeTask(task:HistoryTask,answers:Answer[]) {
     if(!sid) throw new Error("請先登入。");
+    if(task.assessmentVersion)requireAssessmentEnabled();
     if (!canPlayGrade(account, task.grade)) throw new Error("此年級尚未開放。");
     validatePublicAnswers(getQuestions(task),answers);
     const duplicate=read().find(p=>p.taskId===task.id);
-    const pending=duplicate || {id:crypto.randomUUID(),taskId:task.id,version:taskAssessmentVersion(task),answers};
+    const pending=duplicate || {id:crypto.randomUUID(),taskId:task.id,version:taskAssessmentVersion(task),answers,...(task.assessmentVersion?{protocol:'rules-assessment/1' as const}:{})};
     if(!duplicate) sessionStorage.setItem(key,JSON.stringify([...read(),pending]));
     await retry();
     if(read().some(p=>p.id===pending.id)) throw new Error(failure.current || "答案尚未傳送；請保持此分頁開啟，按重試同步。");

@@ -50,8 +50,8 @@ jobs:
       - name: Preview trusted card catalogue
         run: pnpm cards:catalog-plan
 
-      - name: Validate core teaching metadata plan
-        run: pnpm core:catalog-plan
+      - name: Validate public core inputs without private keys
+        run: node --experimental-strip-types scripts/sync-core-catalogue.mjs --public-plan
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -59,6 +59,9 @@ jobs:
       - name: Build static site
         env:
           GITHUB_ACTIONS: "true"
+          # Formal assessment activation requires a separate reviewed release.
+          VITE_RULES_ASSESSMENT_ENABLED: "0"
+          VITE_ASSESSMENT_EMULATORS: "0"
         run: pnpm build
 
       - name: Add SPA fallback
@@ -88,6 +91,8 @@ jobs:
       CARD_CATALOG_WIF_PROVIDER: ${{ vars.CARD_CATALOG_WIF_PROVIDER }}
       CARD_CATALOG_SERVICE_ACCOUNT: ${{ vars.CARD_CATALOG_SERVICE_ACCOUNT }}
       CORE_CATALOG_SYNC_ENABLED: ${{ vars.CORE_CATALOG_SYNC_ENABLED }}
+      # No additional IAM grant is implied. Missing read access stops publication.
+      ASSESSMENT_PRIVATE_INPUT_APPROVED: ${{ vars.ASSESSMENT_PRIVATE_INPUT_APPROVED }}
     steps:
       - name: Checkout exact built commit
         uses: actions/checkout@v6

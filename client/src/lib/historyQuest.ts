@@ -68,10 +68,12 @@ type CmsTask = Omit<HistoryTask, "id" | "grade" | "topic"> & {
   task_id: string;
 };
 
-const taskModules = import.meta.glob("../content/tasks/*.json", {
+const publicTaskModules = import.meta.glob(["../content/tasks/*.json","!../content/tasks/local-assessment-*.json"], {
   eager: true,
   import: "default",
 }) as Record<string, CmsTask>;
+const localTaskModules=import.meta.env.VITE_ASSESSMENT_EMULATORS==='1'?import.meta.glob('../content/tasks/local-assessment-*.json',{eager:true,import:'default'}):{};
+const taskModules={...publicTaskModules,...localTaskModules} as Record<string,CmsTask>;
 
 // Only publicly visible tasks enter student navigation and progress counts.
 export const HISTORY_TASKS: HistoryTask[] = publicTasks(

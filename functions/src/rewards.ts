@@ -168,6 +168,10 @@ export async function settleReward(
     const createdAt = timestamp(source?.createdAt);
     if (!source || !safeId(source.studentId))
       return { status: "invalid", amount: 0 };
+    // Versioned assessments settle through their Rules-checked protocol.
+    // Admin SDK bypasses Rules, so never let the legacy trigger rewrite them.
+    if(kind==='taskReward'&&source.protocol!==undefined)
+      return {status:source.protocol==='rules-assessment/1'?'protocol-owned':'unsupported-protocol',amount:0};
     if (requester) {
       const access = await tx.get(db.doc(`access/${requester.email}`));
       if (
@@ -235,6 +239,7 @@ export async function settleReward(
       const catalogue = (
         await tx.get(db.doc(`catalogue/${taskId}--${source.version}`))
       ).data();
+      if(catalogue?.protocol!==undefined)return {status:catalogue.protocol==='rules-assessment/1'?'protocol-owned':'unsupported-protocol',amount:0};
       // The explicit catalogue source excludes old game test questionnaires.
       if (
         !catalogue ||

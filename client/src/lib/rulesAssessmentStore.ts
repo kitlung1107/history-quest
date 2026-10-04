@@ -1,6 +1,8 @@
 import {doc,getDocFromServer,setDoc} from 'firebase/firestore';
 import {db} from './firebase';
-import {localIdentity,localTeacher} from './localAssessment';
+import {auth} from './firebase';
+import {localMockIdentity,localIdentity} from './localAssessment';
+import {assessmentActor,requireAssessmentActor} from './assessmentSession';
 import {submitAndSettle,finishAssessment,verifyMC,saveShortGrade,type PublicAssessment,type RulesGrade} from './rulesAssessment';
 import {getQuestions,markAnswers,type Answer,type Question,type SubmissionRow} from './assessment';
 import type {CloudProfile} from '@/contexts/StudentAccount';
@@ -20,6 +22,7 @@ export async function privateQuestions(task:HistoryTask):Promise<Question[]>{
   return meta.questions.map((q,i)=>({...q,...key.data().questions[i]}));
 }
 export async function submitRulesCloud(sid:string,id:string,taskId:string,version:string,answers:Answer[]){
+  await requireAssessmentActor(sid);
   const meta=await assessmentMetadata(taskId,version);
   await submitAndSettle(db,id,sid,meta,answers);
 }
@@ -44,11 +47,12 @@ export async function readRulesResult(id:string,data?:any,profile?:CloudProfile)
   rows.set(id,row);return{row,questions};
 }
 export async function resumeRulesSubmission(id:string){
+  await requireAssessmentActor();
   await verifyMC(db,id);await finishAssessment(db,id);return (await readRulesResult(id)).row;
 }
 type Mark={question_id:string;awarded:number;feedback?:string};
 type Edit={id:string;revision:number;marks:Mark[];feedback:string};
-const outboxKey=()=>`hq.rules-grading.${db.app.options.projectId}.${localIdentity.uid}`;
+const outboxKey=()=>`hq.rules-grading.${db.app.options.projectId}.${localMockIdentity?localIdentity.uid:auth.currentUser?.uid??'signed-out'}`;
 function outbox():Edit[]{try{return JSON.parse(sessionStorage.getItem(outboxKey())??'[]');}catch{return[];}}
 async function completeEdit(edit:Edit){
   const source=(await getDocFromServer(doc(db,'submissions',edit.id))).data()!;
@@ -59,8 +63,9 @@ async function completeEdit(edit:Edit){
   sessionStorage.setItem(outboxKey(),JSON.stringify(outbox().filter(e=>e.id!==edit.id)));
   return (await readRulesResult(edit.id)).row;
 }
-export async function recoverGradingOutbox(){if(!localTeacher)return;for(const edit of outbox())await completeEdit(edit);}
+export async function recoverGradingOutbox(){if(!(await assessmentActor()).teacher)return;for(const edit of outbox())await completeEdit(edit);}
 export async function saveRulesGrade(id:string,revision:number,marks:Mark[],feedback:string){
+  await requireAssessmentActor(undefined,true);
   if(feedback.length>8000||marks.some(m=>(m.feedback??'').length>8000))throw Error('評語最多 8000 字。');
   const pending=outbox().find(e=>e.id===id);
   if(pending)return completeEdit(pending);

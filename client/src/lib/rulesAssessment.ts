@@ -30,12 +30,14 @@ const runTransaction:typeof firestoreRunTransaction=async(db:any,callback:any,op
   },options).then(result=>{if(audit)audit.committedWrites+=lastWrites;return result;});}
   catch(e){if(audit&&(e as {code?:string}).code==='permission-denied')audit.deniedTransactions++;throw e;}
 };
-// Deliberately local-only until the separate formal rollout is approved.
+// Demo transport is isolated; production needs an explicitly approved build.
 export function requireLocal(db:Firestore){
   const delegate=(db as any)._delegate??db;
   const host=delegate._getSettings?.().host??delegate._settings?.host;
-  if(!delegate.app.options.projectId?.startsWith('demo-rules-rewards')||!['127.0.0.1:8191','localhost:8191'].includes(host))
-    throw new Error('原型僅容許 demo-rules-rewards 本機 emulator。');
+  const project=delegate.app.options.projectId;
+  if(project?.startsWith('demo-rules-rewards')&&['127.0.0.1:8191','localhost:8191'].includes(host))return;
+  if(import.meta.env?.VITE_RULES_ASSESSMENT_ENABLED==='1'&&project==='history-discovery-center'&&host==='firestore.googleapis.com')return;
+  throw new Error('此評分傳輸尚未啟用；只容許本機 demo 或已批准的正式設定。');
 }
 function quote(rule:CoinRule,score:number|null){
   if(score===null)return{rewardAmount:0,tierIndex:-1};
@@ -126,6 +128,8 @@ async function commitGrade(db:Firestore,attemptId:string,edit?:{revision:number;
     const settings=await tx.get(doc(db,'coinRules',s.taskId));
     const rule=(settings.data()??defaultCoinRule) as CoinRule;
     const entryRef=doc(db,'coinAccounts',s.studentId,'entries',s.taskId),entry=await tx.get(entryRef);
+    const automation=(await tx.get(doc(db,'rewardAutomation','status'))).data();
+    const rewardActive=automation?.enabled===true&&typeof automation.activatedAt?.toMillis==='function'&&s.createdAt.toMillis()>=automation.activatedAt.toMillis();
     const progressRef=doc(db,'progress',s.studentId,'tasks',s.taskId),progress=await tx.get(progressRef);
     const shortMarks=edit?.shortMarks??meta.questions.map(()=>null);
     if(shortMarks.length!==meta.questionCount)throw new Error('批改題數不符。');
@@ -137,7 +141,7 @@ async function commitGrade(db:Firestore,attemptId:string,edit?:{revision:number;
       if(JSON.stringify(checked?.rule)!==JSON.stringify(rule))throw new Error('獎勵設定剛更新，請重試同一提交。');}
     const grade:RulesGrade={status:complete?'graded':'pending',score,mcPoints:aggregate.mcPoints,shortMarks,revision:(s.grade?.revision??0)+1,...quote(rule,score)};
     tx.update(ref,{grade});
-    if(grade.rewardAmount>0&&(!entry.exists()||entry.data().amount===0))tx.set(entryRef,{
+    if(rewardActive&&grade.rewardAmount>0&&(!entry.exists()||entry.data().amount===0))tx.set(entryRef,{
       kind:'taskReward',taskId:s.taskId,attemptId,amount:grade.rewardAmount,score,progress:100,
       rule,createdAt:serverTimestamp(),tierIndex:grade.tierIndex,
     });

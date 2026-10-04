@@ -1,4 +1,4 @@
-import { localAssessments, localIdentity, localTeacher } from "@/lib/localAssessment";
+import { localMockIdentity, localIdentity, localTeacher } from "@/lib/localAssessment";
 import { displayClass } from "@/lib/classOptions";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { onIdTokenChanged, type User } from "firebase/auth";
@@ -56,7 +56,7 @@ export function useStudentAccount() {
   return context;
 }
 export function AccountGate(props:{children:React.ReactNode;teacherPage?:boolean}) {
-  return localAssessments ? <LocalAssessmentGate {...props}/> : <AuthenticatedAccountGate {...props}/>;
+  return localMockIdentity ? <LocalAssessmentGate {...props}/> : <AuthenticatedAccountGate {...props}/>;
 }
 function LocalAssessmentGate({children,teacherPage=false}:{children:React.ReactNode;teacherPage?:boolean}) {
   const [profile,setProfile]=useState<CloudProfile|null>(null);

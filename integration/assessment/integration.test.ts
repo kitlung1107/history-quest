@@ -73,6 +73,25 @@ test('game questionnaire retained for core sync cannot enter automatic assessmen
   await assertFails(sealAnswers(student,'game-questionnaire-attempt','learner',f.meta,answers(f)));
   expect((await ledger(teacher,f.meta.taskId)).exists()).toBe(false);
 });
+test('verified ordinary student without testing bypass can settle MC within Rules access limits',async()=>{
+  await env.withSecurityRulesDisabled(c=>updateDoc(doc(c.firestore(),'access','learner@prototype.test'),{testing:false}));
+  const f=await fixture('ordinary-student',3);const g=await submitAndSettle(student,'ordinary','learner',f.meta,answers(f));
+  expect(g.score).toBe(100);expect((await ledger(student,f.meta.taskId)).data()?.amount).toBe(100);
+});
+test('automation disabled still saves trusted grade, blocks direct minting and prevents historical backfill',async()=>{
+  const f=await fixture('inactive-new',1);
+  await env.withSecurityRulesDisabled(c=>updateDoc(doc(c.firestore(),'rewardAutomation','status'),{enabled:false}));
+  const g=await submitAndSettle(student,'inactive','learner',f.meta,answers(f));expect(g.score).toBe(100);expect((await ledger(student,f.meta.taskId)).exists()).toBe(false);
+  await assertFails(setDoc(doc(student,'coinAccounts','learner','entries',f.meta.taskId),{kind:'taskReward',taskId:f.meta.taskId,attemptId:'inactive',amount:100,score:100,progress:100,rule:{},createdAt:serverTimestamp(),tierIndex:2}));
+  await env.withSecurityRulesDisabled(c=>updateDoc(doc(c.firestore(),'rewardAutomation','status'),{enabled:true,activatedAt:Timestamp.fromMillis(Date.now()+60_000)}));
+  await finishAssessment(student,'inactive');expect((await ledger(student,f.meta.taskId)).exists()).toBe(false);
+});
+test('simultaneous fresh attempts retain a single first-positive ledger and no grade overwrite',async()=>{
+  const f=await fixture('parallel-fresh',3);
+  const grades=await Promise.all(['parallel-1','parallel-2','parallel-3'].map(id=>submitAndSettle(student,id,'learner',f.meta,answers(f))));
+  expect(grades.every(g=>g.score===100)).toBe(true);expect((await getDocs(collection(student,'coinAccounts','learner','entries'))).size).toBe(1);
+  for(const id of ['parallel-1','parallel-2','parallel-3'])expect((await getDoc(doc(student,'submissions',id))).data()?.grade.revision).toBe(1);
+});
 // Never reset the active preview project's submissions or user outbox.
 const projectId='demo-rules-rewards-integration-tests';
 let env:RulesTestEnvironment,student:Firestore,teacher:Firestore,other:Firestore;

@@ -21,7 +21,7 @@ import { settleReward } from "../src/rewards.ts";
 import { defaultCoinRule } from "../../client/src/lib/coinModel.ts";
 
 // Hard fail outside this explicitly named, local, disposable test environment.
-if (process.env.FIRESTORE_EMULATOR_HOST !== "127.0.0.1:8080")
+if (!["127.0.0.1:8080","127.0.0.1:8191"].includes(process.env.FIRESTORE_EMULATOR_HOST??''))
   throw new Error("本測試只准使用本機 Firestore 模擬器。");
 const projectId = "demo-automatic-coins";
 process.env.METADATA_SERVER_DETECTION = "none";
@@ -57,7 +57,7 @@ before(async () => {
     projectId,
     firestore: {
       host: "127.0.0.1",
-      port: 8080,
+      port: Number(process.env.FIRESTORE_EMULATOR_HOST!.split(':')[1]),
       rules: readFileSync("firestore.rules", "utf8"),
     },
   });
@@ -118,6 +118,25 @@ async function submission(
     .set({ attemptId: id, progress: 100, score: 0 });
 }
 const ledger = (task = "quiz") => db.doc(`coinAccounts/s1/entries/${task}`);
+test('legacy trigger leaves versioned grades and pending sources untouched, including concurrent retries',async()=>{
+  const grade={status:'graded',score:67,revision:2,mcPoints:20,shortMarks:[null],rewardAmount:23,tierIndex:0};
+  await submission('protocol-graded',undefined,{protocol:'rules-assessment/1',version:'opaque-v1',grade});
+  const before=(await db.doc('submissions/protocol-graded').get()).updateTime;
+  const results=await Promise.all(Array.from({length:4},()=>settleReward(db,'taskReward','protocol-graded')));
+  assert.ok(results.every(r=>r.status==='protocol-owned'&&r.amount===0));
+  assert.deepEqual((await db.doc('submissions/protocol-graded').get()).data()?.grade,grade);
+  assert.ok((await db.doc('submissions/protocol-graded').get()).updateTime!.isEqual(before!));
+  assert.equal((await ledger().get()).exists,false);
+  assert.equal((await db.collection('rewardResults/s1/attempts').get()).size,0);
+  await submission('protocol-pending',undefined,{protocol:'rules-assessment/1',version:'opaque-v1'});
+  assert.equal((await settleReward(db,'taskReward','protocol-pending')).status,'protocol-owned');
+  await submission('unknown-protocol',undefined,{protocol:'unknown'});
+  assert.equal((await settleReward(db,'taskReward','unknown-protocol')).status,'unsupported-protocol');
+  await db.doc('catalogue/quiz--opaque-v1').set({source:'assessment',protocol:'rules-assessment/1',questions:[question]});
+  await submission('downgrade-source',undefined,{version:'opaque-v1'});
+  assert.equal((await settleReward(db,'taskReward','downgrade-source')).status,'protocol-owned');
+  assert.equal((await db.doc('submissions/downgrade-source').get()).data()?.grade,undefined);
+});
 const reward = (id = "a1") => settleReward(db, "taskReward", id);
 
 test("客觀題重新核算且固定獎勵採用教師設定，成績與帳本一致", async () => {

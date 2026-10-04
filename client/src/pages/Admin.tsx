@@ -1,4 +1,4 @@
-import { localAssessments } from "@/lib/localAssessment";
+import { assessmentTransportEnabled } from "@/lib/localAssessment";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { collection, getDocs, type DocumentSnapshot } from "firebase/firestore";
@@ -106,7 +106,7 @@ export default function Admin() {
       <Link href="/" className="pixel-button pixel-button-paper">返回探索館</Link>
       <button className="pixel-button pixel-button-paper" onClick={() => void googleLogout()}>登出</button>
       <button disabled={busy} className="pixel-button pixel-button-paper" onClick={() => void refreshWorkspace()}>{busy ? "正在整理與核算……" : "重新整理"}</button>
-      <a href={localAssessments ? "/assessment-cms" : import.meta.env.BASE_URL + "cms/index.html"} className="pixel-button pixel-button-gold text-center">教材與題目管理（CMS）</a>
+      <a href={assessmentTransportEnabled ? import.meta.env.BASE_URL + "assessment-cms" : import.meta.env.BASE_URL + "cms/index.html"} className="pixel-button pixel-button-gold text-center">教材與題目管理（CMS）</a>
     </div>
     <h1 className="display-title my-6 text-3xl">教師工作室</h1><p>{account.user.email} · Firestore</p>
     <p className="my-3">首次載入最新 100 份提交；「載入更早的 100 份」會同步題目並核算新增載入的未核算提交。「重新整理」會重新讀取目前已載入的頁數並重試核算。篩選、匯出及欠交比較只涵蓋已載入紀錄，需要完整比較時請先載入更多。</p>

@@ -1,4 +1,5 @@
-import { localAssessments } from "./localAssessment";
+import { assessmentTransportEnabled } from "./localAssessment";
+import {requireAssessmentEnabled} from './assessmentSession';
 import { isRulesSubmission,submitRulesCloud,assessmentMetadata,cachedRulesRow,readRulesResult,resumeRulesSubmission,saveRulesGrade,privateQuestions,recoverGradingOutbox } from "./rulesAssessmentStore";
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
@@ -7,8 +8,11 @@ import { markAnswers, percentage, type Answer, type Question, type SubmissionRow
 import type { CloudProfile } from "@/contexts/StudentAccount";
 import { syncBrowserCore } from "./coreCatalogueStore";
 export type CloudSubmission = { protocol?:string; studentId: string; taskId: string; version: string; answers: Answer[]; createdAt: { toDate: () => Date } | null; grade?: SubmissionRow };
-export async function submitCloud(sid: string, attemptId: string, taskId: string, version: string, answers: Answer[]) {
-  if(localAssessments){const meta=await getDoc(doc(db,"assessmentVersions",`${taskId}--${version}`));if(meta.exists()){await submitRulesCloud(sid,attemptId,taskId,version,answers);return;}}
+export async function submitCloud(sid: string, attemptId: string, taskId: string, version: string, answers: Answer[], protocol?:string) {
+  if(protocol&&protocol!=='rules-assessment/1')throw Error('提交協定不受支援。');
+  const versioned=protocol==='rules-assessment/1'||HISTORY_TASKS.some(t=>t.id===taskId&&t.assessmentVersion===version);
+  if(versioned){requireAssessmentEnabled();await submitRulesCloud(sid,attemptId,taskId,version,answers);return;}
+  if(assessmentTransportEnabled){const meta=await getDoc(doc(db,"assessmentVersions",`${taskId}--${version}`));if(meta.exists()){await submitRulesCloud(sid,attemptId,taskId,version,answers);return;}}
   const ref = doc(db,"submissions",attemptId);
   await runTransaction(db, async tx => {
     const previous = await tx.get(ref);
@@ -23,9 +27,9 @@ export async function loadCloudProgress(sid:string): Promise<TaskProgress> {
 }
 export async function loadSubmissions(sid?:string, cursor?:DocumentSnapshot) {
   const constraints = [...(sid ? [where("studentId","==",sid)] : []), orderBy("createdAt","desc"), ...(cursor ? [startAfter(cursor)] : []), limit(100)];
-  if(localAssessments)await recoverGradingOutbox();
+  if(assessmentTransportEnabled)await recoverGradingOutbox();
   const snapshot = await getDocs(query(collection(db,"submissions"),...constraints));
-  if(localAssessments){await Promise.all(snapshot.docs.filter(d=>isRulesSubmission(d.data())).map(d=>readRulesResult(d.id,d.data())));}
+  await Promise.all(snapshot.docs.filter(d=>isRulesSubmission(d.data())).map(d=>readRulesResult(d.id,d.data())));
   return { docs:snapshot.docs, cursor:snapshot.docs.at(-1), more:snapshot.size===100 };
 }
 export function asRow(id:string, data:CloudSubmission, profile?:CloudProfile):SubmissionRow {
@@ -35,11 +39,13 @@ export function asRow(id:string, data:CloudSubmission, profile?:CloudProfile):Su
   return {attempt_id:id, task_id:data.taskId, task_title:task?.title || data.taskId, timestamp:data.createdAt?.toDate().toISOString() || "", class_name:profile?.className || "", student_name:profile?.name || "", student_no:profile?.studentNo || "", score:null, progress:100, status:"pending", revision:0};
 }
 export async function syncCatalogue() {
-  const tasks=localAssessments?await Promise.all(HISTORY_TASKS.map(async task=>task.assessmentVersion?{...task,question:undefined,questions:await privateQuestions(task)}:task)):HISTORY_TASKS;
+  const tasks=await Promise.all(HISTORY_TASKS.map(async task=>task.assessmentVersion?{...task,question:undefined,questions:await privateQuestions(task)}:task));
   return syncBrowserCore(tasks);
 }
 export async function markSubmission(id:string) {
-  if(localAssessments){const s=await getDoc(doc(db,"submissions",id));if(isRulesSubmission(s.data()))return resumeRulesSubmission(id); }
+  const source=await getDoc(doc(db,"submissions",id));
+  if(isRulesSubmission(source.data()))return resumeRulesSubmission(id);
+  if(source.data()?.protocol)throw Error('此提交協定不受支援。');
   const ref = doc(db,"submissions",id);
   return runTransaction(db,async tx=>{
     const snapshot = await tx.get(ref);
@@ -50,6 +56,7 @@ export async function markSubmission(id:string) {
     }
     const catalogue = await tx.get(doc(db,"catalogue",`${data.taskId}--${data.version}`));
     if (!catalogue.exists()) throw new Error(`找不到 ${data.taskId} 的原版題目。請按教師工作室頂部「重新整理」重試；若仍失敗，需由網站管理員補回該提交版本的題目設定。`);
+    if(catalogue.data()?.protocol)throw Error('此提交格式與新版題庫不符，需審查舊提交；未改寫成績或入幣。');
     const profile = await tx.get(doc(db,"profiles",data.studentId));
     const progressRef = doc(db,"progress",data.studentId,"tasks",data.taskId);
     const progress = await tx.get(progressRef);
@@ -62,7 +69,9 @@ export async function markSubmission(id:string) {
   });
 }
 export async function saveGrade(id:string, revision:number, marks:{question_id:string;awarded:number;feedback?:string}[], feedback:string) {
-  if(localAssessments){const source=await getDoc(doc(db,"submissions",id));if(isRulesSubmission(source.data()))return saveRulesGrade(id,revision,marks,feedback);}
+  const source=await getDoc(doc(db,"submissions",id));
+  if(isRulesSubmission(source.data()))return saveRulesGrade(id,revision,marks,feedback);
+  if(source.data()?.protocol)throw Error('此提交協定不受支援。');
   await runTransaction(db,async tx=>{
     const ref=doc(db,"submissions",id);
     const snapshot=await tx.get(ref);

@@ -1,4 +1,4 @@
-import { assessmentVersion, getQuestions } from "./assessment.ts";
+import { taskAssessmentVersion, getQuestions } from "./assessment.ts";
 import { validAnswer, type Game } from "./games/model.ts";
 import type { HistoryTask } from "./historyQuest";
 
@@ -117,12 +117,13 @@ export function planCoreCatalogue(
       throw Error(`教材 ${task.id} 題目無效，未同步。`);
     if (questions.length)
       documents.push({
-        path: `catalogue/${task.id}--${assessmentVersion(questions)}`,
+        path: `catalogue/${task.id}--${taskAssessmentVersion(task)}`,
         data: JSON.parse(
           JSON.stringify({
             questions,
             title: task.title,
             source: task.type === "game" ? "questionnaire" : "assessment",
+            ...(task.assessmentVersion&&task.type!=='game'?{protocol:'rules-assessment/1',assessmentVersion:task.assessmentVersion}:{}),
           })
         ),
       });

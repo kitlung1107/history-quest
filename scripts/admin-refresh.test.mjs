@@ -5,7 +5,7 @@ import vm from "node:vm";
 import ts from "typescript";
 
 function compile(path, modules) {
-  modules={"@/lib/localAssessment":{localAssessments:false},"./localAssessment":{localAssessments:false},"./rulesAssessmentStore":{isRulesSubmission:()=>false},...modules};
+  modules={"@/lib/localAssessment":{assessmentTransportEnabled:false},"./localAssessment":{assessmentTransportEnabled:false},"./assessmentSession":{requireAssessmentEnabled(){}},"./rulesAssessmentStore":{isRulesSubmission:()=>false},...modules};
   const source = fs.readFileSync(new URL(path, import.meta.url), "utf8")
     .replaceAll("import.meta.env.BASE_URL", '"/"');
   const js = ts.transpileModule(source, { compilerOptions: {
@@ -121,6 +121,7 @@ function cloud(grade) {
   const modules = {
     "firebase/firestore": {
       doc: (_, ...parts) => parts.join("/"),
+      getDoc:async()=>({data:()=>data,exists:()=>true}),
       runTransaction: async (_, fn) => fn({
         get: async ref => { reads.push(ref); const value = ref === "submissions/a" ? data : ref.startsWith("catalogue/") ? { questions: [], title: "Old title" } : {}; return { data: () => value, exists: () => true }; },
         update: (ref, value) => writes.push({ ref, value }),

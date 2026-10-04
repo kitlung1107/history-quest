@@ -10,7 +10,11 @@
   HQEditor.effective = effective;
   CMS.registerCustomFormat("hq-task-json", "json", {
     fromFile: text => HQEditor.group(JSON.parse(text)),
-    toFile: data => JSON.stringify(HQEditor.flatten(data), null, 2) + "\n",
+    toFile: data => {
+      const value=HQEditor.flatten(data);
+      if(value.assessmentVersion)throw Error('此教材使用私有題庫版本，請到教師工作室的私有題庫 CMS 修改及匯出。');
+      return JSON.stringify(value,null,2)+'\n';
+    },
   });
   let catalogue;
   const loadCatalogue = () =>

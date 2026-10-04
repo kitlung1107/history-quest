@@ -1,4 +1,4 @@
-import { localAssessments, localIdentity } from "./localAssessment";
+import { localAssessments, localMockIdentity, assessmentAuthEmulator, localIdentity } from "./localAssessment";
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, setPersistence, browserLocalPersistence, connectAuthEmulator, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, initializeFirestore, connectFirestoreEmulator } from "firebase/firestore";
@@ -14,7 +14,10 @@ const app = initializeApp({
 });
 export const auth = getAuth(app);
 export const db = localAssessments ? initializeFirestore(app,{experimentalForceLongPolling:true,experimentalLongPollingOptions:{timeoutSeconds:5}}) : getFirestore(app);
-if (localAssessments) connectFirestoreEmulator(db, "127.0.0.1", 8191, {mockUserToken:{sub:localIdentity.uid,email:localIdentity.email,email_verified:true,firebase:{sign_in_provider:"google.com"}}});
+if (localAssessments) {
+  if(assessmentAuthEmulator)connectAuthEmulator(auth,'http://127.0.0.1:9191',{disableWarnings:true});
+  connectFirestoreEmulator(db, "127.0.0.1", 8191, localMockIdentity ? {mockUserToken:{sub:localIdentity.uid,email:localIdentity.email,email_verified:true,firebase:{sign_in_provider:"google.com"}}} : undefined);
+}
 if (gameEmulators) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9098', { disableWarnings: true });
   connectFirestoreEmulator(db, '127.0.0.1', 8088);
@@ -47,10 +50,10 @@ if (import.meta.hot) import.meta.hot.dispose(() => {
   stopEpoch(); clearInterval(epochTimer); window.removeEventListener('storage', checkAuthEpoch); window.removeEventListener('focus', checkAuthEpoch);
 });
 export async function googleLogin() {
-  if(localAssessments){location.href="/?localRole=student";return;}
+  if(localMockIdentity){location.href="/?localRole=student";return;}
   await persistenceReady;
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
   return signInWithPopup(auth, provider);
 }
-export const googleLogout = () => localAssessments ? Promise.resolve(location.assign("/?localRole=student")) : signOut(auth);
+export const googleLogout = () => localMockIdentity ? Promise.resolve(location.assign("/?localRole=student")) : signOut(auth);

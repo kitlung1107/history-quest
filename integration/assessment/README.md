@@ -1,6 +1,30 @@
 # 原 App 小測與 Rules 獎勵整合預覽
 
-此版本在獨立 worktree 與分支 `feat/rules-rewards-app-integration` 製作，基準 main 為 `17144db47aa2d41d3986ccb3afac0d898af63292`。所有操作使用本機合成帳戶與 `demo-rules-rewards-app`；未 commit、push、merge 或部署，正式 `firestore.rules`、Functions、IAM 和發布工作流程均未修改。
+此版本在獨立 worktree 與分支 `feat/rules-rewards-app-integration` 製作，最初 main 基準為 `17144db47aa2d41d3986ccb3afac0d898af63292`。第一輪版本已由用戶提交為 `64d50357f26dc7f58be442cb4d1d4de70d0c45fb`；本輪變更留在該提交之上的工作目錄，代理未 commit、push、merge 或部署。所有驗收使用本機合成帳戶／探索幣及 demo emulator。正式 `firestore.rules` 與 IAM 未修改；Functions 和發布工作流程有待審的程式草稿，但沒有發布到正式環境。
+
+## 本輪正式接線準備（預設關閉）
+
+本輪 Summary：準備 Google 登入與 access.studentId 接線、私有題庫出版、受保護核心同步的私有版本輸入，以及新舊評分協定的切換保護；正式開關保持關閉。
+
+本輪 Description：新版提交必須使用已驗證 Google 身分及獲准的 access 映射，不能用 localRole 或自報 studentId 取得正式權限。教師 CMS 先原子儲存 immutable 私有答案及公開版本，核對儲存結果後只下載公開教材 JSON，交由原 Git 審核／發布流程。一般 build 只做公開 core plan；受保護部署階段經原有審核後，精確 GET 已發布版本的私有輸入，缺權限、缺版本或不匹配會停止。普通發布備份不含私有題目答案，歷史 core 版本、索引和授權同步仍沿用現有流程。
+
+Rules 核驗沿用現有 coinRules，並尊重既有 rewardAutomation 啟用時間；不追補舊成績。舊 Functions 增加協定檢查，跳過由新版 Rules 負責的提交與降級偽裝，其他 legacy／遊戲結算保留。唯讀 cutover planner 列出轉換任務、未完成舊提交及已有正數帳本，不改寫資料。相同 taskId 保留每人每任務只一次正數獎勵。
+
+| 本輪驗收 | 實際結果 |
+| --- | --- |
+| Rules／引擎與正式準備測試 | 53 / 53（45 項相容及評分、8 項正式接線／發布保護） |
+| 原 Functions 與協定隔離 | 17 / 17 |
+| 原流程回歸與公私管線 | 69 / 69 |
+| Google Auth emulator 的原 App 操作 | 21 / 21；未處理瀏覽器例外 0 |
+| TypeScript／內容檢查／正式旗標關閉的 Vite build／Functions build | 通過 |
+| 正式產物資料隔離 | 464 個檔案，私有新版本值／6 組合成題目 ID 外洩 0 |
+| 已出版 CMS 版本的私有 core 輸入 | emulator 精確 2 次 GET，版本核對及 hydration 通過，0 次寫入 |
+
+瀏覽器驗收使用 Google Auth emulator 的真正 Firebase Auth token 及 access 映射，沒有使用 localRole 假身分。覆蓋即時 MC 評分／首次獎勵、同次及不同次並行重試、短答／混合題未批完保持 pending、最後成績與帳本同交易、重複批改、access 撤銷、CMS 實際下載及手機／iPad。Google 正式 OAuth、正式 WIF 權限及正式資料寫入未測。
+
+本輪報告為 `formal-readiness-review.html`（內嵌截圖，可單獨開啟）、`readiness-evidence.json` 及 `formal-library-delivery.json`。原始結果保留於 `tmp/formal-readiness-results.json`、`tmp/formal-legacy-functions-results.txt`、`tmp/formal-regression-results.txt`、`tmp/auth-qa/results.json`、`tmp/formal-artifact-audit.json`。前一輪 `review-record.html`／`evidence.json` 是歷史紀錄。
+
+最新 main `f172efdee05700db75a1bc87a6983a3e843e91f6` 的抽卡 PR #5 已做靜態相容性檢查。21 個改動檔案中只有 App.tsx／Home.tsx 與整合分支重疊，三方文字預覽沒有衝突且保留抽卡入口。此 worktree 沒有合併 main，沒有合併後運行驗證，也沒有改其他 worktree。正式 Rules 與該 main 一致。
 
 ## 開啟預覽
 
@@ -8,12 +32,15 @@
 - 教師工作室：http://127.0.0.1:4201/admin?localRole=teacher
 - 原 App 私有題庫 CMS：http://127.0.0.1:4201/assessment-cms?localRole=teacher
 - 我的提交：http://127.0.0.1:4201/submissions?localRole=student
+- Google Auth emulator 接線預覽：http://127.0.0.1:4202/?assessmentTask=local-assessment-mc-3
+
+4201 是便於直接審閱的合成身分預覽。4202 使用正常 AccountGate／Firebase Auth emulator／access 身分映射，測試瀏覽器已登入合成學生；其他瀏覽器可在 Auth emulator 配置合成 Google 帳戶。Firestore 在 8191、Auth 在 9191，均限 loopback。正式 build 的 `VITE_RULES_ASSESSMENT_ENABLED=0`、`VITE_ASSESSMENT_EMULATORS=0`；本機 `.env.local` 不得用於發布。
 
 這是原 App 的 TaskQuiz、教師工作室、探索幣設定與側欄餘額。CMS 私有編輯器位於同一 App 的教師路由；其他教材／卡片 CMS 沿用原工具。本機 CMS 的其他內容連結使用 test-repo，未連上 GitHub 寫入。
 
 小測開始後一次顯示一題。上一題、右下角下一題和題次提示支援任意已發布題數；切換保留答案，最後先進入可修改的答案總覽。未答題會列明題次，最後才由學生按「提交全部答案」。圖片題幹保留，手機及 iPad 也能顯示完整按鈕。
 
-## 已驗證結果
+## 第一輪已驗證結果（歷史紀錄）
 
 | 項目 | 結果 |
 | --- | --- |
@@ -68,7 +95,17 @@ HTTP 管線測試需先開啟 4201 並完成合成 MC 30 教材的 CMS 儲存。
 
 這次完成的是可操作的本機原 App 整合。正式站繼續沿用 main 現有流程。`compatible.rules` 是待審的相容版本，`rules-compatibility.diff` 只展示需要合併的差異，並未覆蓋正式規則。
 
-正式啟用前需另審：相容 Rules 合併與正式身份傳輸；私有版本先發布、公開教材後發布的受保護管線；核心同步執行環境提供相同私有版本輸入；以及逐一停用轉換任務的舊 `rewardPolicies.enabled`，避免現有 Functions 仍嘗試按 legacy catalogue 核算新協定。停用只針對經審核轉換的 assessment 任務，其他遊戲／任務保持原設定，無需增設新的後端服務。
+本輪已把下列準備工作落實成可審查程式；啟用仍需用戶批准，順序如下：
+
+1. 用戶審閱本輪 diff 並自行提交；另行授權整合最新 main，保留抽卡入口，再對合併版本驗證抽卡及小測運行。這一步本輪未執行。
+2. 先批准及部署舊 Functions 的協定隔離草稿，確認 legacy／遊戲仍按原政策處理；讓舊政策可繼續完成 pending 舊提交，同時不接管新版提交。
+3. 批准及部署 `compatible.rules` 的具體差異，保留現有遊戲、卡片、profile、舊提交、ledger 及 core 授權。本輪沒有覆蓋正式 `firestore.rules`。
+4. 明確批准轉換 taskId 清單、私有新版本的正式儲存，以及正式教師的題庫出版開關；先存私有 key／公開 metadata 並驗證，再審閱公開教材 JSON。保持 taskId，舊提交和正數帳本不轉換、不追補。
+5. 核對既有受保護 WIF 執行者是否可 GET 這些精確私有版本，批准 `ASSESSMENT_PRIVATE_INPUT_APPROVED=true`。缺權限先停；這份草稿不新增 IAM。正式 Google OAuth／access 與 WIF 讀取須另行驗證。
+6. 在同一已審核版本中，批准啟用 `VITE_RULES_ASSESSMENT_ENABLED=1`，維持 emulator 旗標 0。既有受保護 deploy 先私有 core sync／驗證，再發布 Pages；任何缺版本、不同步或權限失敗都阻止發布。公開教材不先於私有題庫和 core 驗證上線。
+7. 依唯讀 cutover 清單完成 pending legacy 提交，批准後才停用已轉換任務的舊 rewardPolicies。保留其他遊戲／任務設定與既有 rewardAutomation 啟用政策，沒有新的後端、獎勵規則或資料回填。
+
+撤回時先批准關閉新版 writer，保留已提交資料／版本／正數 ledger；公開教材與 core 指向必須按同一版本回復，不刪私有 immutable 歷史。一般備份中的私有 payload 已省略；需由仍保留的精確私有版本重新建構。不能用刪帳本或重派作為撤回方式。
 
 實作已保留原核心同步演算法、版本歷史、撤權索引及發布審核機制；新增的私有輸入 adapter 在缺版本或題目 ID 不符時停止。私有 key、版本索引和本機作者快取位於被 Git 忽略且 HTTP 拒絕讀取的 `private-assessments/`，不得放進 Pages 的公開產物。
 

@@ -369,7 +369,7 @@ service cloud.firestore {
         let p = /databases/$(database)/documents/submissions/$(d.attemptId);
         let s = getAfter(p).data;
         let previous = get(p).data;
-        return s.get('protocol','') == 'rules-assessment/1' && rrApproved(sid,entry) && s.studentId == sid && s.taskId == entry
+        return rrRewardActive(s) && rrApproved(sid,entry) && s.studentId == sid && s.taskId == entry
           && s.grade.revision == (('grade' in previous) ? previous.grade.revision + 1 : 1)
           && s.grade.status == 'graded' && s.grade.score == d.score && s.grade.rewardAmount == d.amount
           && d.keys().hasOnly(['kind','taskId','attemptId','amount','score','progress','rule','createdAt','tierIndex'])
@@ -469,7 +469,12 @@ service cloud.firestore {
       // The ledger's own write rule verifies exact source/score/amount and an
       // atomic grade revision. Existing positive entries are immutable.
       // Reading the post-transaction entry once covers both cases.
-      return g.rewardAmount == 0 || getAfter(p).data.amount > 0;
+      return g.rewardAmount == 0 || !rrRewardActive(s) || getAfter(p).data.amount > 0;
+    }
+    function rrRewardActive(s) {
+      let p = /databases/$(database)/documents/rewardAutomation/status;
+      return exists(p) && get(p).data.enabled == true
+        && get(p).data.activatedAt is timestamp && s.createdAt >= get(p).data.activatedAt;
     }
     function rrFeedbackReader(versionId) {
       let sid = get(/databases/$(database)/documents/access/$(request.auth.token.email)).data.studentId;

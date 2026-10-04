@@ -5,6 +5,8 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import {hydratePrivateCoreTasks} from "../integration/assessment/private-core-source.mjs";
+import {publishedPrivateInput,publicCoreBackup} from '../integration/assessment/published-private-input.mjs';
+import {assertPublicSafe} from '../integration/assessment/export-content.mjs';
 import { publicTasks, publicTopics } from "../client/src/lib/contentModel.ts";
 import {
   planCoreCatalogue,
@@ -35,7 +37,7 @@ async function jsonFolder(dir) {
       .map(n => json(path.join(dir, n)))
   );
 }
-export async function localCoreSource(base = root) {
+export async function localCoreSource(base = root,{resolvePrivate,publicOnly=false}={}) {
   const grades = (
     await json(path.join(base, "client/src/content/settings/grades.json"))
   ).grades;
@@ -43,7 +45,8 @@ export async function localCoreSource(base = root) {
   const rawTasks = await jsonFolder(
     path.join(base, "client/src/content/tasks")
   );
-  const tasks = publicTasks(await hydratePrivateCoreTasks(rawTasks,base), publicTopics(topics, grades));
+  const tasks = publicTasks(publicOnly?rawTasks:await hydratePrivateCoreTasks(rawTasks,base,{resolvePrivate}), publicTopics(topics, grades));
+  if(publicOnly)for(const task of rawTasks)if(task.assessmentVersion)assertPublicSafe(task);
   const legacy = await json(
     path.join(base, "scripts/core-catalogue-legacy-ids.json")
   );
@@ -66,7 +69,8 @@ export async function localCoreSource(base = root) {
     known.set(t.id, { id: t.id, grade: t.grade });
   }
   return {
-    plan: planCoreCatalogue(
+    publicTasks:tasks.map(t=>({id:t.id,grade:t.grade,...(t.assessmentVersion?{privateVersion:t.assessmentVersion}:{} )})),
+    plan: publicOnly?[]:planCoreCatalogue(
       tasks,
       await jsonFolder(path.join(base, "client/src/lib/games"))
     ),
@@ -82,13 +86,14 @@ export async function run(args = process.argv.slice(2), env = process.env) {
     ci = false,
     project,
     dry = false,
-    repairTask;
+    repairTask,publicOnly=false;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--apply") apply = true;
     else if (args[i] === "--dry-run") dry = true;
     else if (args[i] === "--ci") ci = true;
     else if (args[i] === "--project") project = args[++i];
     else if (args[i] === "--repair-task") repairTask = args[++i];
+    else if (args[i] === "--public-plan") publicOnly = true;
     else throw Error("Unknown argument: " + args[i]);
   }
   assert.ok(!(apply && dry));
@@ -98,9 +103,14 @@ export async function run(args = process.argv.slice(2), env = process.env) {
     "GitHub writes require guarded CI mode"
   );
   assert.ok(!ci || !repairTask, "CI must publish the full reviewed CMS plan");
-  const source = await localCoreSource();
-  let plan = source.plan;
-  if (repairTask) {
+  if(publicOnly){
+    assert.ok(!apply&&!ci&&!repairTask,'Public input review cannot apply changes.');
+    const source=await localCoreSource(root,{publicOnly:true});
+    console.log(JSON.stringify({mode:'public-input-review',network:false,canApply:false,tasks:source.publicTasks,privateVersionsRequireProtectedValidation:true},null,2));return;
+  }
+  let source=apply?undefined:await localCoreSource();
+  let plan=source?.plan;
+  if (repairTask&&!apply) {
     plan = plan.filter(p => p.id === repairTask);
     assert.equal(
       plan.length,
@@ -209,6 +219,9 @@ export async function run(args = process.argv.slice(2), env = process.env) {
     };
   }
   const folder = path.join(root, "tmp/core-catalogue");
+  source=await localCoreSource(root,{resolvePrivate:task=>publishedPrivateInput(task,{project,request,approved:Boolean(emulator)||env.ASSESSMENT_PRIVATE_INPUT_APPROVED==='true'})});
+  plan=source.plan;
+  if(repairTask){plan=plan.filter(p=>p.id===repairTask);assert.equal(plan.length,1,'Repair task must match exactly one current public task');}
   await mkdir(folder, { recursive: true });
   let n = 0;
   const result = await syncCoreCatalogue(
@@ -221,7 +234,7 @@ export async function run(args = process.argv.slice(2), env = process.env) {
       backup: changes =>
         writeFile(
           path.join(folder, `metadata-before-${Date.now()}-${n++}.json`),
-          JSON.stringify({ project, changes }, null, 2),
+          JSON.stringify({ project, changes:publicCoreBackup(changes) }, null, 2),
           { flag: "wx" }
         ),
     }),

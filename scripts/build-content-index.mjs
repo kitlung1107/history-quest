@@ -4,7 +4,7 @@ const read = path => JSON.parse(fs.readFileSync(new URL(path, root), "utf8"));
 const entries = dir =>
   fs
     .readdirSync(new URL(dir, root))
-    .filter(f => f.endsWith(".json"))
+    .filter(f => f.endsWith(".json")&&(process.env.VITE_ASSESSMENT_EMULATORS==='1'||!f.startsWith('local-assessment-')))
     .map(file => ({ file, data: read(`${dir}/${file}`) }));
 const grades = read("settings/grades.json").grades;
 const topics = entries("topics").map(({ data }) => ({

@@ -14,6 +14,7 @@ function encode(v) {
   throw Error("Unsupported core metadata value");
 }
 function decode(v) {
+  if ("timestampValue" in v) return v.timestampValue;
   if ("stringValue" in v) return v.stringValue;
   if ("booleanValue" in v) return v.booleanValue;
   if ("integerValue" in v) return Number(v.integerValue);
@@ -23,7 +24,7 @@ function decode(v) {
   if ("mapValue" in v) return values(v.mapValue.fields || {});
   throw Error("Unexpected core metadata field");
 }
-const values = object =>
+export const values = object =>
   Object.fromEntries(Object.entries(object).map(([k, v]) => [k, decode(v)]));
 const allowed = path =>
   /^taskAccess\/[A-Za-z0-9_-]{1,150}$/.test(path) ||

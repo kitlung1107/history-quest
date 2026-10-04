@@ -13,12 +13,14 @@ type Entry = {
   image: string;
   description: string;
 };
-const tasks = Object.entries(
-  import.meta.glob("../content/tasks/*.json", {
+const publicTaskModules = import.meta.glob(["../content/tasks/*.json", "!../content/tasks/local-assessment-*.json"], {
     eager: true,
     import: "default",
-  }) as Record<string, Entry>
-).map(([path, task]) => ({
+  }) as Record<string, Entry>;
+const localTaskModules = import.meta.env.VITE_ASSESSMENT_EMULATORS === '1'
+  ? import.meta.glob('../content/tasks/local-assessment-*.json', {eager: true, import: 'default'})
+  : {};
+const tasks = Object.entries({...publicTaskModules, ...localTaskModules} as Record<string, Entry>).map(([path, task]) => ({
   ...task,
   slug: path
     .split("/")
