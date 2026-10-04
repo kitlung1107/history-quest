@@ -58,10 +58,13 @@ async function completeEdit(edit:Edit){
   const source=(await getDocFromServer(doc(db,'submissions',edit.id))).data()!;
   const meta=await assessmentMetadata(source.taskId,source.version);
   const shortMarks=meta.questions.map(q=>q.type==='choice'?null:edit.marks.find(m=>m.question_id===q.id)?.awarded??null);
-  const grade=await saveShortGrade(db,edit.id,edit.revision,shortMarks);
-  await setDoc(doc(db,'assessmentReviews',edit.id),{revision:grade.revision,feedback:edit.feedback,questions:Object.fromEntries(edit.marks.map(m=>[m.question_id,m.feedback??'']))});
+  let grade:RulesGrade;
+  try{grade=await saveShortGrade(db,edit.id,edit.revision,shortMarks);}catch(error){if(error&&typeof error==='object'&&!('assessmentStage' in error))Object.assign(error,{assessmentStage:'saveShortGrade'});throw error;}
+  try{await setDoc(doc(db,'assessmentReviews',edit.id),{revision:grade.revision,feedback:edit.feedback,questions:Object.fromEntries(edit.marks.map(m=>[m.question_id,m.feedback??'']))});}catch(error){if(error&&typeof error==='object')Object.assign(error,{assessmentStage:'saveAssessmentReview'});throw error;}
+  let row:SubmissionRow;
+  try{row=(await readRulesResult(edit.id)).row;}catch(error){if(error&&typeof error==='object')Object.assign(error,{assessmentStage:'readGradedResult'});throw error;}
   sessionStorage.setItem(outboxKey(),JSON.stringify(outbox().filter(e=>e.id!==edit.id)));
-  return (await readRulesResult(edit.id)).row;
+  return row;
 }
 export async function recoverGradingOutbox(){if(!(await assessmentActor()).teacher)return;for(const edit of outbox())await completeEdit(edit);}
 export async function saveRulesGrade(id:string,revision:number,marks:Mark[],feedback:string){
@@ -76,6 +79,12 @@ export async function saveRulesGrade(id:string,revision:number,marks:Mark[],feed
     const review=(await getDocFromServer(doc(db,'assessmentReviews',id))).data();
     const expectedComments=Object.fromEntries(marks.map(m=>[m.question_id,m.feedback??'']));
     if(review&&review.revision===source.grade.revision&&review.feedback===feedback&&Object.keys(expectedComments).every(q=>review.questions[q]===expectedComments[q]))return (await readRulesResult(id)).row;
+    // The grade/ledger may have committed before the review was saved. Resume
+    // that exact revision; an existing conflicting review still fails below.
+    if(!review){
+      const edit={id,revision,marks,feedback};sessionStorage.setItem(outboxKey(),JSON.stringify([...outbox(),edit]));
+      return completeEdit(edit);
+    }
   }
   if(source.grade?.revision!==revision)throw Error('批改版本已更新，請重新整理。');
   if(meta.questions.some(q=>q.type==='short'&&(!marks.some(m=>m.question_id===q.id)||marks.some(m=>m.question_id===q.id&&(!Number.isFinite(m.awarded)||m.awarded<0||m.awarded>q.points)))))throw Error('請填妥每道短答的分數。');
