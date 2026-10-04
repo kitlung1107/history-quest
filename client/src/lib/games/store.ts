@@ -2,10 +2,13 @@ import { collection, doc, getDocFromServer, getDocsFromServer, limit, orderBy, q
 import { auth, db } from '../firebase';
 import { isCorrect, type Game, type GameEvent, type Question } from './model';
 import { collectPages, countWrongAnswers, mergeWrongQuestions, type WrongQuestion } from './records';
+import {submitRulesGameEvent} from './rulesGame';
 export type QueuedEvent = { uid: string; studentId: string; gameId: string; version: string; event: GameEvent };
 export type GameSession = { uid: string; studentId: string; gameId: string; version: string; status: 'open' | 'completed' | 'abandoned'; attempts: number; correct: number; lastEventId: string };
 export const versionRef = (game: Pick<Game, 'gameId' | 'version'>) => doc(db, 'gameCatalog', game.gameId, 'versions', game.version);
 export async function submitGameEvent(item: QueuedEvent) {
+  if(item.event.protocol==='rules-game/1')return submitRulesGameEvent(item);
+  if(item.event.type==='route')throw Error('移動紀錄缺少通關協定');
   if (auth.currentUser?.uid !== item.uid) throw new Error('身分不符');
   const e = item.event, ref = doc(db, 'gameSessions', e.sessionId);
   try { return await runTransaction(db, async tx => {

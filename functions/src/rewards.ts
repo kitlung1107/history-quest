@@ -172,6 +172,7 @@ export async function settleReward(
     // Admin SDK bypasses Rules, so never let the legacy trigger rewrite them.
     if(kind==='taskReward'&&source.protocol!==undefined)
       return {status:source.protocol==='rules-assessment/1'?'protocol-owned':'unsupported-protocol',amount:0};
+    if(kind==='gameReward'&&source.protocol==='rules-game/1')return{status:'protocol-owned',amount:0};
     if (requester) {
       const access = await tx.get(db.doc(`access/${requester.email}`));
       if (

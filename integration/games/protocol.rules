@@ -1,0 +1,177 @@
+    // Rules game protocol: published maze geometry, checked routes and exit proof.
+    function grVersion(s) {
+      return get(/databases/$(database)/documents/gameRulesVersions/$(s.mazeVersion)).data;
+    }
+    function grMap(s) {
+      return get(/databases/$(database)/documents/gameRulesVersions/$(s.mazeVersion)/layouts/$(s.mapId)).data;
+    }
+    function grSessionCreate(session) {
+      let d=request.resource.data;
+      let v=grVersion(d);
+      return session.matches('[a-zA-Z0-9-]{1,80}') && gameOwner(d) && gameVersion(d)
+        && d.keys().hasOnly(['uid','studentId','gameId','version','protocol','mazeVersion','mapId','status','attempts','correct','lastEventId','createdAt'])
+        && d.protocol=='rules-game/1' && v.enabled==true && v.protocol==d.protocol
+        && v.gameId==d.gameId && v.version==d.version && v.taskId=='S5_ColdWar_Maze'
+        && d.gameId=='cold-war-maze' && d.status=='open' && d.attempts==0 && d.correct==0
+        && d.lastEventId=='' && d.createdAt==request.time && grMap(d).id==d.mapId;
+    }
+    function grSessionFinish(session,s,d) {
+      let before=get(/databases/$(database)/documents/gameRuns/$(session)).data;
+      let after=getAfter(/databases/$(database)/documents/gameRuns/$(session)).data;
+      return before.status=='open' && after.step==before.step+1 && after.completedAt==request.time
+        && after.status==(d.status=='completed'?'verified':'abandoned');
+    }
+    function grAnswerLinked(session,event,d) {
+      let before=get(/databases/$(database)/documents/gameRuns/$(session)).data;
+      let after=getAfter(/databases/$(database)/documents/gameRuns/$(session)).data;
+      return d.runStep==before.step+1 && after.step==d.runStep && after.lastEventId==event;
+    }
+    function grAdjacent(a,b,w) {
+      return a is int && b is int && (a+w==b || b+w==a || (a+1==b && b%w!=0) || (b+1==a && a%w!=0));
+    }
+    function grWalk(m,opened,cell) {
+      return cell is int && cell>=0 && cell<m.width*m.height
+        && (m.floorCells.get(string(cell),false)==true || (cell in m.shortcuts && cell in opened))
+        && (!(cell in m.doors) || cell in opened);
+    }
+    function grPathStep(m,opened,path,position,i) {
+      return path.size()<=i || (grAdjacent(i==0?position:path[i-1],path[i],m.width) && grWalk(m,opened,path[i]));
+    }
+    function grRoute(session,s,d) {
+      let e=getAfter(/databases/$(database)/documents/gameRuns/$(session)/events/$(d.lastEventId)).data;
+      let m=grMap(s);
+      let p=e.path;
+      return d.diff(s).affectedKeys().hasOnly(['position','files','step','lastEventId','action'])
+        && e.keys().hasOnly(['type','sequence','path']) && e.type=='route' && e.sequence==d.step
+        && p is list && p.size()>=1 && p.size()<=2 && d.position==p[p.size()-1]
+        && grPathStep(m,s.opened,p,s.position,0) && grPathStep(m,s.opened,p,s.position,1)
+
+        && d.files==[s.files[0] || m.files[0] in p,s.files[1] || m.files[1] in p,s.files[2] || m.files[2] in p];
+    }
+    function grTarget(m,position,t) {
+      return t.keys().hasOnly(['kind','cell']) && t.cell is int
+        && (t.cell==position || grAdjacent(position,t.cell,m.width))
+        && ((t.kind=='door' && t.cell in m.doors) || (t.kind=='shortcut' && t.cell in m.shortcuts)
+          || (t.kind=='chest' && t.cell in m.chests) || (t.kind=='tower' && t.cell in m.towers));
+    }
+    function grAnswer(session,s,d) {
+      let a=getAfter(/databases/$(database)/documents/gameSessions/$(session)/answers/$(d.lastEventId)).data;
+      let next=getAfter(/databases/$(database)/documents/gameSessions/$(session)).data;
+      let opens=a.correct && a.target.kind in ['door','shortcut'];
+      return d.diff(s).affectedKeys().hasOnly(['step','lastEventId','opened','action'])
+        && a.runStep==d.step && next.lastEventId==d.lastEventId && next.attempts==a.sequence
+        && grTarget(grMap(s),s.position,a.target)
+        && (a.target.kind in ['door','shortcut'] ? !(a.target.cell in s.opened) : true)
+        && (opens ? d.opened is list && d.opened.size()==s.opened.size()+1
+          && d.opened.toSet().size()==d.opened.size() && d.opened.hasAll(s.opened) && a.target.cell in d.opened
+          : d.opened==s.opened);
+    }
+    function grEnd(session,s,d) {
+      let e=getAfter(/databases/$(database)/documents/gameRuns/$(session)/events/$(d.lastEventId)).data;
+      let next=getAfter(/databases/$(database)/documents/gameSessions/$(session)).data;
+      return d.diff(s).affectedKeys().hasOnly(['status','completedAt','step','lastEventId','action'])
+        && e.keys().hasOnly(['type','sequence','outcome','attempts']) && e.type=='end' && e.sequence==d.step
+        && e.attempts==next.attempts && next.status==e.outcome && d.completedAt==request.time
+        && (e.outcome=='abandoned' ? d.status=='abandoned'
+          : e.outcome=='completed' && d.status=='verified' && s.files==[true,true,true]
+            && s.position==grMap(s).finish && next.attempts>0);
+    }
+    match /gameRulesVersions/{version} {
+      allow get: if signed();
+      allow list,delete: if false;
+      allow create: if teacher() && version.matches('[a-f0-9]{32}')
+        && request.resource.data.keys().hasOnly(['protocol','gameId','version','taskId','enabled','acceptFrom','mazeCount'])
+        && request.resource.data.protocol=='rules-game/1' && request.resource.data.gameId=='cold-war-maze'
+        && request.resource.data.taskId=='S5_ColdWar_Maze' && request.resource.data.enabled==true
+        && request.resource.data.acceptFrom==request.time && request.resource.data.mazeCount==128;
+      allow update: if teacher() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['enabled']) && request.resource.data.enabled is bool;
+      match /layouts/{layout} {
+        allow get: if signed();
+        allow list,delete: if false;
+        allow create: if teacher() && !exists(/databases/$(database)/documents/gameRulesVersions/$(version))
+          && request.resource.data.id==layout && request.resource.data.width==21 && request.resource.data.height==13
+          && request.resource.data.files is list && request.resource.data.files.size()==3 && request.resource.data.files.toSet().size()==3;
+        allow update: if teacher() && request.resource.data==resource.data;
+      }
+    }
+    match /gameRuns/{session} {
+      allow get: if teacher() || (resource==null && signed()) || owns(resource.data.studentId);
+      allow list,delete: if false;
+      function runCreate() {
+        let d=request.resource.data;
+        let s=getAfter(/databases/$(database)/documents/gameSessions/$(session)).data;
+        let m=grMap(d);
+        return gameOwner(d) && gameVersion(d) && grVersion(d).enabled==true && grVersion(d).protocol=='rules-game/1'
+          && d.keys().hasOnly(['uid','studentId','gameId','version','protocol','mazeVersion','mapId','status','position','files','opened','step','lastEventId','createdAt','action'])
+          && d.protocol=='rules-game/1' && d.uid==s.uid && d.studentId==s.studentId && d.gameId==s.gameId && d.version==s.version
+          && d.mazeVersion==s.mazeVersion && d.mapId==s.mapId && s.protocol==d.protocol
+          && d.createdAt==request.time && s.createdAt==request.time && d.position==m.start && d.files==[false,false,false]
+          && d.opened==[] && d.status=='open' && d.step==0 && d.lastEventId=='' && d.action=='start';
+      }
+      allow create: if runCreate();
+      allow update: if gameOwner(resource.data) && gameVersion(resource.data) && resource.data.status=='open'
+        && request.resource.data.step==resource.data.step+1 && request.resource.data.lastEventId.matches('[a-zA-Z0-9-]{1,80}')
+        && (request.resource.data.action=='route' ? grRoute(session,resource.data,request.resource.data)
+          : request.resource.data.action=='answer' ? grAnswer(session,resource.data,request.resource.data)
+          : request.resource.data.action=='end' && grEnd(session,resource.data,request.resource.data));
+      match /events/{event} {
+        allow get: if teacher() || (resource==null && signed()) || owns(get(/databases/$(database)/documents/gameRuns/$(session)).data.studentId);
+        allow list,update,delete: if false;
+        allow create: if gameOwner(get(/databases/$(database)/documents/gameRuns/$(session)).data)
+          && get(/databases/$(database)/documents/gameRuns/$(session)).data.status=='open'
+          && event.matches('[a-zA-Z0-9-]{1,80}')
+          && getAfter(/databases/$(database)/documents/gameRuns/$(session)).data.step==get(/databases/$(database)/documents/gameRuns/$(session)).data.step+1
+          && getAfter(/databases/$(database)/documents/gameRuns/$(session)).data.lastEventId==event
+          && request.resource.data.sequence==getAfter(/databases/$(database)/documents/gameRuns/$(session)).data.step;
+      }
+    }
+    function grRulesReward(sid,entry) {
+      let d=request.resource.data;
+      let s=get(/databases/$(database)/documents/gameSessions/$(d.attemptId)).data;
+      let run=get(/databases/$(database)/documents/gameRuns/$(d.attemptId)).data;
+      let v=grVersion(s);
+      let r=rrRule(entry);
+      let policy=get(/databases/$(database)/documents/rewardPolicies/$(entry)).data;
+      let quote=get(/databases/$(database)/documents/gameRewardQuotes/$(d.attemptId)).data;
+      let score=math.round(100.0 * s.correct / s.attempts);
+      return s.protocol=='rules-game/1' && s.studentId==sid && request.auth.uid==s.uid && rrApproved(sid,entry)
+        && s.status=='completed' && s.attempts>0 && run.status=='verified' && run.uid==s.uid && run.studentId==sid
+        && run.mazeVersion==s.mazeVersion && run.mapId==s.mapId && v.protocol==s.protocol && v.enabled==true
+        && v.taskId==entry && v.gameId==s.gameId && v.version==s.version && s.createdAt>=v.acceptFrom && rrRewardActive(s)
+        && policy.source=='game' && policy.enabled==true
+        && d.keys().hasOnly(['kind','taskId','attemptId','amount','score','progress','rule','createdAt','tierIndex'])
+        && d.kind=='gameReward' && d.taskId==entry && d.score==score && d.progress==100
+        && d.createdAt==request.time && d.amount>0 && d.rule==r && rrQuote(r,score,d.amount,d.tierIndex)
+        && quote.sessionId==d.attemptId && quote.rule==r && quote.score==score && quote.amount==d.amount
+        && quote.tierIndex==d.tierIndex && quote.checked==(r.mode=='tiers'?r.tiers.size():0);
+    }
+    match /gameRewardQuotes/{session} {
+      function quoteSource() { return get(/databases/$(database)/documents/gameSessions/$(session)).data; }
+      function quoteOwned(s) {
+        return s.protocol=='rules-game/1' && s.status=='completed' && request.auth.uid==s.uid
+          && rrApproved(s.studentId,grVersion(s).taskId)
+          && get(/databases/$(database)/documents/gameRuns/$(session)).data.status=='verified';
+      }
+      function quoteInit() {
+        let d=request.resource.data;
+        let s=quoteSource();
+        let r=rrRule(grVersion(s).taskId);
+        return d.checked==0 && quoteOwned(s)
+          && d.keys().hasOnly(['sessionId','rule','score','amount','tierIndex','checked']) && d.sessionId==session && d.rule==r
+          && d.score==math.round(100.0 * s.correct / s.attempts) && rrQuote(r,d.score,d.amount,d.tierIndex);
+      }
+      function quoteStep() {
+        let d=request.resource.data;
+        let q=resource.data;
+        let r=q.rule;
+        let value=r.metric=='score'?q.score:100;
+        let minimum=q.tierIndex>=0?r.tiers[q.tierIndex].minimum:-1;
+        return quoteOwned(quoteSource()) && r==rrRule(grVersion(quoteSource()).taskId)
+          && d.diff(q).affectedKeys().hasOnly(['checked']) && d.checked==q.checked+1
+          && r.mode=='tiers' && q.checked>=0 && q.checked<r.tiers.size() && rrTierBelow(r,value,minimum,q.checked);
+      }
+      allow get: if teacher() || (resource==null && signed()) || owns(quoteSource().studentId);
+      allow list,delete: if false;
+      allow create: if quoteInit();
+      allow update: if quoteInit() || quoteStep();
+    }

@@ -1,4 +1,5 @@
 import {readFileSync,writeFileSync} from 'node:fs';
+import {addGameRules} from '../games/build-rules.mjs';
 const base=readFileSync('firestore.rules','utf8');
 const protocol=readFileSync('integration/assessment/protocol.rules','utf8');
 function block(text,label){
@@ -35,5 +36,5 @@ additions+=`\n    match /assessmentReviews/{attempt} {
       allow list, delete: if false;
     }\n`;
 output=output.replace(/  }\s*}\s*$/,additions+'  }\n}\n');
-writeFileSync('integration/assessment/compatible.rules',output);
+writeFileSync('integration/assessment/compatible.rules',addGameRules(output));
 console.log('Generated compatible rules; formal firestore.rules unchanged.');

@@ -67,7 +67,7 @@ export default function ConnectedGame({ game, onExpandedChange }: { game: Game; 
       const { account: a, sync: s, published: p } = live.current;
       if (!verified || !a || !live.current.allowed || !(a.teacher || s?.authorized) || !p) { post({ type: 'locked' }); return; }
       post({ type: 'viewport', expanded: expanded.current });
-      post({ type: 'identity', identity: { scope: `${encodeURIComponent(a.user.uid)}:${encodeURIComponent(a.studentId)}`, name: a.profile?.name || a.studentId } });
+      post({ type: 'identity', identity: { scope: `${encodeURIComponent(a.user.uid)}:${encodeURIComponent(a.studentId)}`, name: a.profile?.name || a.studentId, rulesProtocol:game.rulesProtocol,mazeVersion:game.mazeVersion } });
     }
     function receive(event: MessageEvent) {
       const d = event.data;

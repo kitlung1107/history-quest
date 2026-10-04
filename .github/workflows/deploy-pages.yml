@@ -52,6 +52,15 @@ jobs:
       - name: Preview trusted card catalogue
         run: pnpm cards:catalog-plan
 
+      - name: Set up Java for Rules verification
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Verify game and assessment Rules in the local emulator
+        run: pnpm exec firebase emulators:exec --project demo-cold-war-rules --only firestore --config integration/games/emulator.json "pnpm exec vitest run --config integration/games/vitest.config.ts && pnpm exec vitest run --config integration/assessment/vitest.config.ts"
+
       - name: Validate public core inputs without private keys
         run: node --experimental-strip-types scripts/sync-core-catalogue.mjs --public-plan
 

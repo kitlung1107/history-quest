@@ -1,6 +1,8 @@
 {
   "gameId": "cold-war-maze",
   "version": "62338058eeb29cc92e89b0a4149e767a",
+  "rulesProtocol": "rules-game/1",
+  "mazeVersion": "2faae39caf640812ad44514073084536",
   "title": "冷戰・地下間諜",
   "taskId": "S5_ColdWar_Maze",
   "url": "https://kitlung1107.github.io/ColdWarMaze/",

@@ -1,4 +1,6 @@
 import RulesRewardStatus from "./RulesRewardStatus";
+import RulesGameRewardStatus from './RulesGameRewardStatus';
+import {gameForTask} from '@/lib/games/registry';
 import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import {
@@ -14,7 +16,7 @@ if (import.meta.env.DEV && import.meta.env.VITE_GAME_EMULATORS === "1")
   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 
 type RewardProps={taskId:string;sourceId:string;kind?:"taskReward"|"gameReward";studentId?:string;rulesAssessment?:boolean};
-export default function RewardStatus(props:RewardProps){return props.rulesAssessment ? <RulesRewardStatus {...props}/> : <LegacyRewardStatus {...props}/>;}
+export default function RewardStatus(props:RewardProps){return props.rulesAssessment ? <RulesRewardStatus {...props}/> : props.kind==='gameReward'&&gameForTask(props.taskId)?.rulesProtocol==='rules-game/1'?<RulesGameRewardStatus {...props}/>:<LegacyRewardStatus {...props}/>;}
 function LegacyRewardStatus({
   taskId,
   sourceId,

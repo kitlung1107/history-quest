@@ -85,7 +85,7 @@ export default function CoinRuleEditor({
         </select>
       </label>
       <p className="my-3 text-sm">
-        遊戲獎勵須先接通可信任的通關驗證；冷戰迷宮目前尚未啟用自動獎勵。接通後按本局答對次數 ÷ 總作答次數計算並四捨五入；有效完成程度為 100%。未完成、無效或零作答場次不會發放。
+          冷戰迷宮須沿有效路線集齊三份文件並到達出口，通關驗證完成後才按此設定結算。答題成績按本局答對次數 ÷ 總作答次數四捨五入；有效完成程度為 100%。未完成、無效或零作答場次不會發放。
       </p>
       <fieldset disabled={!ready || busy} className="space-y-3">
         <label className="block">

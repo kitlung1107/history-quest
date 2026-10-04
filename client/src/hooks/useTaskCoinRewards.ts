@@ -101,32 +101,21 @@ export function useTaskCoinRewards(
       )
     );
     for (const id of JSON.parse(taskIds) as string[]) {
+      const game=gameForTask(id);
+      let policyEnabled=false,versionEnabled=game?.rulesProtocol!=='rules-game/1';
+      const updateEnabled=()=>{if(active)setState(previous=>previous.scope===scope?{...previous,enabled:{...previous.enabled,[id]:policyEnabled&&versionEnabled}}:previous);};
+      if(game?.rulesProtocol==='rules-game/1'&&game.mazeVersion)unsubscribe.push(onSnapshot(doc(db,'gameRulesVersions',game.mazeVersion),{includeMetadataChanges:true},snapshot=>{
+        const v=snapshot.data();versionEnabled=confirmed(snapshot)&&v?.enabled===true&&v.protocol==='rules-game/1'&&v.gameId===game.gameId&&v.version===game.version&&v.taskId===id&&typeof v.acceptFrom?.toMillis==='function';updateEnabled();
+      },()=>{versionEnabled=false;updateEnabled();}));
       unsubscribe.push(
         onSnapshot(
           doc(db, "rewardPolicies", id),
           { includeMetadataChanges: true },
           snapshot => {
-            if (active)
-              setState(previous =>
-                previous.scope === scope
-                  ? {
-                      ...previous,
-                      enabled: {
-                        ...previous.enabled,
-                        [id]:
-                          confirmed(snapshot) &&
-                          snapshot.data()?.enabled === true && snapshot.data()?.source === rewardSource(readable.find(task => task.id === id)!),
-                      },
-                    }
-                  : previous
-              );
+            policyEnabled=confirmed(snapshot)&&snapshot.data()?.enabled===true&&snapshot.data()?.source===rewardSource(readable.find(task=>task.id===id)!);updateEnabled();
           },
           () => {
-            if (active)
-              setState(previous => ({
-                ...previous,
-                enabled: { ...previous.enabled, [id]: false },
-              }));
+            policyEnabled=false;updateEnabled();
           }
         )
       );

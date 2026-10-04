@@ -137,6 +137,17 @@ test('legacy trigger leaves versioned grades and pending sources untouched, incl
   assert.equal((await settleReward(db,'taskReward','downgrade-source')).status,'protocol-owned');
   assert.equal((await db.doc('submissions/downgrade-source').get()).data()?.grade,undefined);
 });
+test('legacy Functions cannot mint or rewrite a Rules-verified Cold War session',async()=>{
+  const ref=db.doc('gameSessions/rules-cold-war');
+  await ref.set({protocol:'rules-game/1',studentId:'s1',uid:'u1',gameId:'cold-war-maze',status:'completed',attempts:16,correct:15});
+  const before=await ref.get();
+  const results=await Promise.all(Array.from({length:8},()=>settleReward(db,'gameReward','rules-cold-war')));
+  assert.ok(results.every(r=>r.status==='protocol-owned'&&r.amount===0));
+  const after=await ref.get();assert.ok(after.updateTime.isEqual(before.updateTime));
+  assert.deepEqual(after.data(),before.data());
+  assert.equal((await db.doc('coinAccounts/s1/entries/S5_ColdWar_Maze').get()).exists,false);
+  assert.equal((await db.collection('rewardResults/s1/attempts').get()).size,0);
+});
 const reward = (id = "a1") => settleReward(db, "taskReward", id);
 
 test("客觀題重新核算且固定獎勵採用教師設定，成績與帳本一致", async () => {
