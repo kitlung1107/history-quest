@@ -123,7 +123,8 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
       const result = local ? await localDraw() : await accountClient!.draw();
       setReceipt(result);
       await refresh();
-      if (!local) await account?.refresh();
+      // The account profile listener already follows committed ownership.
+      // A full account refresh clears the provider and unmounts this animation.
       setRecover(false);
       send({
         kind: "coin-draw-committed",
