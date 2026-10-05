@@ -18,8 +18,9 @@ export function canPlayGrade(identity: GradeIdentity, grade: number): boolean {
   return own !== null && (own <= 3 ? grade === own : grade >= 4 && grade <= own);
 }
 export function canSeeGrade(identity: GradeIdentity, grade: number): boolean {
+  // Grade navigation is visible to everyone; canPlayGrade still controls access.
   const own = studentGrade(identity?.profile?.className);
-  return Boolean(hasAllGradeAccess(identity) || own === null || own <= 3 || grade >= 4);
+  return Boolean(hasAllGradeAccess(identity) || own === null || own <= 3 || grade >= 1);
 }
 export function gradeLockMessage(identity: GradeIdentity): string {
   const own = studentGrade(identity?.profile?.className);
