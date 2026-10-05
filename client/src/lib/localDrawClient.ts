@@ -80,9 +80,9 @@ export async function localDrawState() {
     profile: { ...state.profile, demoFullAccess: session!.full },
   };
 }
-export async function localDraw() {
+export async function localDraw(signal?: AbortSignal) {
   connect();
-  return engine!.draw();
+  return engine!.draw(signal);
 }
 export function pendingLocalDraw() {
   return engine?.pending();

@@ -21,12 +21,15 @@ import { isDrawCertified } from "@/lib/drawQualification";
 import { createCardDrawClient } from "@/lib/cardDrawClient";
 import cardStyles from "@/cards.css?inline";
 import { CLIENT_CARD_DRAW_PRICE } from "virtual:card-draw-catalog";
+import { reminderForDrawError } from "@/lib/drawAvailability";
+import { createDrawReminderPreview, isDrawReminderPreview } from "@/lib/drawReminderPreview";
 
 /** Browser selection policy with authoritative atomic Rules validation.
  * UI is released only alongside the compatible catalogue and server flag. */
 export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
   const frame = useRef<HTMLIFrameElement>(null),
     busy = useRef(false);
+  const lifetime = useRef<AbortController | null>(null);
   const [height, setHeight] = useState(1000),
     [host, setHost] = useState<HTMLElement | null>(null);
   const [profile, setProfile] = useState<
@@ -42,6 +45,8 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
     demo &&
     ["localhost", "127.0.0.1"].includes(location.hostname);
   const account = useOptionalStudentAccount();
+  const reminderPreview = useMemo(() =>
+    local && isDrawReminderPreview() ? createDrawReminderPreview() : undefined, [local]);
   const teacherSelf =
     account?.teacher &&
     account.user.email === OWNER_EMAIL &&
@@ -64,10 +69,14 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
     local ||
     (import.meta.env.VITE_CARD_DRAW_ENABLED === "1" && !!accountClient);
   const mode = active ? "integrated" : "unavailable";
+  const drawClient = useMemo(() => reminderPreview ?? (local ? {
+    state: localDrawState, draw: localDraw, pending: pendingLocalDraw, finish: finishLocalDraw,
+  } : accountClient), [reminderPreview, local, accountClient]);
   const send = (message: unknown) =>
     frame.current?.contentWindow?.postMessage(message, location.origin);
-  const refresh = async () => {
-    const state = local ? await localDrawState() : await accountClient!.state();
+  const refresh = async (signal?: AbortSignal) => {
+    const state = await drawClient!.state();
+    if (signal?.aborted) return state;
     setProfile(state.profile);
     setBalance(state.balance);
     if (!local && teacherSelf)
@@ -80,7 +89,7 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
           ).data()
         )
       );
-    setRecover(!!(local ? pendingLocalDraw() : accountClient!.pending()));
+    setRecover(!!drawClient!.pending());
     return state;
   };
   const prepareTeacher = async () => {
@@ -115,14 +124,18 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
     }
   };
   const draw = async () => {
-    if (!active || busy.current) return;
+    const signal = lifetime.current?.signal;
+    if (!active || busy.current || !signal || signal.aborted) return;
     busy.current = true;
+    let waitingForReminder = false;
     setError("");
     setNeedsRefresh(false);
     try {
-      const result = local ? await localDraw() : await accountClient!.draw();
+      const result = await drawClient!.draw(signal);
+      if (signal.aborted) return;
       setReceipt(result);
-      await refresh();
+      await refresh(signal);
+      if (signal.aborted) return;
       // The account profile listener already follows committed ownership.
       // A full account refresh clears the provider and unmounts this animation.
       setRecover(false);
@@ -132,26 +145,41 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
         requestId: result.requestId,
       });
     } catch (e) {
+      if (signal.aborted) return;
       const message =
         e instanceof Error ? e.message : "連線中斷，請用相同請求重試。";
-      setError(message);
+      const reminder = reminderForDrawError(e);
+      waitingForReminder = !!reminder;
+      setError(reminder ? "" : message);
       setNeedsRefresh(
         ["catalog-outdated", "card-art-unavailable"].includes(
           (e as { code?: string }).code ?? ""
         )
       );
-      setRecover(!!(local ? pendingLocalDraw() : accountClient!.pending()));
-      send({ kind: "coin-draw-error", message });
+      setRecover(!!drawClient!.pending());
+      send({ kind: "coin-draw-error", message, reminder });
     } finally {
-      busy.current = false;
+      if (!signal.aborted && !waitingForReminder) busy.current = false;
     }
   };
   useEffect(() => {
     let disposed = false;
+    let controller = new AbortController();
+    lifetime.current = controller;
+    busy.current = false;
+    if (import.meta.env.DEV && reminderPreview) Object.assign(window, { drawReminderPreview: { inspect: reminderPreview.inspect } });
     if (active)
-      void refresh().catch(e => {
+      void refresh(controller.signal).catch(e => {
         if (!disposed) setError(e.message);
       });
+    const pageHide = () => { controller.abort(); busy.current = false; };
+    const pageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      controller = new AbortController();
+      lifetime.current = controller;
+      busy.current = false;
+      if (active) void refresh(controller.signal).catch(e => { if (!disposed) setError(e.message); });
+    };
     const receive = (event: MessageEvent) => {
       if (
         event.origin !== location.origin ||
@@ -169,20 +197,30 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
           setHeight(Math.ceil(next));
       }
       if (active && event.data?.kind === "coin-draw-request") void draw();
+      if (active && event.data?.kind === "coin-draw-reminder-ended") {
+        busy.current = false;
+        if (typeof event.data.message === "string") setError(event.data.message);
+      }
       if (active && event.data?.kind === "coin-draw-return") {
-        if (local) finishLocalDraw();
-        else accountClient!.finish();
+        drawClient!.finish();
         setReceipt(null);
         setRecover(false);
-        void refresh();
+        void refresh(controller.signal).catch(e => { if (!disposed) setError(e.message); });
       }
     };
     window.addEventListener("message", receive);
+    window.addEventListener("pagehide", pageHide);
+    window.addEventListener("pageshow", pageShow);
     return () => {
       disposed = true;
+      controller.abort();
+      if (lifetime.current === controller) lifetime.current = null;
+      if (import.meta.env.DEV && reminderPreview) delete (window as typeof window & { drawReminderPreview?: unknown }).drawReminderPreview;
       window.removeEventListener("message", receive);
+      window.removeEventListener("pagehide", pageHide);
+      window.removeEventListener("pageshow", pageShow);
     };
-  }, [active, local, accountClient]);
+  }, [active, local, accountClient, drawClient, reminderPreview]);
   const setupFrame = () => {
     const doc = frame.current?.contentDocument;
     if (!doc) return;
@@ -254,7 +292,7 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
           />,
           host
         )}
-      {local && profile && (
+      {local && !reminderPreview && profile && (
         <section className="local-draw-library">
           <CardPicker
             collection={profile}

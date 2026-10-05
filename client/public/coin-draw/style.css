@@ -3,3 +3,4 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 .price>span{background:#ffd96b;color:#17324d;border:3px solid #17324d;border-radius:12px;font-size:clamp(14px,3vw,36px);font-weight:800;display:grid;place-items:center;height:100%;line-height:1.3}
+.draw-reminder{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;pointer-events:none}
