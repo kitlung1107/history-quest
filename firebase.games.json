@@ -1,0 +1,15 @@
+{
+  "firestore": {
+    "rules": "integration/assessment/compatible.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8191
+    },
+    "ui": {
+      "enabled": false
+    },
+    "singleProjectMode": false
+  }
+}

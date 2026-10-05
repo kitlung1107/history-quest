@@ -11,7 +11,7 @@ Old sessions, old positive credits and the original game catalogue remain valid.
 Run the suites against disposable `demo-*` projects only:
 
 - `node integration/games/build-rules.mjs --apply`
-- `firebase emulators:exec --project demo-cold-war-rules --only firestore --config integration/games/emulator.json "vitest run --config integration/games/vitest.config.ts && vitest run --config integration/assessment/vitest.config.ts"`
+- `firebase emulators:exec --project demo-cold-war-rules --only firestore --config firebase.games.json "vitest run --config integration/games/vitest.config.ts && vitest run --config integration/assessment/vitest.config.ts"`
 - `FIRESTORE_EMULATOR_HOST=127.0.0.1:8185 node --experimental-strip-types --test functions/test/browserDraw.integration.test.ts`
 - `FIRESTORE_EMULATOR_HOST=127.0.0.1:8191 node --experimental-strip-types --test functions/test/rewards.integration.test.ts`
 
