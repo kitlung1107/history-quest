@@ -18,7 +18,7 @@ test('six student grades and teacher/admin access matrix', () => {
   for (const grade of grades) {
     const identity = { profile: { className: grade <= 3 ? `${grade}A` : `S${grade}` } };
     assert.deepEqual(grades.filter(g => canPlayGrade(identity, g)), expected[grade - 1]);
-    assert.deepEqual(grades.filter(g => canSeeGrade(identity, g)), grade < 4 ? grades : [4, 5, 6]);
+    assert.deepEqual(grades.filter(g => canSeeGrade(identity, g)), grades);
   }
   assert.deepEqual(grades.filter(g => canPlayGrade({ teacher: true }, g)), grades);
   for (const value of [null, {}, { profile: { className: 'Other' } }]) {
@@ -30,4 +30,16 @@ test('roster formats, Chinese classes, legacy senior classes and invalid identit
     assert.equal(studentGrade(text), grade);
   }
   for (const text of ['', 'Other', '7A', 'S0', '12A', '中七', 'abc4', '4F']) assert.equal(studentGrade(text), null);
+});
+test('newly visible junior grades remain locked for every senior roster format, including full-card preview accounts', () => {
+  for (const own of [4, 5, 6]) {
+    for (const className of [`S${own}`, `${own}A`, `中${'一二三四五六'[own - 1]}`]) {
+      const identity = { teacher: false, testingAccount: false, fullCardAccess: true, user: { emailVerified: true }, profile: { className } };
+      for (const junior of [1, 2, 3]) {
+        assert.equal(canSeeGrade(identity, junior), true, `${className} sees grade ${junior}`);
+        assert.equal(canPlayGrade(identity, junior), false, `${className} cannot play grade ${junior}`);
+      }
+      assert.deepEqual(grades.filter(grade => canPlayGrade(identity, grade)), grades.filter(grade => grade >= 4 && grade <= own));
+    }
+  }
 });
