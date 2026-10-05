@@ -47,6 +47,7 @@ jobs:
           pnpm test:full-cards
           pnpm test:card-release
           pnpm test:core-catalogue
+          pnpm exec vitest run --config vitest.draw-reminders.config.ts
           pnpm exec vitest run --config integration/assessment/vitest.config.ts integration/assessment/grading-recovery.test.ts
 
       - name: Preview trusted card catalogue

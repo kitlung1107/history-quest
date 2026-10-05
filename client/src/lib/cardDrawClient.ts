@@ -4,6 +4,7 @@ import {
   getDoc,
   getDocFromServer,
   getDocs,
+  getDocsFromServer,
   type Firestore,
 } from "firebase/firestore";
 import { CLIENT_CARD_CATALOG_HASH } from "virtual:card-draw-catalog";
@@ -15,7 +16,9 @@ import {
   type BrowserDrawReceipt,
 } from "./browserDraw";
 import type { CloudProfile } from "@/contexts/StudentAccount";
-import { requirePreparedDrawQualification } from "./drawQualification";
+import { checkDrawAvailability, DRAW_REMINDER_TEXT } from "./drawAvailability";
+// A cancelled old panel must not clear an ID already adopted by a new panel.
+const pendingOwners = new Map<string, symbol>();
 /** Both the emulator and future approved account UI use this same adapter.
  * Identity is supplied by the authenticated account, never recovered from storage. */
 export function createCardDrawClient(
@@ -26,7 +29,7 @@ export function createCardDrawClient(
 ) {
   const key = `history-quest.card-draw.pending.v1:${db.app.options.projectId}:${uid}:${sid}`;
   const pending = () => localStorage.getItem(key) || undefined;
-  const finish = () => localStorage.removeItem(key);
+  const finish = () => { localStorage.removeItem(key); pendingOwners.delete(key); };
   async function state() {
     const [profile, ledger] = await Promise.all([
       getDoc(doc(db, "profiles", sid)),
@@ -60,8 +63,15 @@ export function createCardDrawClient(
       })
     );
   }
-  async function draw(): Promise<BrowserDrawReceipt> {
+  async function draw(signal?: AbortSignal): Promise<BrowserDrawReceipt> {
+    const requireActive = () => {
+      if (signal?.aborted)
+        throw new BrowserDrawError("draw-cancelled", "已離開抽卡畫面；未開始新的扣款。");
+    };
+    requireActive();
     const requestId = pending() ?? crypto.randomUUID();
+    const owner = Symbol();
+    pendingOwners.set(key, owner);
     localStorage.setItem(key, requestId);
     let committed = false;
     try {
@@ -74,25 +84,27 @@ export function createCardDrawClient(
         await decode([receipt.cardId]);
         return receipt;
       }
-      const catalog = (
-        await getDocFromServer(doc(db, "cardCatalog", "current"))
-      ).data();
-      if (catalog?.sourceSha256 !== CLIENT_CARD_CATALOG_HASH)
+      const [catalog, profile, qualification, status, ledger] = await Promise.all([
+        getDocFromServer(doc(db, "cardCatalog", "current")),
+        getDocFromServer(doc(db, "profiles", sid)),
+        getDocFromServer(doc(db, "cardDrawEligibility", sid)),
+        getDocFromServer(doc(db, "cardDraw", "status")),
+        getDocsFromServer(collection(db, "coinAccounts", sid, "entries")),
+      ]);
+      requireActive();
+      const availability = checkDrawAvailability({
+        catalog: catalog.data(), profile: profile.data(),
+        qualification: qualification.data(), status: status.data(),
+        ledger: ledger.docs.map(row => ({ id: row.id, amount: row.data().amount, kind: row.data().kind })),
+        expectedCatalogHash: CLIENT_CARD_CATALOG_HASH,
+      });
+      if (availability.reminder)
         throw new BrowserDrawError(
-          "catalog-outdated",
-          "卡庫已更新，請重新整理後再抽；未扣探索幣。"
+          availability.reminder === "complete" ? "pool-empty" : "insufficient-coins",
+          DRAW_REMINDER_TEXT[availability.reminder]
         );
-      const current = await state();
-      await decode(
-        EXPLORER_CARDS.filter(
-          (card) =>
-            card.enabled &&
-            card.drawEnabled !== false &&
-            card.role === current.profile.role &&
-            !current.profile.ownedCardIds?.includes(card.id)
-        ).map((card) => card.id)
-      );
-      await requirePreparedDrawQualification(db, sid);
+      await decode(availability.cardIds);
+      requireActive();
       return await drawBrowserCard(
         db,
         sid,
@@ -101,9 +113,11 @@ export function createCardDrawClient(
       );
     } catch (error: any) {
       if (
-        !committed &&
+        !committed && pendingOwners.get(key) === owner &&
         [
           "pool-empty",
+          "pool-unavailable",
+          "draw-cancelled",
           "insufficient-coins",
           "failed-precondition",
           "invalid-argument",

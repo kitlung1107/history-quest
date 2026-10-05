@@ -44,6 +44,9 @@ const LocalCoinDrawDemo = import.meta.env.DEV
 const LocalEnrollmentDemo = import.meta.env.DEV
   ? lazy(() => import("./pages/LocalEnrollmentDemo"))
   : null;
+const LocalDrawRemindersPreview = import.meta.env.DEV
+  ? lazy(() => import("./pages/LocalDrawRemindersPreview"))
+  : null;
 
 function SessionContent({ children }: { children: React.ReactNode }) {
   const account = useOptionalStudentAccount();
@@ -78,6 +81,7 @@ function GameLanding() {
 function Routes() {
   return (
     <Switch>
+      {LocalDrawRemindersPreview && <Route path="/__draw-reminders-preview"><Suspense fallback={<p>載入提醒預覽…</p>}><ScoreSyncProvider><LocalDrawRemindersPreview /></ScoreSyncProvider></Suspense></Route>}
       {LocalEnrollmentDemo && <Route path="/__enrollment-demo"><Suspense fallback={<p>載入名單示範…</p>}><LocalEnrollmentDemo /></Suspense></Route>}
       {LocalCoinDrawDemo && (
         <Route path="/__coin-draw-demo">

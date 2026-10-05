@@ -15,6 +15,29 @@ function controls(){$('start').hidden=phase!=='idle';$('start').disabled=!active
 async function savePhase(){} // Deliberately no result saving or transaction in a UI-only effect.
 function halt(){if(!active||!current)return;token++;locked=false;model.pageGlow=0;phase='paused';controls();paint();say('效果示範已暫停。');}
 function initialModel(){return {angle:0,push:0,fall:0,land:0,grow:0,pageGlow:0,cardGlow:1,reveal:0,approach:0,reach:0,grip:0,shakeX:0,shakeY:0};}
+const reminderAssets={
+ complete:{src:'./assets/reminder-complete.png',text:'恭喜你！目前可以抽到嘅卡片，你已經集齊晒！等新卡登場，再嚟探索啦！'},
+ insufficient:{src:'./assets/reminder-insufficient.png',text:'探索幣仲差少少！完成小測或遊戲，儲夠再嚟抽卡啦！'}
+};
+const REMINDER_MS=4000;
+let reminderTimer,reminderDeadline=0;
+function finishReminder(message){
+ if(!['reminder','reminder-loading'].includes(phase))return;
+ clearTimeout(reminderTimer);reminderTimer=undefined;reminderDeadline=0;token++;
+ $('draw-reminder').hidden=true;phase='idle';locked=false;model=initialModel();controls();paint();say(message||'');
+ parent.postMessage({kind:'coin-draw-reminder-ended',message},location.origin);
+}
+async function showReminder(type){
+ const asset=reminderAssets[type];if(!asset)return;
+ const id=++token;phase='reminder-loading';locked=true;controls();paint();
+ const image=$('draw-reminder');image.alt=asset.text;image.src=asset.src;
+ try{
+  await image.decode();if(id!==token||phase!=='reminder-loading')return;
+  phase='reminder';image.hidden=false;controls();paint();say(asset.text);
+  reminderDeadline=performance.now()+REMINDER_MS;
+  reminderTimer=setTimeout(()=>finishReminder(),REMINDER_MS);
+ }catch{if(id===token)finishReminder('提醒圖片未能載入；未扣探索幣，請重新整理。');}
+}
 function isPresent(){return ['screenfade','cardfade','revealing','revealed'].includes(phase)||(phase==='growing'&&model.grow>.965);}
 function background(){ctx.drawImage(art[isPresent()?'scene-present':'scene-no-tray'],0,0,W,H);if(!isPresent()&&(model.shakeX||model.shakeY)){ctx.save();ctx.beginPath();ctx.roundRect(185,150,510,615,25);ctx.clip();ctx.translate(model.shakeX||0,model.shakeY||0);ctx.drawImage(art['scene-no-tray'],0,0,W,H);ctx.restore();}}
 function strokeLine(x1,y1,x2,y2,color,width){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
@@ -84,13 +107,21 @@ async function reveal(){
 
 async function completeReveal(){if(!active)return;phase='revealed';locked=false;model.grow=1;model.reveal=1;model.pageGlow=0;model.cardGlow=0;controls();paint();if(integrated){$('result-card-host').dataset.revealed='true';say('新卡已保存；加入卡片庫只返回，不會再次派卡或更換展示卡。');}else say('示範揭卡效果；沒有派發卡片。');$('join').focus({preventScroll:true});}
 async function start(){if(!active||locked||phase!=='idle')return;
- if(integrated){locked=true;phase='purchasing';controls();say('正在確認抽卡，成功後才播放……');parent.postMessage({kind:'coin-draw-request'},location.origin);return;}
+ if(integrated){locked=true;phase='purchasing';controls();paint();say('正在確認抽卡，成功後才播放……');parent.postMessage({kind:'coin-draw-request'},location.origin);return;}
  current={cardId:'effect-sample'};await playButton();}
 function join(){if(!active||phase!=='revealed'||locked)return;if(integrated){$('result-card-host').dataset.revealed='false';parent.postMessage({kind:'coin-draw-return'},location.origin);}token++;current=null;phase='idle';model=initialModel();controls();paint();say('');$('start').focus({preventScroll:true});}
 const overlay=document.createElement('div');overlay.id='white-overlay';overlay.setAttribute('aria-hidden','true');document.body.append(overlay);
 $('start').onclick=start;$('join').onclick=join;$('resume').onclick=()=>{if(active&&phase==='paused')playButton();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!['idle','loading','paused','revealed'].includes(phase))halt();});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&!['idle','loading','paused','revealed'].includes(phase))halt();});
+document.addEventListener('visibilitychange',()=>{
+ if(phase==='reminder'){if(!document.hidden&&performance.now()>=reminderDeadline)finishReminder();return;}
+ if(document.hidden&&!['idle','loading','paused','revealed','reminder-loading'].includes(phase))halt();
+});
+window.addEventListener('pagehide',()=>{
+ if(['reminder','reminder-loading'].includes(phase))finishReminder();
+ else if(phase==='purchasing'){locked=false;phase='idle';controls();paint();}
+ clearTimeout(reminderTimer);reminderTimer=undefined;token++;
+});
 media.addEventListener('change',()=>{if(reduced()&&current&&!['idle','loading','paused','revealed'].includes(phase)){token++;model.shakeX=0;model.shakeY=0;completeReveal();}});
 window.addEventListener('message',event=>{
  if(!integrated||event.origin!==location.origin||event.source!==parent)return;
@@ -98,7 +129,10 @@ window.addEventListener('message',event=>{
    if(typeof event.data.cardId!=='string'||typeof event.data.requestId!=='string')return;
    current={cardId:event.data.cardId,requestId:event.data.requestId};void playButton();
  }
- if(event.data?.kind==='coin-draw-error'&&phase==='purchasing'){locked=false;phase='idle';controls();say(String(event.data.message||'請重試。'));}
+ if(event.data?.kind==='coin-draw-error'&&phase==='purchasing'){
+   if(['complete','insufficient'].includes(event.data.reminder))void showReminder(event.data.reminder);
+   else{locked=false;phase='idle';controls();paint();say(String(event.data.message||'請重試。'));}
+ }
  if(event.data?.kind==='coin-draw-config'&&Number.isSafeInteger(event.data.price)&&event.data.price>0){
    const label=event.data.price+'探索幣一次';$('start').setAttribute('aria-label',label);
    if(event.data.price!==100){$('start').querySelector('img').hidden=true;const span=document.createElement('span');span.textContent=label;$('start').replaceChildren(span);}
