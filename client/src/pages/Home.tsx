@@ -1,4 +1,5 @@
 import { localAssessments } from "@/lib/localAssessment";
+import "../portrait-bottom-nav.css";
 import {
   SITE_SETTINGS as defaults,
   PUBLIC_TOPICS,
