@@ -5,10 +5,10 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --host",
-    "build": "node scripts/check-content.mjs && vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "node scripts/check-content.mjs && node scripts/check-responsive-images.mjs && vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "preview": "vite preview --host",
-    "check": "node scripts/check-content.mjs && tsc --noEmit",
+    "check": "node scripts/check-content.mjs && node scripts/check-responsive-images.mjs && tsc --noEmit",
     "test:content": "node --experimental-strip-types --test client/src/lib/contentModel.test.ts",
     "test:cards": "node --experimental-strip-types --test client/src/lib/cardModel.test.ts",
     "test:enrollment-pages": "node --experimental-strip-types --test client/src/lib/enrollmentAuditPages.test.ts client/src/lib/accountRoster.test.ts",

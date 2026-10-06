@@ -1,0 +1,11 @@
+/* Match the existing portrait-phone boundary; keep landscape/tablet navigation. */
+@media (max-width: 600px) and (orientation: portrait) {
+  .manga-home .mobile-bottom-nav {
+    display: none;
+  }
+
+  /* Replace the old 80px navigation reservation with normal content spacing. */
+  .manga-home .home-main:not(.coin-draw-main) {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+  }
+}
