@@ -1,6 +1,6 @@
 import { assessmentTransportEnabled } from "./localAssessment";
 import {requireAssessmentEnabled} from './assessmentSession';
-import { isRulesSubmission,submitRulesCloud,assessmentMetadata,cachedRulesRow,readRulesResult,resumeRulesSubmission,saveRulesGrade,privateQuestions,recoverGradingOutbox } from "./rulesAssessmentStore";
+import { isRulesSubmission,submitRulesCloud,assessmentMetadata,readRulesResult,resumeRulesSubmission,saveRulesGrade,privateQuestions,recoverGradingOutbox } from "./rulesAssessmentStore";
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import { HISTORY_TASKS, type TaskProgress } from "./historyQuest";
@@ -29,14 +29,19 @@ export async function loadSubmissions(sid?:string, cursor?:DocumentSnapshot) {
   const constraints = [...(sid ? [where("studentId","==",sid)] : []), orderBy("createdAt","desc"), ...(cursor ? [startAfter(cursor)] : []), limit(100)];
   if(assessmentTransportEnabled)await recoverGradingOutbox();
   const snapshot = await getDocs(query(collection(db,"submissions"),...constraints));
-  await Promise.all(snapshot.docs.filter(d=>isRulesSubmission(d.data())).map(d=>readRulesResult(d.id,d.data())));
   return { docs:snapshot.docs, cursor:snapshot.docs.at(-1), more:snapshot.size===100 };
 }
 export function asRow(id:string, data:CloudSubmission, profile?:CloudProfile):SubmissionRow {
-  if(isRulesSubmission(data)){const row=cachedRulesRow(id);if(row)return row;return {attempt_id:id,task_id:data.taskId,timestamp:"",class_name:profile?.className??"",student_name:profile?.name??"",student_no:profile?.studentNo??"",score:data.grade?.score??null,progress:100,status:data.grade?.status??"pending",revision:data.grade?.revision??0};}
+  if(isRulesSubmission(data))return {protocol:'rules-assessment/1',attempt_id:id,task_id:data.taskId,task_title:HISTORY_TASKS.find(t=>t.id===data.taskId)?.title??data.taskId,timestamp:data.createdAt?.toDate().toISOString()??'',class_name:profile?.className??'',student_name:profile?.name??'',student_no:profile?.studentNo??'',score:data.grade?.score??null,progress:100,status:data.grade?.status??'pending',revision:data.grade?.revision??0};
   if (data.grade) return data.grade;
   const task = HISTORY_TASKS.find(t=>t.id===data.taskId);
   return {attempt_id:id, task_id:data.taskId, task_title:task?.title || data.taskId, timestamp:data.createdAt?.toDate().toISOString() || "", class_name:profile?.className || "", student_name:profile?.name || "", student_no:profile?.studentNo || "", score:null, progress:100, status:"pending", revision:0};
+}
+export async function readSubmissionDetails(id:string,profile?:CloudProfile):Promise<SubmissionRow>{
+  const snapshot=await getDoc(doc(db,'submissions',id));
+  const source=snapshot.data() as CloudSubmission;
+  if(!source)throw Error('提交已不存在，請重新整理。');
+  return isRulesSubmission(source)?(await readRulesResult(id,source,profile)).row:asRow(id,source,profile);
 }
 export async function syncCatalogue() {
   const tasks=await Promise.all(HISTORY_TASKS.map(async task=>task.assessmentVersion?{...task,question:undefined,questions:await privateQuestions(task)}:task));

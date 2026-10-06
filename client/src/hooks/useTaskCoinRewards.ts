@@ -1,6 +1,7 @@
 import { rulesAssessmentEnabled } from "@/lib/localAssessment";
 import { useEffect, useState } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc } from "firebase/firestore";
+import {subscribeRewardDocument} from '@/lib/rewardSubscriptions';
 import { useOptionalStudentAccount } from "@/contexts/StudentAccount";
 import { getQuestions } from "@/lib/assessment";
 import { canPlayGrade } from "@/lib/gradeAccess";
@@ -37,6 +38,7 @@ export function useTaskCoinRewards(
     account?.studentId,
     account?.profile?.className,
     account?.testingAccount,
+    readable.map(task=>[task.id,task.assessmentVersion,gameForTask(task.id)?.mazeVersion]),
     taskIds,
   ]);
   const [state, setState] = useState<{
@@ -48,9 +50,10 @@ export function useTaskCoinRewards(
   }>({ scope: "", ready: false, rules: {}, enabled: {}, earned: {} });
 
   useEffect(() => {
-    if (preview || !account) return;
+    if (preview || !account || !readable.length) return;
     setState({ scope, ready: false, rules: {}, enabled: {}, earned: {} });
     let active = true;
+    const onSnapshot:typeof import('firebase/firestore').onSnapshot=((ref:any,_options:any,next:any,error:any)=>subscribeRewardDocument(ref,JSON.stringify([account.user.uid,account.studentId,account.profile?.className,account.testingAccount]),next,error)) as any;
     const update = (id: string, rule?: CoinRule) => {
       if (active)
         setState(previous =>
@@ -107,7 +110,7 @@ export function useTaskCoinRewards(
       if(game?.rulesProtocol==='rules-game/1'&&game.mazeVersion)unsubscribe.push(onSnapshot(doc(db,'gameRulesVersions',game.mazeVersion),{includeMetadataChanges:true},snapshot=>{
         const v=snapshot.data();versionEnabled=confirmed(snapshot)&&v?.enabled===true&&v.protocol==='rules-game/1'&&v.gameId===game.gameId&&v.version===game.version&&v.taskId===id&&typeof v.acceptFrom?.toMillis==='function';updateEnabled();
       },()=>{versionEnabled=false;updateEnabled();}));
-      unsubscribe.push(
+      if(!rulesAssessmentEnabled(readable.find(task=>task.id===id)!))unsubscribe.push(
         onSnapshot(
           doc(db, "rewardPolicies", id),
           { includeMetadataChanges: true },

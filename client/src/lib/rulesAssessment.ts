@@ -1,4 +1,4 @@
-import {doc,getDoc as firestoreGetDoc,getDocFromServer,runTransaction as firestoreRunTransaction,serverTimestamp,type Firestore} from 'firebase/firestore';
+import {doc,getDoc as firestoreGetDoc,getDocFromServer as firestoreGetDocFromServer,runTransaction as firestoreRunTransaction,serverTimestamp,type Firestore} from 'firebase/firestore';
 import {coinAward,defaultCoinRule,type CoinRule} from './coinModel.ts';
 export type PublicQuestion={id:string;type:'choice'|'short';prompt:string;points:number;options?:string[];image?:string;imagePosition?:{x:number;y:number}};
 export type PublicAssessment={taskId:string;version:string;title:string;questions:PublicQuestion[];questionCount:number;shortCount:number;totalPoints:number};
@@ -16,6 +16,10 @@ export function startAudit(db:Firestore){const audit=emptyAudit();audits.set(db,
 const getDoc:typeof firestoreGetDoc=async(ref:any)=>{
   const audit=audits.get(ref.firestore as object);if(audit)audit.documentReadCalls++;
   return firestoreGetDoc(ref) as any;
+};
+const getDocFromServer:typeof firestoreGetDocFromServer=async(ref:any)=>{
+  const audit=audits.get(ref.firestore as object);if(audit)audit.documentReadCalls++;
+  return firestoreGetDocFromServer(ref) as any;
 };
 const runTransaction:typeof firestoreRunTransaction=async(db:any,callback:any,options?:any)=>{
   const audit=audits.get(db);if(audit)audit.transactionCalls++;
@@ -49,7 +53,7 @@ function quote(rule:CoinRule,score:number|null){
   const winner=rule.mode==='tiers'?[...rule.tiers].filter(t=>t.minimum<=value).sort((a,b)=>b.minimum-a.minimum)[0]:undefined;
   return{rewardAmount,tierIndex:winner?rule.tiers.findIndex(t=>t.minimum===winner.minimum):-1};
 }
-export async function sealAnswers(db:Firestore,attemptId:string,studentId:string,meta:PublicAssessment,answers:RawAnswer[]){
+export async function sealAnswers(db:Firestore,attemptId:string,studentId:string,meta:Pick<PublicAssessment,'taskId'|'version'>,answers:RawAnswer[]){
   requireLocal(db);
   await runTransaction(db,async tx=>{
     const ref=doc(db,'submissions',attemptId),old=await tx.get(ref);
@@ -63,84 +67,106 @@ export async function sealAnswers(db:Firestore,attemptId:string,studentId:string
     tx.set(doc(db,'progress',studentId,'tasks',meta.taskId),{score:0,progress:100,attemptId,syncedAt:serverTimestamp()});
   });
 }
-export async function verifyMC(db:Firestore,attemptId:string,stats:ProbeStats={accepted:0,rejected:0}){
-  requireLocal(db);
+type AttemptContext={source:any;meta:PublicAssessment};
+async function attemptContext(db:Firestore,attemptId:string):Promise<AttemptContext>{
   const source=(await getDoc(doc(db,'submissions',attemptId))).data()!;
   const meta=(await getDoc(doc(db,'assessmentVersions',`${source.taskId}--${source.version}`))).data() as PublicAssessment;
+  return{source,meta};
+}
+export async function verifyMC(db:Firestore,attemptId:string,stats:ProbeStats={accepted:0,rejected:0}){
+  requireLocal(db);
+  return verifyWithContext(db,attemptId,await attemptContext(db,attemptId),stats);
+}
+async function verifyWithContext(db:Firestore,attemptId:string,{source,meta}:AttemptContext,stats:ProbeStats={accepted:0,rejected:0}){
   const aggregateRef=doc(db,'assessmentGrading',attemptId);
-  await runTransaction(db,async tx=>{
-    const existing=await tx.get(aggregateRef);if(existing.exists())return;
-    tx.set(aggregateRef,{studentId:source.studentId,taskId:source.taskId,version:source.version,index:0,mcPoints:0});
-  });
+  const freshCheckpoint=async(error:unknown,afterIndex:number)=>{
+    if((error as {code?:string}).code!=='permission-denied')throw error;
+    const fresh=(await getDocFromServer(aggregateRef)).data();
+    // Rules can reject a stale write before the SDK sees a transaction conflict.
+    // Recover only from server evidence for this same immutable submission.
+    if(!fresh||fresh.studentId!==source.studentId||fresh.taskId!==source.taskId||fresh.version!==source.version||
+      !Number.isInteger(fresh.index)||fresh.index<=afterIndex||fresh.index>meta.questionCount)throw error;
+    return fresh;
+  };
+  let current=await runTransaction(db,async tx=>{
+    const existing=await tx.get(aggregateRef);if(existing.exists())return existing.data();
+    const initial={studentId:source.studentId,taskId:source.taskId,version:source.version,index:0,mcPoints:0};
+    tx.set(aggregateRef,initial);return initial;
+  }).catch(error=>freshCheckpoint(error,-1));
   for(;;){
-    const current=(await getDoc(aggregateRef)).data()!;
     if(current.index===meta.questionCount)return stats;
     const index=current.index as number,q=meta.questions[index];
-    const advance=async(awarded:number)=>runTransaction(db,async tx=>{
+    const advance=async(awarded:number,recoverRace=false)=>runTransaction(db,async tx=>{
       const latest=(await tx.get(aggregateRef)).data()!;
-      if(latest.index!==index)return false; // Another retry has already progressed.
+      if(latest.index!==index)return {advanced:false,current:latest}; // A peer progressed; use its transaction snapshot.
       if(q.type==='choice')tx.set(doc(db,'assessmentMarks',attemptId,'items',String(index)),{index,awarded,createdAt:serverTimestamp()});
       tx.update(aggregateRef,{index:index+1,mcPoints:latest.mcPoints+awarded});
-      return true;
+      return {advanced:true,current:{...latest,index:index+1,mcPoints:latest.mcPoints+awarded}};
+    }).catch(async error=>{
+      if(!recoverRace)throw error;
+      return{advanced:false,current:await freshCheckpoint(error,index)};
     });
-    if(q.type==='short'){await advance(0);continue;}
+    if(q.type==='short'){current=(await advance(0,true)).current;continue;}
     // Rules are a boolean gate, not a computation endpoint. There are exactly
     // two possible awards for an immutable MC answer. Only one can be accepted.
-    try{if(await advance(0))stats.accepted++;}
+    try{const result=await advance(0);current=result.current;if(result.advanced)stats.accepted++;}
     catch(error){
       if((error as {code?:string}).code!=='permission-denied')throw error;
       stats.rejected++;
-      if(await advance(q.points))stats.accepted++;
+      const result=await advance(q.points,true);current=result.current;if(result.advanced)stats.accepted++;
     }
   }
 }
-async function prepareRewardQuote(db:Firestore,attemptId:string,revision:number,score:number){
-  const s=(await getDoc(doc(db,'submissions',attemptId))).data()!;
+async function prepareRewardQuote(db:Firestore,attemptId:string,revision:number,score:number,s:any){
   const settings=await getDoc(doc(db,'coinRules',s.taskId)),rule=(settings.data()??defaultCoinRule) as CoinRule;
   const q=quote(rule,score),ref=doc(db,'assessmentRewardQuotes',`${attemptId}--${revision}`);
-  try{await runTransaction(db,async tx=>{
+  let checked:number;
+  try{checked=await runTransaction(db,async tx=>{
     const existing=await tx.get(ref),old=existing.data();
-    if(old&&sameRule(old.rule,rule)&&old.score===score&&old.amount===q.rewardAmount&&old.tierIndex===q.tierIndex)return;
+    if(old&&sameRule(old.rule,rule)&&old.score===score&&old.amount===q.rewardAmount&&old.tierIndex===q.tierIndex)return old.checked as number;
     tx.set(ref,{attemptId,revision,score,amount:q.rewardAmount,tierIndex:q.tierIndex,rule,checked:0});
+    return 0;
   });}catch(error){
     if((error as {code?:string}).code!=='permission-denied')throw error;
     const fresh=(await getDocFromServer(ref)).data();
     if(!fresh||fresh.attemptId!==attemptId||fresh.revision!==revision||fresh.score!==score||
       fresh.amount!==q.rewardAmount||fresh.tierIndex!==q.tierIndex||!sameRule(fresh.rule,rule))throw error;
+    checked=fresh.checked;
   }
   if(rule.mode==='tiers')for(;;){
-    if((await getDoc(ref)).data()!.checked===rule.tiers.length)break;
+    if(checked===rule.tiers.length)break;
     let attempted:number|undefined;
     try{
-      await runTransaction(db,async tx=>{
+      checked=await runTransaction(db,async tx=>{
         const current=(await tx.get(ref)).data()!;
-        if(current.checked===rule.tiers.length)return;
+        if(current.checked===rule.tiers.length)return current.checked as number;
         attempted=current.checked;
         tx.update(ref,{checked:current.checked+1});
+        return current.checked+1;
       });
     }catch(error){
       if((error as {code?:string}).code!=='permission-denied'||attempted===undefined)throw error;
       // A competing finalizer can advance this immutable proof before Rules
       // evaluate our checkpoint. Continue only when the server proves that race.
-      const audit=audits.get(db as object);if(audit)audit.documentReadCalls++;
       const fresh=(await getDocFromServer(ref)).data();
       if(!fresh||fresh.checked<=attempted||fresh.attemptId!==attemptId||fresh.revision!==revision||
         fresh.score!==score||fresh.amount!==q.rewardAmount||fresh.tierIndex!==q.tierIndex||
         !sameRule(fresh.rule,rule))throw error;
+      checked=fresh.checked;
     }
   }
 }
-async function commitGrade(db:Firestore,attemptId:string,edit?:{revision:number;shortMarks:(number|null)[]}){
+async function commitGrade(db:Firestore,attemptId:string,edit?:{revision:number;shortMarks:(number|null)[]},context?:AttemptContext){
   requireLocal(db);
-  const current=(await getDoc(doc(db,'submissions',attemptId))).data()!;
+  const current=context?.source??(await getDoc(doc(db,'submissions',attemptId))).data()!;
   if(!edit&&current.grade)return current.grade as RulesGrade;
   if(edit&&current.grade?.revision===edit.revision+1&&JSON.stringify(current.grade.shortMarks)===JSON.stringify(edit.shortMarks))return current.grade as RulesGrade;
-  const meta=(await getDoc(doc(db,'assessmentVersions',`${current.taskId}--${current.version}`))).data() as PublicAssessment;
+  const meta=context?.meta??(await getDoc(doc(db,'assessmentVersions',`${current.taskId}--${current.version}`))).data() as PublicAssessment;
   const aggregate=(await getDoc(doc(db,'assessmentGrading',attemptId))).data()!;
   const shorts=edit?(await getDoc(doc(db,'assessmentShortGrading',`${attemptId}--${edit.revision+1}`))).data():undefined;
   if(meta.shortCount===0||shorts?.markedCount===meta.shortCount){
     const score=Math.round(100*(aggregate.mcPoints+(shorts?.shortPoints??0))/meta.totalPoints);
-    try{await prepareRewardQuote(db,attemptId,(current.grade?.revision??0)+1,score);}catch(error){if(error&&typeof error==='object')Object.assign(error,{assessmentStage:'prepareRewardQuote'});throw error;}
+    try{await prepareRewardQuote(db,attemptId,(current.grade?.revision??0)+1,score,current);}catch(error){if(error&&typeof error==='object')Object.assign(error,{assessmentStage:'prepareRewardQuote'});throw error;}
   }
   let attemptedGrade:RulesGrade|undefined;
   try{return await runTransaction(db,async tx=>{
@@ -176,7 +202,6 @@ async function commitGrade(db:Firestore,attemptId:string,edit?:{revision:number;
     return grade;
   });}catch(error){
     if((error as {code?:string}).code!=='permission-denied'||!attemptedGrade)throw error;
-    const audit=audits.get(db as object);if(audit)audit.documentReadCalls++;
     const saved=(await getDocFromServer(doc(db,'submissions',attemptId))).data()?.grade as RulesGrade|undefined;
     // The atomic grade/ledger may already have committed in another finalizer.
     // An unchanged, missing or different grade never turns a denial into success.
@@ -185,10 +210,10 @@ async function commitGrade(db:Firestore,attemptId:string,edit?:{revision:number;
     return saved;
   }
 }
-async function grantFeedback(db:Firestore,attemptId:string){
-  const s=(await getDoc(doc(db,'submissions',attemptId))).data()!;
+async function grantFeedback(db:Firestore,attemptId:string,context?:AttemptContext){
+  const s=context?.source??(await getDoc(doc(db,'submissions',attemptId))).data()!;
   if(s.protocol!=='rules-assessment/1')return;
-  const meta=(await getDoc(doc(db,'assessmentVersions',`${s.taskId}--${s.version}`))).data()!;
+  const meta=context?.meta as any??(await getDoc(doc(db,'assessmentVersions',`${s.taskId}--${s.version}`))).data()!;
   if(s.createdAt.toMillis()<meta.acceptFrom.toMillis())return;
   const ref=doc(db,'assessmentFeedbackAccess',s.studentId,'versions',`${s.taskId}--${s.version}`);
   try{await runTransaction(db,async tx=>{
@@ -201,8 +226,12 @@ async function grantFeedback(db:Firestore,attemptId:string){
   }
 }
 export async function finishAssessment(db:Firestore,attemptId:string){
+  requireLocal(db);
+  return finishWithContext(db,attemptId);
+}
+async function finishWithContext(db:Firestore,attemptId:string,context?:AttemptContext){
   let grade:RulesGrade;
-  try{grade=await commitGrade(db,attemptId);}catch(error){
+  try{grade=await commitGrade(db,attemptId,undefined,context);}catch(error){
     if((error as {code?:string}).code!=='permission-denied')throw error;
     // A peer may finish this sealed MC attempt while our proof transaction is
     // being evaluated. Return only a complete server-validated first grade;
@@ -213,14 +242,14 @@ export async function finishAssessment(db:Firestore,attemptId:string){
     if(!meta||meta.shortCount!==0||saved.grade.shortMarks.length!==meta.questionCount||saved.grade.shortMarks.some((m:any)=>m!==null))throw error;
     grade=saved.grade;
   }
-  try{await grantFeedback(db,attemptId);}catch(error){if(error&&typeof error==='object')Object.assign(error,{assessmentStage:'grantFeedback'});throw error;}return grade;
+  try{await grantFeedback(db,attemptId,context);}catch(error){if(error&&typeof error==='object')Object.assign(error,{assessmentStage:'grantFeedback'});throw error;}return grade;
 }
 export async function saveShortGrade(db:Firestore,attemptId:string,revision:number,shortMarks:(number|null)[]){
   requireLocal(db);
   const id=`${attemptId}--${revision+1}`,draftRef=doc(db,'assessmentShortDrafts',id),aggregateRef=doc(db,'assessmentShortGrading',id);
   const s=(await getDoc(doc(db,'submissions',attemptId))).data()!;
   const meta=(await getDoc(doc(db,'assessmentVersions',`${s.taskId}--${s.version}`))).data() as PublicAssessment;
-  if(s.grade?.revision===revision+1&&JSON.stringify(s.grade.shortMarks)===JSON.stringify(shortMarks)){await grantFeedback(db,attemptId);return s.grade as RulesGrade;}
+  if(s.grade?.revision===revision+1&&JSON.stringify(s.grade.shortMarks)===JSON.stringify(shortMarks)){await grantFeedback(db,attemptId,{source:s,meta});return s.grade as RulesGrade;}
   if(s.grade?.revision!==revision)throw new Error('批改版本已更新，請重新讀取。');
   if(shortMarks.length!==meta.questionCount||meta.questions.some((q,i)=>q.type==='choice'?shortMarks[i]!==null
     :shortMarks[i]!==null&&(!Number.isFinite(shortMarks[i])||shortMarks[i]!<0||shortMarks[i]!>q.points)))
@@ -233,19 +262,33 @@ export async function saveShortGrade(db:Firestore,attemptId:string,revision:numb
     }
     tx.set(draftRef,{attemptId,revision:revision+1,marks:shortMarks,createdAt:serverTimestamp()});
   });
-  await runTransaction(db,async tx=>{if((await tx.get(aggregateRef)).exists())return;tx.set(aggregateRef,{index:0,shortPoints:0,markedCount:0});});
+  let aggregate=await runTransaction(db,async tx=>{
+    const existing=await tx.get(aggregateRef);if(existing.exists())return existing.data();
+    const initial={index:0,shortPoints:0,markedCount:0};tx.set(aggregateRef,initial);return initial;
+  });
   for(;;){
-    const aggregate=(await getDoc(aggregateRef)).data()!;if(aggregate.index===meta.questionCount)break;
-    await runTransaction(db,async tx=>{
-      const current=(await tx.get(aggregateRef)).data()!;if(current.index===meta.questionCount)return;
+    if(aggregate.index===meta.questionCount)break;
+    aggregate=await runTransaction(db,async tx=>{
+      const current=(await tx.get(aggregateRef)).data()!;if(current.index===meta.questionCount)return current;
       const i=current.index,mark=shortMarks[i];
-      tx.update(aggregateRef,{index:i+1,shortPoints:current.shortPoints+(mark??0),markedCount:current.markedCount+(meta.questions[i].type==='short'&&mark!==null?1:0)});
+      const next={index:i+1,shortPoints:current.shortPoints+(mark??0),markedCount:current.markedCount+(meta.questions[i].type==='short'&&mark!==null?1:0)};
+      tx.update(aggregateRef,next);return next;
     });
   }
-  const grade=await commitGrade(db,attemptId,{revision,shortMarks});await grantFeedback(db,attemptId);return grade;
+  const context={source:s,meta};
+  const grade=await commitGrade(db,attemptId,{revision,shortMarks},context);await grantFeedback(db,attemptId,context);return grade;
 }
-export async function submitAndSettle(db:Firestore,attemptId:string,studentId:string,meta:PublicAssessment,answers:RawAnswer[],stats?:ProbeStats){
+export async function submitAndSettle(db:Firestore,attemptId:string,studentId:string,meta:Pick<PublicAssessment,'taskId'|'version'>,answers:RawAnswer[],stats?:ProbeStats){
   await sealAnswers(db,attemptId,studentId,meta,answers);
-  await verifyMC(db,attemptId,stats);
-  return finishAssessment(db,attemptId);
+  try{return await settleSealedAssessment(db,attemptId,stats);}catch(error){
+    if(error&&typeof error==='object')Object.assign(error,{submissionUploaded:true});throw error;
+  }
+}
+export async function settleSealedAssessment(db:Firestore,attemptId:string,stats?:ProbeStats){
+  requireLocal(db);
+  const context=await attemptContext(db,attemptId);
+  // Immutable version/source are reused only within this operation. Mutable
+  // aggregate, reward settings, access and ledger still have server/transaction checks.
+  if(!context.source.grade)await verifyWithContext(db,attemptId,context,stats);
+  return finishWithContext(db,attemptId,context);
 }

@@ -109,10 +109,10 @@ test("refresh reads existing grades without manually minting rewards and leaves 
   const w = workspace();
   w.control.pages = [[snapshot("graded", { ...row("graded"), status: "graded", score: 80 }), snapshot("pending", { ...row("pending"), status: "pending" })]];
   w.mount(); await settle();
-  assert.ok(w.calls.includes("mark:graded"));
+  assert.ok(!w.calls.includes("mark:graded"));
   assert.ok(!w.calls.includes("mark:pending"));
   w.click("重新整理"); await settle();
-  assert.equal(w.calls.filter(c => c === "mark:graded").length, 2);
+  assert.equal(w.calls.filter(c => c === "mark:graded").length, 0);
 });
 
 function cloud(grade) {

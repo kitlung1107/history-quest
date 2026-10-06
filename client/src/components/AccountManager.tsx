@@ -17,6 +17,7 @@ import {
 } from "@/lib/csv";
 import type { CloudProfile } from "@/contexts/StudentAccount";
 import AccessRequestManager from "./AccessRequestManager";
+import {readCompleteCollection} from '@/lib/boundedCollection';
 import { commitEnrollmentChunk, importStudentEnrollments, waitForEnrollmentPreparations, enrollmentNotice } from "@/lib/enrollment";
 type Entry = { id: string; profile: CloudProfile };
 type Access = { email: string; studentId: string; enabled: boolean; testing?: boolean };
@@ -218,10 +219,10 @@ export default function AccountManager({
       return;
     }
     const [ps, acs, meta, logins] = await Promise.all([
-      getDocs(collection(db, "profiles")),
-      getDocs(collection(db, "access")),
+      readCompleteCollection(db, "profiles"),
+      readCompleteCollection(db, "access"),
       getDoc(doc(db, "metadata", "enrollment")),
-      getDocs(collection(db, "studentLogins")),
+      readCompleteCollection(db, "studentLogins"),
     ]);
     setProfiles(
       ps.docs.map(d => ({ id: d.id, profile: d.data() as CloudProfile }))
