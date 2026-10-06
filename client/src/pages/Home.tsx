@@ -3,10 +3,11 @@ import {
   SITE_SETTINGS as defaults,
   PUBLIC_TOPICS,
   gradeTitle,
-  mediaUrl,
 } from "@/lib/siteSettings";
 import GradeLock from "@/components/GradeLock";
 import HomeHeroImage from "@/components/HomeHeroImage";
+import ResponsiveImage from "@/components/ResponsiveImage";
+import { heroImageSizes, TASK_IMAGE_SIZES } from "@/lib/responsiveImage";
 import { EXPLORER_CARDS } from "@/lib/cards";
 import { CARD_BACKGROUNDS } from "@/lib/cardBackgrounds";
 import { resolveCardBackground } from "@/lib/cardBackground";
@@ -165,6 +166,7 @@ export default function Home({
                 fallback={settings.hero}
                 fallbackAlt={settings.heroAlt}
                 position={settings.heroPosition}
+                sizes={heroImageSizes(desktopSidebarOpen)}
               />
               <div className="hero-title-wrap">
                 <h1 className="display-title">{settings.title}</h1>
@@ -189,8 +191,9 @@ export default function Home({
                         className={`mission-card mission-${task.accent}`}
                       >
                         <div className="mission-image">
-                          <img
-                            src={mediaUrl(task.image)}
+                          <ResponsiveImage
+                            src={task.image}
+                            sizes={TASK_IMAGE_SIZES}
                             alt=""
                             style={{
                               objectPosition: imagePosition(task.imagePosition),

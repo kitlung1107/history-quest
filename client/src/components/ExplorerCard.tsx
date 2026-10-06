@@ -7,6 +7,8 @@ import {
 import { Close as PopoverClose } from "@radix-ui/react-popover";
 import type { ExplorerCard as Card } from "@/lib/cardModel";
 import { cardIdentity } from "@/lib/cardModel";
+import ResponsiveImage from "./ResponsiveImage";
+import { SIDEBAR_IMAGE_SIZES } from "@/lib/responsiveImage";
 import { mediaUrl } from "@/lib/siteSettings";
 
 function FittedLabel({
@@ -131,8 +133,10 @@ function FittedLabel({
 export default function ExplorerCard({
   card,
   profile,
+  imagePriority,
 }: {
   card: Card | null;
+  imagePriority?: boolean;
   profile: {
     nickname?: string;
     className: string;
@@ -155,11 +159,17 @@ export default function ExplorerCard({
   return (
     <figure className="explorer-card-figure" data-card-image={card.image}>
       <div className={`explorer-card explorer-card-${card.edition}`} aria-label={card.name}>
-        <img
+        {imagePriority === undefined ? <img
           src={mediaUrl(card.image)}
           alt={card.name}
           onError={() => setBroken(true)}
-        />
+        /> : <ResponsiveImage
+          src={card.image}
+          priority={imagePriority}
+          sizes={SIDEBAR_IMAGE_SIZES}
+          alt={card.name}
+          onError={() => setBroken(true)}
+        />}
         <FittedLabel text={nickname} kind="nickname" />
         <FittedLabel text={identity} kind="identity" />
       </div>

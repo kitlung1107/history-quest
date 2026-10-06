@@ -40,6 +40,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import CoinDrawEntry from "./CoinDrawEntry";
 
 type SidebarProps = {
+  imagePriority?: boolean;
   previewSettings?: typeof defaults;
   previewProfile?: CloudProfile;
   previewFullCardAccess?: boolean;
@@ -64,6 +65,7 @@ function SidebarBody({
   onChangeCharacter,
   onCoinDraw,
   coinDrawDemo,
+  imagePriority,
 }: SidebarProps) {
   // Keep transient touch/pen feedback separate from the selected topic.
   const [pressedTopic, setPressedTopic] = useState<string | null>(null);
@@ -76,6 +78,7 @@ function SidebarBody({
       <div className="collection-card-area">
         <ExplorerCard
           card={card}
+          imagePriority={imagePriority}
           profile={{ ...student, nickname: profile?.nickname }}
         />
         <CoinBalance />
@@ -227,7 +230,7 @@ export default function HistorySidebar({
             <X aria-hidden="true" className="h-5 w-5" />
           </button>
           <div className="desktop-sidebar-scroll">
-            <SidebarBody {...props} />
+            <SidebarBody {...props} imagePriority={desktopOpen} />
           </div>
         </aside>
       </div>
@@ -280,6 +283,7 @@ export default function HistorySidebar({
             <div className="h-full overflow-y-auto p-4">
               <SidebarBody
                 {...props}
+                imagePriority
                 onCoinDraw={props.onCoinDraw ? () => {
                   setOpen(false);
                   props.onCoinDraw?.();
