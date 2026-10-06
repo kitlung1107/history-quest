@@ -695,6 +695,25 @@
   }
 }
 
+/* Portrait covers keep the newspaper masthead in the central sky, clear of faces. */
+@media (orientation:portrait) and (max-width:1400px) {
+  .manga-home .hero-title-wrap {
+    position:absolute; top:6.5%; left:16%; width:68%; margin:0;
+    padding:0; background:transparent; border-radius:0;
+  }
+  .manga-home .hero-title-wrap::before { display:none; }
+  .manga-home .hero-title-wrap h1 {
+    font-size:clamp(15px,5.2cqw,42px);
+    line-height:1.5; letter-spacing:.055em;
+    color:var(--hero-title-color,#19344b);
+  }
+  .manga-home .hero-english-subtitle {
+    font-size:clamp(10px,2.7cqw,22px);
+    line-height:1.6; letter-spacing:.052em;
+    color:var(--hero-subtitle-color,#30495d);
+  }
+}
+
 .grade-content { position: relative; min-height: 380px; }
 .grade-lock { min-height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 32px; text-align: center; background: rgba(21, 24, 29, .88); color: white; border-radius: 8px; }
 .grade-content > .grade-lock { position: absolute; inset: 0; z-index: 10; }
