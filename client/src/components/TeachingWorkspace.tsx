@@ -11,6 +11,7 @@ import {
 } from "@/lib/assessment";
 import { downloadCsv, parseRoster } from "@/lib/csv";
 import { teachingApi } from "@/lib/teachingApi";
+import { readSubmissionDetails } from "@/lib/cloudStore";
 import McFeedback from "./McFeedback";
 import { getMcEncouragement } from "@/lib/mcEncouragement";
 
@@ -85,8 +86,13 @@ export default function TeachingWorkspace({
       setBusy(false);
     }
   }
-  function exportRows(detailed = false) {
-    downloadCsv(detailed ? "逐題答案.csv" : "任務成績.csv", submissionExport(visible, detailed));
+  async function details(row:SubmissionRow){
+    return row.protocol==='rules-assessment/1'&&!row.answers&&!demo&&!legacy?readSubmissionDetails(row.attempt_id):row;
+  }
+  async function exportRows(detailed = false) {
+    const rows=detailed?await Promise.all(visible.map(details)):visible;
+    if(detailed)setData(current=>({...current,rows:current.rows.map(row=>rows.find(r=>r.attempt_id===row.attempt_id)??row)}));
+    downloadCsv(detailed ? "逐題答案.csv" : "任務成績.csv", submissionExport(rows, detailed));
   }
   return (
     <section className="admin-panel mt-6 p-4 md:p-6">
@@ -207,14 +213,14 @@ export default function TeachingWorkspace({
           <div className="mb-4 flex flex-wrap gap-2">
             <button
               className="pixel-button pixel-button-paper"
-              onClick={() => exportRows()}
+              onClick={() => void perform(() => exportRows())}
             >
               匯出篩選成績 CSV
             </button>
             <button
               className="pixel-button pixel-button-paper"
-              disabled={!visible.some(r => r.answers?.length)}
-              onClick={() => exportRows(true)}
+              disabled={busy || loading || !visible.some(r => r.answers?.length || (r.protocol==='rules-assessment/1' && r.revision))}
+              onClick={() => void perform(() => exportRows(true))}
             >
               匯出逐題答案 CSV
             </button>
@@ -265,12 +271,12 @@ export default function TeachingWorkspace({
                     <td>
                       <button
                         className="underline"
-                        disabled={!row.answers?.length}
-                        onClick={() => setSelected(row)}
+                        disabled={busy || loading || (!row.answers?.length && !(row.protocol==='rules-assessment/1' && row.revision))}
+                        onClick={() => void perform(async()=>{const loaded=await details(row);setSelected(loaded);setData(current=>({...current,rows:current.rows.map(r=>r.attempt_id===loaded.attempt_id?loaded:r)}));})}
                       >
                         {row.answers?.length
                           ? row.answers.some(answer => answer.type !== "choice") ? "查閱／批改" : "查閱 MC 回饋"
-                          : "待核算選擇題"}
+                          : row.revision ? "查閱／批改" : "待核算選擇題"}
                       </button>
                     </td>
                   </tr>

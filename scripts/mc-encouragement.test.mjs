@@ -88,7 +88,7 @@ test("pure MC is read-only for teachers, mixed/non-MC allow manual comments and 
   const Review = compile("../client/src/components/TeachingWorkspace.tsx", {
     "react/jsx-runtime": jsx, react: React,
     "@/lib/teachingExport": {}, "@/lib/classOptions": {}, "@/lib/historyQuest": {},
-    "@/lib/assessment": assessment, "@/lib/csv": {}, "@/lib/teachingApi": {},
+    "@/lib/assessment": assessment, "@/lib/csv": {}, "@/lib/teachingApi": {}, "@/lib/cloudStore": {},
     "./McFeedback": { default: McFeedback }, "@/lib/mcEncouragement": encouragement,
   }, "\nexport { Review };").Review;
   for (const [items, mc, manual] of [[[choice(true)], true, false], [[choice(true), short], true, true], [[short], false, true]]) {

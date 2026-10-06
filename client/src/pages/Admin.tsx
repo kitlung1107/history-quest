@@ -18,6 +18,7 @@ export default function Admin() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [catalogueNotice, setCatalogueNotice] = useState("");
+  const [accountsOpen, setAccountsOpen] = useState(false);
   // The ref also guards rapid clicks and React's repeated effect setup.
   const running = useRef(false);
   const pagesLoaded = useRef(1);
@@ -73,8 +74,8 @@ export default function Admin() {
       let processed = 0;
       const failures: string[] = [];
       for (const snapshot of docs) {
-        // Short answers with a pending grade already exist; never regrade them.
-        if (snapshot.data().grade && snapshot.data().grade.status !== "graded") continue;
+        // A saved grade (including pending short answers) needs no settlement.
+        if (snapshot.data().grade) continue;
         try {
           const grade = await markSubmission(snapshot.id);
           setData(current => current ? {
@@ -109,7 +110,7 @@ export default function Admin() {
       <a href={assessmentTransportEnabled ? import.meta.env.BASE_URL + "assessment-cms" : import.meta.env.BASE_URL + "cms/index.html"} className="pixel-button pixel-button-gold text-center">教材與題目管理（CMS）</a>
     </div>
     <h1 className="display-title my-6 text-3xl">教師工作室</h1><p>{account.user.email} · Firestore</p>
-    <p className="my-3">首次載入最新 100 份提交；「載入更早的 100 份」會同步題目並核算新增載入的未核算提交。「重新整理」會重新讀取目前已載入的頁數並重試核算。篩選、匯出及欠交比較只涵蓋已載入紀錄，需要完整比較時請先載入更多。</p>
+    <p className="my-3">首次載入最新 100 份提交摘要；重新整理只續傳未完成核算的提交，已有成績不會再次核算。查閱／批改及逐題匯出時才載入答案詳情。篩選、匯出及欠交比較只涵蓋已載入紀錄，需要完整比較時請先載入更多。</p>
     <p className="mt-3 text-sm">自動獎勵啟用後的新提交，由後端按教師題庫核算客觀題；短答在必要批改完成後自動結算。每人每任務只發放一次正數獎勵。啟用前的舊紀錄不會自動補派；重新整理只核算成績。冷戰迷宮待可信通關驗證接通後才啟用自動獎勵。</p>
     {notice && <p role="status" className="my-4 whitespace-pre-wrap border-2 p-3">{notice}</p>}
     {catalogueNotice && <p role="status" className="my-4 border-2 p-3">{catalogueNotice}</p>}
@@ -118,7 +119,8 @@ export default function Admin() {
     {more && <button disabled={busy} className="pixel-button pixel-button-paper my-4" onClick={() => void refreshWorkspace(true)}>載入更早的 100 份</button>}
     <a className="pixel-button pixel-button-teal my-4" href={`${import.meta.env.BASE_URL}?gameRecords=teacher`}>學生遊戲場次與錯題庫</a>
     <CoinRewardRecords />
-    <AccountManager onChanged={() => refreshWorkspace()} />
+    <button className="pixel-button pixel-button-paper my-4" onClick={() => setAccountsOpen(open => !open)}>{accountsOpen ? '收起學生帳戶名單' : '載入學生帳戶名單'}</button>
+    {accountsOpen && <AccountManager onChanged={() => refreshWorkspace()} />}
   </div></main>;
 }
 

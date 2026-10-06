@@ -3,11 +3,10 @@ import {db} from './firebase';
 import {auth} from './firebase';
 import {localMockIdentity,localIdentity} from './localAssessment';
 import {assessmentActor,requireAssessmentActor} from './assessmentSession';
-import {submitAndSettle,finishAssessment,verifyMC,saveShortGrade,type PublicAssessment,type RulesGrade} from './rulesAssessment';
+import {submitAndSettle,settleSealedAssessment,saveShortGrade,type PublicAssessment,type RulesGrade} from './rulesAssessment';
 import {getQuestions,markAnswers,type Answer,type Question,type SubmissionRow} from './assessment';
 import type {CloudProfile} from '@/contexts/StudentAccount';
 import type {HistoryTask} from './historyQuest';
-const rows=new Map<string,SubmissionRow>();
 export const isRulesSubmission=(data:any)=>data.protocol==='rules-assessment/1';
 export async function assessmentMetadata(taskId:string,version:string){
   const s=await getDocFromServer(doc(db,'assessmentVersions',`${taskId}--${version}`));
@@ -23,10 +22,10 @@ export async function privateQuestions(task:HistoryTask):Promise<Question[]>{
 }
 export async function submitRulesCloud(sid:string,id:string,taskId:string,version:string,answers:Answer[]){
   await requireAssessmentActor(sid);
-  const meta=await assessmentMetadata(taskId,version);
-  await submitAndSettle(db,id,sid,meta,answers);
+  // sealAnswers only needs the immutable identity. Settlement reads the public
+  // version once from the server; Rules still validate it at every checkpoint.
+  await submitAndSettle(db,id,sid,{taskId,version},answers);
 }
-export function cachedRulesRow(id:string){return rows.get(id);}
 export async function readRulesResult(id:string,data?:any,profile?:CloudProfile){
   const source=data??(await getDocFromServer(doc(db,'submissions',id))).data();
   const meta=await assessmentMetadata(source.taskId,source.version);
@@ -44,11 +43,11 @@ export async function readRulesResult(id:string,data?:any,profile?:CloudProfile)
   if(answers)answers=answers.map(a=>({...a,feedback:currentReview?.questions[a.question_id]??''}));
   const p=profile??(await getDocFromServer(doc(db,'profiles',source.studentId))).data() as CloudProfile;
   const row:SubmissionRow={protocol:"rules-assessment/1",attempt_id:id,task_id:source.taskId,task_title:meta.title,timestamp:source.createdAt?.toDate().toISOString()??'',class_name:p?.className??'',student_name:p?.name??'',student_no:p?.studentNo??'',score:grade?.score??null,progress:100,status:grade?.status??'pending',revision:grade?.revision??0,answers,feedback:currentReview?.feedback??''};
-  rows.set(id,row);return{row,questions};
+  return{row,questions};
 }
 export async function resumeRulesSubmission(id:string){
   await requireAssessmentActor();
-  await verifyMC(db,id);await finishAssessment(db,id);return (await readRulesResult(id)).row;
+  await settleSealedAssessment(db,id);return (await readRulesResult(id)).row;
 }
 type Mark={question_id:string;awarded:number;feedback?:string};
 type Edit={id:string;revision:number;marks:Mark[];feedback:string};
@@ -66,7 +65,7 @@ async function completeEdit(edit:Edit){
   sessionStorage.setItem(outboxKey(),JSON.stringify(outbox().filter(e=>e.id!==edit.id)));
   return row;
 }
-export async function recoverGradingOutbox(){if(!(await assessmentActor()).teacher)return;for(const edit of outbox())await completeEdit(edit);}
+export async function recoverGradingOutbox(){const edits=outbox();if(!edits.length)return;if(!(await assessmentActor()).teacher)return;for(const edit of edits)await completeEdit(edit);}
 export async function saveRulesGrade(id:string,revision:number,marks:Mark[],feedback:string){
   await requireAssessmentActor(undefined,true);
   if(feedback.length>8000||marks.some(m=>(m.feedback??'').length>8000))throw Error('評語最多 8000 字。');

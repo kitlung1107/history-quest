@@ -10,7 +10,7 @@ import { getQuestions } from "@/lib/assessment";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import type { DocumentSnapshot } from "firebase/firestore";
-import { asRow, loadSubmissions, type CloudSubmission } from "@/lib/cloudStore";
+import { asRow, loadSubmissions, readSubmissionDetails, type CloudSubmission } from "@/lib/cloudStore";
 import { useStudentAccount } from "@/contexts/StudentAccount";
 import type { SubmissionRow } from "@/lib/assessment";
 export default function MySubmissions() {
@@ -88,7 +88,8 @@ export default function MySubmissions() {
                 : "已收到答案，待教師核算或批改"}
             </p>
             <McFeedback feedback={r.mcFeedback} provisional={!r.revision} />
-            <RewardStatus rulesAssessment={r.protocol === "rules-assessment/1"} taskId={r.task_id} sourceId={r.attempt_id} />
+            {(r.protocol!=='rules-assessment/1'||r.answers)&&<RewardStatus rulesAssessment={r.protocol === "rules-assessment/1"} taskId={r.task_id} sourceId={r.attempt_id} />}
+            {r.protocol==='rules-assessment/1' && !r.answers && Boolean(r.revision) && <button disabled={busy} className="pixel-button pixel-button-paper" onClick={()=>{setBusy(true);void readSubmissionDetails(r.attempt_id,profile!).then(detail=>setRows(old=>old.map(row=>row.attempt_id===detail.attempt_id?{...detail,mcFeedback:getMcEncouragement(detail.attempt_id,detail.answers??[])}:row))).catch(()=>setError('詳情未能載入，請稍後再試。')).finally(()=>setBusy(false));}}>載入答案、獎勵及老師評語</button>}
             {r.answers?.map(a => (
               <div key={a.question_id} className="mt-3 border-t p-3">
                 <strong>{a.prompt}</strong>
