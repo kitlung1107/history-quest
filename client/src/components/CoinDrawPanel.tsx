@@ -75,11 +75,14 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
   const send = (message: unknown) =>
     frame.current?.contentWindow?.postMessage(message, location.origin);
   const legacyLayout = local && new URLSearchParams(location.search).get("layout") === "legacy";
-  const fittedViewport = () => !legacyLayout && (matchMedia("(max-width: 1024px) and (orientation: portrait)").matches || (innerWidth <= 1000 && innerHeight <= 520 && innerWidth > innerHeight));
+  const tabletLandscape = () => innerWidth > innerHeight && innerWidth <= 1399 && innerWidth >= 768 &&
+    (local || (matchMedia("(pointer: coarse)").matches && navigator.maxTouchPoints > 1));
+  const fittedViewport = () => !legacyLayout && (matchMedia("(max-width: 1024px) and (orientation: portrait)").matches || tabletLandscape() || (innerWidth <= 1000 && innerHeight <= 520 && innerWidth > innerHeight));
   const updateViewport = () => {
     const portrait = !legacyLayout && matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
     const compact = !legacyLayout && !portrait && innerWidth <= 1000 && innerHeight <= 520 && innerWidth > innerHeight;
-    if ((portrait || compact) && frame.current) {
+    const landscapeFit = !legacyLayout && !portrait && !compact && tabletLandscape();
+    if ((portrait || compact || landscapeFit) && frame.current) {
       const viewport = window.visualViewport;
       const top = Math.max(0, frame.current.getBoundingClientRect().top);
       const realHeight = viewport?.height ?? innerHeight;
@@ -97,7 +100,7 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
     const safeBottom = Math.max(parseFloat(insetStyle.paddingBottom) || 0,
       local ? Math.min(80, Math.max(0, Number(new URLSearchParams(location.search).get("safeBottom")) || 0)) : 0);
     insetProbe.remove();
-    send({ kind: "coin-draw-layout", portrait, compact, safeTop, safeBottom });
+    send({ kind: "coin-draw-layout", portrait, compact, landscapeFit, safeTop, safeBottom });
   };
   useEffect(() => {
     updateViewport();

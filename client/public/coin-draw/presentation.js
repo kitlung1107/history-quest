@@ -13,7 +13,7 @@ const stats={paintedFrames:0,angles:[],growth:[],push:[],poses:[],fall:[]};
 const easing=t=>t*t*(3-2*t),mix=(a,b,t)=>a+(b-a)*t,clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 $('feature-status').textContent=integrated?'交易成功後自動播放；加入卡片庫只會返回':demo?'效果示範，不扣探索幣或派發卡片':'抽卡功能尚未啟用，不會扣探索幣或派發卡片';
 function say(s){$('caption').textContent=s;}
-function controls(){$('start').hidden=phase!=='idle';$('start').disabled=!active||locked||(portrait.enabled&&!portrait.ready);$('join').hidden=phase!=='revealed';$('resume').hidden=phase!=='paused';}
+function controls(){$('start').hidden=phase!=='idle';$('start').disabled=!active||locked||((portrait.enabled||portrait.compact)&&!portrait.ready);$('join').hidden=phase!=='revealed';$('resume').hidden=phase!=='paused';}
 async function savePhase(){} // Deliberately no result saving or transaction in a UI-only effect.
 function halt(){if(!active||!current)return;token++;locked=false;model.pageGlow=0;phase='paused';controls();paint();say('效果示範已暫停。');}
 function initialModel(){return {angle:0,push:0,fall:0,land:0,grow:0,pageGlow:0,cardGlow:1,reveal:0,approach:0,reach:0,grip:0,shakeX:0,shakeY:0};}
@@ -68,7 +68,7 @@ function paint(){
  ctx.clearRect(0,0,canvas.width,canvas.height);
  if(portrait.paint(phase,model,integrated)){
   if(!['growing','screenfade','cardfade'].includes(phase))model.pageGlow=0;
-  $('white-overlay').style.opacity=String(model.pageGlow);stats.paintedFrames++;canvas.dataset.layout='portrait';canvas.dataset.phase=phase;canvas.dataset.pageGlow=String(model.pageGlow);return;
+  $('white-overlay').style.opacity=String(model.pageGlow);stats.paintedFrames++;canvas.dataset.layout=portrait.compact?'compact':'portrait';canvas.dataset.phase=phase;canvas.dataset.pageGlow=String(model.pageGlow);return;
  }
  background();portrait.phase(phase,model);if(!isPresent())teacher();updateActor();
  if(phase==='pushing'){const p=model.push,r=emittedCard(p);ctx.save();ctx.beginPath();ctx.rect(424,619,161,335);ctx.clip();littleCard(r);ctx.restore();if(p<.7){ctx.save();ctx.globalAlpha=1-easing(p/.7);ctx.drawImage(art['scene-no-tray'],420,658,163,13,420,658,163,13);ctx.restore();}}
@@ -77,7 +77,7 @@ function paint(){
  if(phase==='growing'){const r=cardRect(),flip=clamp(model.grow/.19),cos=Math.cos(flip*Math.PI);drawCard(flip<.5?art['card-back']:art['card-white'],r,cos,flip>=.5?1:0);}
  if(phase==='screenfade'||phase==='cardfade')drawCard(art['card-white'],portrait.result(finalRect),1,model.cardGlow);
  if(phase==='revealing'||phase==='revealed'){drawCard(art['card-white'],portrait.result(finalRect));ctx.save();ctx.globalAlpha=model.reveal;if(!integrated)drawCard(resultCardImage(),portrait.result(finalRect));ctx.restore();}
- portrait.restore();if(!['growing','screenfade','cardfade'].includes(phase))model.pageGlow=0;$('white-overlay').style.opacity=String(model.pageGlow);stats.paintedFrames++;canvas.dataset.layout=portrait.compact?'compact':'landscape';canvas.dataset.phase=phase;canvas.dataset.angle=String(model.angle);canvas.dataset.card=JSON.stringify(cardRect());canvas.dataset.pageGlow=String(model.pageGlow);
+ portrait.restore();if(!['growing','screenfade','cardfade'].includes(phase))model.pageGlow=0;$('white-overlay').style.opacity=String(model.pageGlow);stats.paintedFrames++;canvas.dataset.layout=portrait.compact?'compact':portrait.landscapeFit?'landscape-fit':'landscape';canvas.dataset.phase=phase;canvas.dataset.angle=String(model.angle);canvas.dataset.card=JSON.stringify(cardRect());canvas.dataset.pageGlow=String(model.pageGlow);
 }
 
 function animate(duration,update,id=token){return new Promise(resolve=>{const start=performance.now();function tick(now){if(id!==token){resolve(false);return;}const t=clamp((now-start)/(duration/speed));update(t);paint();if(t<1)requestAnimationFrame(tick);else resolve(true);}requestAnimationFrame(tick);});}
@@ -132,7 +132,7 @@ window.addEventListener('pagehide',()=>{
 media.addEventListener('change',()=>{if(reduced()&&current&&!['idle','loading','paused','revealed'].includes(phase)){token++;model.shakeX=0;model.shakeY=0;completeReveal();}});
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==parent)return;
- if(event.data?.kind==='coin-draw-layout'){portrait.insets(event.data.safeTop,event.data.safeBottom);portrait.update(event.data.portrait===true,event.data.compact===true);if(portrait.enabled||portrait.compact)void loadPortraitArt();controls();if(art['scene-no-tray'])paint();return;}
+ if(event.data?.kind==='coin-draw-layout'){portrait.insets(event.data.safeTop,event.data.safeBottom);portrait.update(event.data.portrait===true,event.data.compact===true,event.data.landscapeFit===true);if(portrait.enabled||portrait.compact)void loadPortraitArt();controls();if(art['scene-no-tray'])paint();return;}
  if(event.data?.kind==='coin-draw-profile'&&event.data.profile){portrait.identity(event.data.profile);return;}
  if(!integrated)return;
  if(event.data?.kind==='coin-draw-committed'&&['idle','purchasing'].includes(phase)){
@@ -150,7 +150,7 @@ window.addEventListener('message',event=>{
 });
 let portraitLoad;
 function loadPortraitArt(){return portraitLoad??=Promise.all(COURTYARD_ART.map(name=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{art[name]=img;resolve();};img.onerror=()=>reject(new Error('庭院場景未能載入，請重新整理。'));img.src='./assets/'+name+'.webp';}))).then(()=>{const title=$('portrait-title').querySelector('img');title.src='./assets/courtyard-title.webp';controls();if(art['scene-no-tray'])paint();}).catch(error=>{say(error.message);$('start').disabled=true;});}
-window.coinDrawPresentation={get phase(){return phase;},get mode(){return integrated?'integrated':demo?'demo':'unavailable';},get stats(){return stats;},get model(){return {...model};},get layout(){return portrait.enabled?'portrait':portrait.compact?'compact':'landscape';}};
+window.coinDrawPresentation={get phase(){return phase;},get mode(){return integrated?'integrated':demo?'demo':'unavailable';},get stats(){return stats;},get model(){return {...model};},get layout(){return portrait.enabled?'portrait':portrait.compact?'compact':portrait.landscapeFit?'landscape-fit':'landscape';}};
 try{await Promise.all(names.map(name=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{art[name]=img;resolve();};img.onerror=()=>reject(new Error('抽卡畫面未能載入，請重新整理。'));img.src='./assets/'+(name==='card-back'?'card-back-clean':name)+'.png';})));await Promise.all([...document.querySelectorAll('#teacher-actor img')].map(img=>img.decode()));phase='idle';controls();paint();}catch(e){say(e.message);$('start').disabled=true;}
 const reportSize=()=>parent.postMessage({kind:'coin-draw-size',height:Math.ceil(document.body.getBoundingClientRect().height)},location.origin);new ResizeObserver(reportSize).observe(document.body);reportSize();
 
