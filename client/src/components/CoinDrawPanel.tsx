@@ -74,6 +74,46 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
   } : accountClient), [reminderPreview, local, accountClient]);
   const send = (message: unknown) =>
     frame.current?.contentWindow?.postMessage(message, location.origin);
+  const legacyLayout = local && new URLSearchParams(location.search).get("layout") === "legacy";
+  const fittedViewport = () => !legacyLayout && (matchMedia("(max-width: 1024px) and (orientation: portrait)").matches || (innerWidth <= 1000 && innerHeight <= 520 && innerWidth > innerHeight));
+  const updateViewport = () => {
+    const portrait = !legacyLayout && matchMedia("(max-width: 1024px) and (orientation: portrait)").matches;
+    const compact = !legacyLayout && !portrait && innerWidth <= 1000 && innerHeight <= 520 && innerWidth > innerHeight;
+    if ((portrait || compact) && frame.current) {
+      const viewport = window.visualViewport;
+      const top = Math.max(0, frame.current.getBoundingClientRect().top);
+      const realHeight = viewport?.height ?? innerHeight;
+      const mockHeight = local ? Number(new URLSearchParams(location.search).get("visibleHeight")) : 0;
+      const availableHeight = mockHeight >= 260 && mockHeight < realHeight ? mockHeight : realHeight;
+      setHeight(Math.max(240, Math.floor(availableHeight - top - 4)));
+    }
+    // Read safe-area values in the host document and pass them across the
+    // iframe boundary; embedded documents may have different inset values.
+    const insetProbe = document.createElement("div");
+    insetProbe.style.cssText = "position:fixed;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)";
+    document.body.append(insetProbe);
+    const insetStyle = getComputedStyle(insetProbe);
+    const safeTop = parseFloat(insetStyle.paddingTop) || 0;
+    const safeBottom = Math.max(parseFloat(insetStyle.paddingBottom) || 0,
+      local ? Math.min(80, Math.max(0, Number(new URLSearchParams(location.search).get("safeBottom")) || 0)) : 0);
+    insetProbe.remove();
+    send({ kind: "coin-draw-layout", portrait, compact, safeTop, safeBottom });
+  };
+  useEffect(() => {
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    window.visualViewport?.addEventListener("resize", updateViewport);
+    return () => {
+      window.removeEventListener("resize", updateViewport);
+      window.visualViewport?.removeEventListener("resize", updateViewport);
+    };
+  }, [legacyLayout]);
+  useEffect(() => {
+    if (profile) send({ kind: "coin-draw-profile", profile: {
+      nickname: profile.nickname, className: profile.className,
+      studentNo: profile.studentNo, name: profile.name,
+    } });
+  }, [profile, host]);
   const refresh = async (signal?: AbortSignal) => {
     const state = await drawClient!.state();
     if (signal?.aborted) return state;
@@ -187,6 +227,7 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
       )
         return;
       if (event.data?.kind === "coin-draw-size") {
+        if (fittedViewport()) return;
         const next = event.data.height;
         if (
           typeof next === "number" &&
@@ -231,6 +272,7 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
       "#result-card-host{position:absolute;left:11.37%;top:.3125%;width:44.149%;opacity:0;pointer-events:none;z-index:2}#result-card-host[data-revealed=true]{opacity:1;pointer-events:auto}.explorer-card>img{border-radius:0}";
     doc.head.append(style);
     send({ kind: "coin-draw-config", price: CLIENT_CARD_DRAW_PRICE });
+    updateViewport();
   };
   return (
     <>
