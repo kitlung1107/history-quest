@@ -32,3 +32,15 @@ html[data-layout=compact] .draw-reminder{visibility:hidden}
 html[data-layout=compact] #portrait-reminder{top:18%;left:15%;right:15%;padding:12px;font-size:18px}
 html[data-layout=compact] #portrait-identity{font-size:clamp(16px,3vw,20px)}
 html[data-layout=compact] #resume{position:absolute;bottom:calc(var(--portrait-safe-bottom,env(safe-area-inset-bottom)) + 8px);left:35%;right:35%;z-index:5}
+
+/* Tablet landscape retains the original composition and fits its whole height. */
+html[data-layout=landscape-fit],html[data-layout=landscape-fit] body{height:100%;overflow:hidden}
+html[data-layout=landscape-fit] main{height:100%;padding:0}
+html[data-layout=landscape-fit] .stage{height:100%;width:100%;aspect-ratio:auto}
+html[data-layout=landscape-fit] #portrait-identity{font-size:clamp(16px,2vw,22px)}
+html[data-layout=landscape-fit] #resume{position:absolute;bottom:calc(var(--portrait-safe-bottom,env(safe-area-inset-bottom)) + 8px);left:35%;right:35%;z-index:5}
+/* The phone scene uses independently positioned complete actors. */
+html[data-layout=compact] #portrait-title{width:min(27%,170px);top:var(--portrait-safe-top,env(safe-area-inset-top))}
+html[data-layout=compact] .price{width:min(53%,360px);height:52px;bottom:calc(var(--portrait-safe-bottom,env(safe-area-inset-bottom)) + 8px - var(--compact-down-shift,0px))}
+html[data-layout=compact] .join{left:73%;width:42%;max-width:330px}
+html[data-layout=compact] #portrait-reminder{top:calc(var(--portrait-safe-top,env(safe-area-inset-top)) + 48px);left:12%;right:12%}
