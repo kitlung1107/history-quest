@@ -4,3 +4,31 @@
 
 .price>span{background:#ffd96b;color:#17324d;border:3px solid #17324d;border-radius:12px;font-size:clamp(14px,3vw,36px);font-weight:800;display:grid;place-items:center;height:100%;line-height:1.3}
 .draw-reminder{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:4;pointer-events:none}
+
+/* Portrait is a separate composition. Original landscape rules stay intact. */
+html[data-layout=portrait],html[data-layout=portrait] body{height:100%;overflow:hidden}
+html[data-layout=portrait] main{height:100%;padding:0}
+html[data-layout=portrait] .stage{height:100%;width:100%;aspect-ratio:auto}
+#portrait-title{position:absolute;z-index:3;left:50%;transform:translateX(-50%);width:min(84%,55vh,680px);margin:0;line-height:0;pointer-events:none}
+#portrait-title img{display:block;width:100%;height:auto}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+html[data-layout=portrait] .price{left:1%;width:98%;top:auto;bottom:max(13vh,calc(var(--portrait-safe-bottom,env(safe-area-inset-bottom)) + 16px));height:clamp(56px,11vh,140px);min-height:56px;z-index:5}
+html[data-layout=portrait] .join{left:8%;width:84%;top:auto;bottom:max(calc(12vh - 30px),calc(var(--portrait-safe-bottom,env(safe-area-inset-bottom)) + 16px));min-height:56px;z-index:5}
+html[data-layout=portrait] .price img{object-fit:contain}
+html[data-layout=portrait] .join{height:clamp(52px,10vh,85px)}
+html[data-layout=portrait] .draw-reminder{visibility:hidden}
+#portrait-reminder{position:absolute;z-index:4;top:14%;left:8%;right:8%;margin:0;padding:18px 15px;background:#fff8dc;border:3px solid #132443;border-radius:28px 24px 30px 6px;box-shadow:3px 5px 0 #e1b75d;color:#132443;font-size:clamp(17px,3.8vw,26px);font-weight:900;text-align:center;line-height:1.45}
+#portrait-identity{position:absolute;z-index:4;left:4%;right:4%;margin:0;text-align:center;color:#132443;font-size:clamp(16px,3.6vw,23px);font-weight:800;line-height:1.35;background:#fff7dfdd;border-radius:12px;padding:6px 8px;overflow-wrap:anywhere}
+#portrait-identity span{display:block}
+html[data-layout=portrait] #resume{position:absolute;bottom:calc(var(--portrait-safe-bottom,env(safe-area-inset-bottom)) + 16px);left:20%;right:20%;z-index:5}
+html[data-layout=compact],html[data-layout=compact] body{height:100%;overflow:hidden}
+html[data-layout=compact] main{height:100%;padding:0}
+html[data-layout=compact] .stage{height:100%;width:100%;aspect-ratio:auto}
+html[data-layout=compact] #portrait-title{top:calc(var(--portrait-safe-top,env(safe-area-inset-top)) + 3px);width:min(32%,160px)}
+html[data-layout=compact] .price,html[data-layout=compact] .join{left:50%;transform:translateX(-50%);width:min(44%,280px);height:52px;top:auto;bottom:calc(var(--portrait-safe-bottom,env(safe-area-inset-bottom)) + 8px);z-index:5}
+html[data-layout=compact] .price img{object-fit:contain}
+html[data-layout=compact] .art-button:active:not(:disabled){transform:translate(-50%,2px)}
+html[data-layout=compact] .draw-reminder{visibility:hidden}
+html[data-layout=compact] #portrait-reminder{top:18%;left:15%;right:15%;padding:12px;font-size:18px}
+html[data-layout=compact] #portrait-identity{font-size:clamp(16px,3vw,20px)}
+html[data-layout=compact] #resume{position:absolute;bottom:calc(var(--portrait-safe-bottom,env(safe-area-inset-bottom)) + 8px);left:35%;right:35%;z-index:5}
