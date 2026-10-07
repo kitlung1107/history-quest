@@ -93,14 +93,16 @@ export default function CoinDrawPanel({ demo = false }: { demo?: boolean }) {
     // Read safe-area values in the host document and pass them across the
     // iframe boundary; embedded documents may have different inset values.
     const insetProbe = document.createElement("div");
-    insetProbe.style.cssText = "position:fixed;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)";
+    insetProbe.style.cssText = "position:fixed;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)";
     document.body.append(insetProbe);
     const insetStyle = getComputedStyle(insetProbe);
     const safeTop = parseFloat(insetStyle.paddingTop) || 0;
+    const safeLeft = parseFloat(insetStyle.paddingLeft) || 0;
+    const safeRight = parseFloat(insetStyle.paddingRight) || 0;
     const safeBottom = Math.max(parseFloat(insetStyle.paddingBottom) || 0,
       local ? Math.min(80, Math.max(0, Number(new URLSearchParams(location.search).get("safeBottom")) || 0)) : 0);
     insetProbe.remove();
-    send({ kind: "coin-draw-layout", portrait, compact, landscapeFit, safeTop, safeBottom });
+    send({ kind: "coin-draw-layout", portrait, compact, landscapeFit, safeTop, safeBottom, safeLeft, safeRight });
   };
   useEffect(() => {
     updateViewport();
