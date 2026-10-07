@@ -9,7 +9,7 @@ const PRESS_FOOT = .53682488;
 export function createPortraitLayout(canvas, ctx, art) {
   const $ = id => document.getElementById(id);
   const stage = $('stage'), title = $('portrait-title'), identity = $('portrait-identity'), bubble = $('portrait-reminder');
-  let enabled = false, compact = false, landscapeFit = false, height = 960, q = 1, x = 0, y = 0, safeTop = 0, safeBottom = 0, currentPhase = 'loading';
+  let enabled = false, compact = false, landscapeFit = false, height = 960, q = 1, x = 0, y = 0, safeTop = 0, safeBottom = 0, safeLeft = 0, safeRight = 0, currentPhase = 'loading';
   const ready = () => COURTYARD_ART.every(name => art[name]);
   function update(on, smallLandscape = compact, fitLandscape = landscapeFit) {
     enabled = on; compact = smallLandscape && !on; landscapeFit = fitLandscape && !on && !compact;
@@ -17,7 +17,8 @@ export function createPortraitLayout(canvas, ctx, art) {
     if (price) { const source = compact || enabled ? './assets/compact-price.webp' : './assets/price-button-clean.png'; if (!price.src.endsWith(source.slice(1))) price.src = source; }
     document.documentElement.dataset.layout = enabled ? 'portrait' : compact ? 'compact' : landscapeFit ? 'landscape-fit' : 'landscape';
     title.hidden = !enabled && !compact;
-    if (!compact) title.style.removeProperty('left');
+    if (!compact) { title.style.removeProperty('left'); title.style.removeProperty('width'); for (const property of ['left', 'right', 'top']) bubble.style.removeProperty(property); }
+    if (!compact) for (const property of ['left', 'top', 'right', 'width', 'height']) $('resume').style.removeProperty(property);
     if (!enabled && !compact && !landscapeFit) {
       for (const id of ['start', 'join']) for (const property of ['left', 'top', 'width', 'height']) $(id).style.removeProperty(property);
       if (canvas.width !== 1205) canvas.width = 1205;
@@ -49,13 +50,42 @@ export function createPortraitLayout(canvas, ctx, art) {
     currentPhase = value; stage.dataset.phase = value;
     identity.hidden = !(enabled || compact || landscapeFit) || value !== 'revealed';
     bubble.hidden = !(enabled || compact) || value !== 'reminder';
-    if (compact) title.style.left = ['growing', 'screenfade', 'cardfade', 'revealing', 'revealed'].includes(value) ? '73%' : '50%';
+    if (compact) placeCompactControls(value);
     if (enabled) {
       const progress = ['screenfade', 'cardfade', 'revealing', 'revealed'].includes(value) ? 1 : value === 'growing' ? smooth((model?.grow || 0) / .7) : 0;
       title.style.top = `${Math.max(safeTop + 16, stage.clientHeight * mix(stage.clientHeight < 600 ? .12 : .20, .09, progress))}px`;
       if (value === 'reminder') bubble.style.top = `${title.getBoundingClientRect().bottom + 14}px`;
     }
-    else bubble.style.removeProperty('top');
+    else if (!compact) bubble.style.removeProperty('top');
+  }
+  // The approved 844x388 phone concept uses a full scene on the left and a
+  // separate title/action column on the right. Fit each complete layer without
+  // stretching it; browser chrome and lateral notches reduce the usable area.
+  function compactLayout() {
+    const width = stage.clientWidth, usableWidth = Math.max(1, width - safeLeft - safeRight);
+    const usableHeight = Math.max(1, stage.clientHeight - safeTop - safeBottom);
+    const scale = Math.min(usableWidth / 844, usableHeight / 388);
+    const left = safeLeft + (usableWidth * (535 / 844) - 535 * scale) / 2;
+    const titleWidth = usableWidth * (274 / 844), titleHeight = titleWidth * 496 / 1950;
+    const actionWidth = usableWidth * (288 / 844), actionHeight = Math.max(44, actionWidth * 437 / 2172);
+    const gap = Math.min(43.31 * usableWidth / 844, Math.max(12, usableHeight - titleHeight - actionHeight - 24));
+    const top = safeTop + Math.max(12, usableHeight * .4934 - (titleHeight + gap + actionHeight) / 2);
+    return { width, usableWidth, usableHeight, scale, left,
+      title: { x: safeLeft + usableWidth * (553 / 844), y: top, w: titleWidth, h: titleHeight },
+      action: { x: safeLeft + usableWidth * (546 / 844), y: top + titleHeight + gap, w: actionWidth, h: actionHeight } };
+  }
+  function placeCompactControls(value) {
+    const layout = compactLayout();
+    const resultPhase = ['growing', 'screenfade', 'cardfade', 'revealing', 'revealed'].includes(value);
+    const header = resultPhase || ['reminder', 'reminder-loading'].includes(value);
+    const t = { ...layout.title, y: header ? safeTop + 12 : layout.title.y };
+    title.style.left = `${t.x + t.w / 2}px`; title.style.top = `${t.y}px`; title.style.width = `${t.w}px`;
+    const apply = (element, r) => { for (const [key, v] of Object.entries({ left: r.x, top: r.y, width: r.w, height: r.h })) element.style[key] = `${v}px`; };
+    apply($('start'), layout.action);
+    const joinHeight = Math.max(44, layout.action.w * 110 / 611);
+    apply($('join'), { ...layout.action, y: safeTop + layout.usableHeight - joinHeight - 10, h: joinHeight });
+    apply($('resume'), layout.action); $('resume').style.right = 'auto';
+    bubble.style.left = `${t.x}px`; bubble.style.right = `${layout.width - t.x - t.w}px`; bubble.style.top = `${t.y + t.h + 12}px`;
   }
   function result(rect) {
     if (!enabled && !compact && !landscapeFit) return rect;
@@ -64,6 +94,17 @@ export function createPortraitLayout(canvas, ctx, art) {
       const host = $('result-card-host'); host.style.left = `${target.x / 1205 * 100}%`; host.style.top = `${target.y / height * 100}%`; host.style.width = `${target.w / 1205 * 100}%`;
       identity.style.left = `${(x + 700 * q) / 1205 * 100}%`; identity.style.right = `${Math.max(2, x / 1205 * 100)}%`; identity.style.top = `${(y + 470 * q) / height * 100}%`;
       return rect;
+    }
+    if (compact) {
+      const layout = compactLayout(), unit = canvas.width / Math.max(1, layout.width);
+      const hPx = Math.min(Math.max(72, layout.usableHeight - 28), layout.usableWidth * .28 * 1.5);
+      const wPx = hPx * 2 / 3;
+      const target = { x: (safeLeft + layout.usableWidth * .255 - wPx / 2) * unit, y: (safeTop + 14) * unit, w: wPx * unit, h: hPx * unit };
+      const host = $('result-card-host');
+      host.style.left = `${target.x / canvas.width * 100}%`; host.style.top = `${target.y / height * 100}%`; host.style.width = `${target.w / canvas.width * 100}%`;
+      identity.style.left = `${layout.title.x}px`; identity.style.right = `${layout.width - layout.title.x - layout.title.w}px`;
+      identity.style.top = `${safeTop + 12 + layout.title.h + 12}px`;
+      return target;
     }
     const unit = canvas.width / Math.max(1, stage.clientWidth);
     const button = $('join'), buttonStyle = getComputedStyle(button);
@@ -86,24 +127,16 @@ export function createPortraitLayout(canvas, ctx, art) {
   }
   function geometry() {
     if (compact) {
-      const unit = 1205 / Math.max(1, stage.clientWidth);
-      const originalBaseline = height - (safeBottom + 68) * unit;
-      // Use only the existing gap below the price action. Size calculations
-      // retain their original baseline; moving the group must not scale it.
-      const originalPriceBottom = stage.clientHeight - safeBottom - 8;
-      const downPx = Math.max(0, Math.min(8, stage.clientHeight - safeBottom - originalPriceBottom));
-      document.documentElement.style.setProperty('--compact-down-shift', `${downPx}px`);
-      const baseline = originalBaseline + downPx * unit;
-      const mh = Math.max(70 * unit, Math.min(originalBaseline - (safeTop + 38) * unit, 1205 * .35 / (art['courtyard-machine'].width / art['courtyard-machine'].height)));
+      const layout = compactLayout(), unit = 1205 / Math.max(1, stage.clientWidth);
+      const baseline = (safeTop + (layout.usableHeight - 388 * layout.scale) / 2 + 366 * layout.scale) * unit;
+      const mh = 344 * layout.scale * unit;
       const mw = mh * art['courtyard-machine'].width / art['courtyard-machine'].height;
       const th = mh * .82;
-      const readyWidth = th * art['courtyard-teacher-ready'].width / art['courtyard-teacher-ready'].height;
-      const gap = 24 * unit;
-      const machine = { x: (1205 - mw - gap - readyWidth) / 2, y: baseline - mh, w: mw, h: mh };
+      const machine = { x: (layout.left + 69 * layout.scale) * unit, y: baseline - mh, w: mw, h: mh };
       const button = { x: machine.x + mw * .91, y: machine.y + mh * .638 };
       const tw = th * art['courtyard-teacher-press-v3'].width / art['courtyard-teacher-press-v3'].height;
       const footX = button.x + tw * (PRESS_FOOT - PRESS_FINGER.x);
-      return { unit, baseline, teacherBaseline: button.y + th * (1 - PRESS_FINGER.y), machine, button, teacherHeight: th, footX, readyFootX: machine.x + mw + gap + readyWidth * .51, outlet: { x: machine.x + mw * .62, y: machine.y + mh * .787 } };
+      return { unit, baseline, teacherBaseline: button.y + th * (1 - PRESS_FINGER.y), machine, button, teacherHeight: th, footX, readyFootX: footX + 12 * layout.scale * unit, outlet: { x: machine.x + mw * .62, y: machine.y + mh * .787 } };
     }
     const unit = 800 / Math.max(1, stage.clientWidth);
     const baseline = height * .715;
@@ -186,7 +219,8 @@ export function createPortraitLayout(canvas, ctx, art) {
     const pointHeight = Math.min(target.h * (compact ? .62 : .41), g.teacherHeight);
     const pointImage = art['courtyard-teacher-point'];
     const pointWidth = pointHeight * pointImage.width / pointImage.height;
-    const pointFoot = compact ? 1205 * .88 : Math.min(800 - pointWidth * .42 - 16, target.x + target.w + 6 + pointWidth * .58);
+    const phone = compact ? compactLayout() : null;
+    const pointFoot = compact ? (safeLeft + phone.usableWidth * .535) * g.unit : Math.min(800 - pointWidth * .42 - 16, target.x + target.w + 6 + pointWidth * .58);
     const actor = character(pose, g, mix(g.footX + move, pointFoot, transition), mix(g.teacherBaseline, target.y + target.h, transition), mix(g.teacherHeight, pointHeight, transition), value === 'approaching' ? -.015 * Math.sin(Math.PI * model.approach) : 0);
     const cw = g.machine.h * .135, ch = cw * 1.5;
     const emission = p => ({ x: g.outlet.x - cw / 2, y: g.outlet.y - ch * .7 + g.machine.h * .13 * p, w: cw, h: ch, angle: .035 + .04 * p });
@@ -225,7 +259,7 @@ export function createPortraitLayout(canvas, ctx, art) {
     update, phase, paint, background, actor, result,
     get enabled() { return enabled; }, get compact() { return compact; }, get landscapeFit() { return landscapeFit; }, get ready() { return ready(); },
     get size() { return { q, x, y, height }; },
-    insets(top, bottom) { safeTop = Number.isFinite(top) ? Math.max(0, Math.min(200, top)) : 0; safeBottom = Number.isFinite(bottom) ? Math.max(0, Math.min(200, bottom)) : 0; document.documentElement.style.setProperty('--portrait-safe-top', `${safeTop}px`); document.documentElement.style.setProperty('--portrait-safe-bottom', `${safeBottom}px`); },
+    insets(top, bottom, left = 0, right = 0) { safeTop = Number.isFinite(top) ? Math.max(0, Math.min(200, top)) : 0; safeBottom = Number.isFinite(bottom) ? Math.max(0, Math.min(200, bottom)) : 0; safeLeft = Number.isFinite(left) ? Math.max(0, Math.min(200, left)) : 0; safeRight = Number.isFinite(right) ? Math.max(0, Math.min(200, right)) : 0; document.documentElement.style.setProperty('--portrait-safe-top', `${safeTop}px`); document.documentElement.style.setProperty('--portrait-safe-bottom', `${safeBottom}px`); },
     reminder(text) { bubble.textContent = text; },
     identity(profile) { identity.replaceChildren(); for (const value of [profile.nickname || '未設定暱稱', `${profile.className} (${profile.studentNo}) ${profile.name}`]) { const span = document.createElement('span'); span.textContent = value; identity.append(span); } },
     restore() { if (landscapeFit) ctx.restore(); else if (!enabled && !compact) { for (const key of ['left', 'top', 'width']) $('result-card-host').style.removeProperty(key); } }

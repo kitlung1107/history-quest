@@ -132,7 +132,7 @@ window.addEventListener('pagehide',()=>{
 media.addEventListener('change',()=>{if(reduced()&&current&&!['idle','loading','paused','revealed'].includes(phase)){token++;model.shakeX=0;model.shakeY=0;completeReveal();}});
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==parent)return;
- if(event.data?.kind==='coin-draw-layout'){portrait.insets(event.data.safeTop,event.data.safeBottom);portrait.update(event.data.portrait===true,event.data.compact===true,event.data.landscapeFit===true);if(portrait.enabled||portrait.compact)void loadPortraitArt();controls();if(art['scene-no-tray'])paint();return;}
+ if(event.data?.kind==='coin-draw-layout'){portrait.insets(event.data.safeTop,event.data.safeBottom,event.data.safeLeft,event.data.safeRight);portrait.update(event.data.portrait===true,event.data.compact===true,event.data.landscapeFit===true);if(portrait.enabled||portrait.compact)void loadPortraitArt();controls();if(art['scene-no-tray'])paint();return;}
  if(event.data?.kind==='coin-draw-profile'&&event.data.profile){portrait.identity(event.data.profile);return;}
  if(!integrated)return;
  if(event.data?.kind==='coin-draw-committed'&&['idle','purchasing'].includes(phase)){
