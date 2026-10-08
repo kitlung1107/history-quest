@@ -21,13 +21,20 @@ const reminderAssets={
  complete:{src:'./assets/reminder-complete.png',text:'恭喜你！目前可以抽到嘅卡片，你已經集齊晒！等新卡登場，再嚟探索啦！'},
  insufficient:{src:'./assets/reminder-insufficient.png',text:'探索幣仲差少少！完成小測或遊戲，儲夠再嚟抽卡啦！'}
 };
-const REMINDER_MS=4000;
+const REMINDER_MS=4000,COMPACT_REMINDER_FADE_MS=240;
 let reminderTimer,reminderDeadline=0;
 function finishReminder(message){
- if(!['reminder','reminder-loading'].includes(phase))return;
+ if(!['reminder','reminder-loading','reminder-fading'].includes(phase))return;
  clearTimeout(reminderTimer);reminderTimer=undefined;reminderDeadline=0;token++;
  $('draw-reminder').hidden=true;phase='idle';locked=false;model=initialModel();controls();paint();say(message||'');
  parent.postMessage({kind:'coin-draw-reminder-ended',message},location.origin);
+}
+function expireReminder(){
+ if(phase!=='reminder')return;
+ // Other layouts retain their existing four-second immediate return.
+ if(!portrait.compact||reduced()){finishReminder();return;}
+ phase='reminder-fading';controls();paint();
+ reminderTimer=setTimeout(()=>finishReminder(),COMPACT_REMINDER_FADE_MS);
 }
 async function showReminder(type){
  const asset=reminderAssets[type];if(!asset)return;
@@ -35,9 +42,9 @@ async function showReminder(type){
  const image=$('draw-reminder');image.alt=asset.text;image.src=asset.src;
  try{
   await image.decode();if(id!==token||phase!=='reminder-loading')return;
-  phase='reminder';image.hidden=false;portrait.reminder(asset.text);controls();paint();say(asset.text);
+  phase='reminder';image.hidden=false;portrait.reminder(asset.text,type);controls();paint();say(asset.text);
   reminderDeadline=performance.now()+REMINDER_MS;
-  reminderTimer=setTimeout(()=>finishReminder(),REMINDER_MS);
+  reminderTimer=setTimeout(expireReminder,REMINDER_MS);
  }catch{if(id===token)finishReminder('提醒圖片未能載入；未扣探索幣，請重新整理。');}
 }
 function isPresent(){return ['screenfade','cardfade','revealing','revealed'].includes(phase)||(phase==='growing'&&model.grow>.965);}
@@ -121,18 +128,18 @@ const overlay=document.createElement('div');overlay.id='white-overlay';overlay.s
 $('start').onclick=start;$('join').onclick=join;$('resume').onclick=()=>{if(active&&phase==='paused')playButton();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!['idle','loading','paused','revealed'].includes(phase))halt();});
 document.addEventListener('visibilitychange',()=>{
- if(phase==='reminder'){if(!document.hidden&&performance.now()>=reminderDeadline)finishReminder();return;}
- if(document.hidden&&!['idle','loading','paused','revealed','reminder-loading'].includes(phase))halt();
+ if(phase==='reminder'){if(!document.hidden&&performance.now()>=reminderDeadline)expireReminder();return;}
+ if(document.hidden&&!['idle','loading','paused','revealed','reminder-loading','reminder-fading'].includes(phase))halt();
 });
 window.addEventListener('pagehide',()=>{
- if(['reminder','reminder-loading'].includes(phase))finishReminder();
+ if(['reminder','reminder-loading','reminder-fading'].includes(phase))finishReminder();
  else if(phase==='purchasing'){locked=false;phase='idle';controls();paint();}
  clearTimeout(reminderTimer);reminderTimer=undefined;token++;
 });
 media.addEventListener('change',()=>{if(reduced()&&current&&!['idle','loading','paused','revealed'].includes(phase)){token++;model.shakeX=0;model.shakeY=0;completeReveal();}});
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==parent)return;
- if(event.data?.kind==='coin-draw-layout'){portrait.insets(event.data.safeTop,event.data.safeBottom,event.data.safeLeft,event.data.safeRight);portrait.update(event.data.portrait===true,event.data.compact===true,event.data.landscapeFit===true);if(portrait.enabled||portrait.compact)void loadPortraitArt();controls();if(art['scene-no-tray'])paint();return;}
+ if(event.data?.kind==='coin-draw-layout'){portrait.insets(event.data.safeTop,event.data.safeBottom,event.data.safeLeft,event.data.safeRight);portrait.update(event.data.portrait===true,event.data.compact===true,event.data.landscapeFit===true);if(phase==='reminder-fading'&&!portrait.compact)finishReminder();if(portrait.enabled||portrait.compact)void loadPortraitArt();controls();if(art['scene-no-tray'])paint();return;}
  if(event.data?.kind==='coin-draw-profile'&&event.data.profile){portrait.identity(event.data.profile);return;}
  if(!integrated)return;
  if(event.data?.kind==='coin-draw-committed'&&['idle','purchasing'].includes(phase)){
