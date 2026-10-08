@@ -30,7 +30,11 @@ html[data-layout=compact] .price,html[data-layout=compact] .join{transform:none;
 html[data-layout=compact] .price img{object-fit:contain}
 html[data-layout=compact] .art-button:active:not(:disabled){transform:translateY(2px)}
 html[data-layout=compact] .draw-reminder{visibility:hidden}
-html[data-layout=compact] #portrait-reminder{padding:12px;font-size:clamp(16px,2vw,18px);line-height:1.4}
+html[data-layout=compact] #portrait-reminder{display:flex;flex-direction:column;justify-content:center;gap:2px;padding:6px 9px;border-radius:20px;background:#fff8dc;border:3px solid #132443;box-shadow:0 4px 0 #e1b75d;font-size:var(--compact-reminder-font,14px);font-synthesis:weight;line-height:1.4;opacity:1;pointer-events:none}
+html[data-layout=compact] #portrait-reminder span{display:block;white-space:nowrap}
+html[data-layout=compact] #portrait-reminder span:first-child{font-size:1.12em}
+html[data-layout=compact] .stage[data-phase=reminder-fading] #portrait-reminder{opacity:0;transition:opacity 240ms ease-out}
+@media(prefers-reduced-motion:reduce){html[data-layout=compact] .stage[data-phase=reminder-fading] #portrait-reminder{transition:none}}
 html[data-layout=compact] #portrait-identity{font-size:clamp(16px,3vw,20px)}
 html[data-layout=compact] #resume{position:absolute;bottom:auto;margin:0;z-index:5}
 

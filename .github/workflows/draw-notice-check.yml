@@ -1,0 +1,61 @@
+name: Verify draw notice presentation
+
+on:
+  pull_request:
+    paths:
+      - 'client/public/coin-draw/**'
+      - 'client/src/components/CoinDrawPanel.tsx'
+      - 'client/src/home.css'
+      - 'client/src/coin-draw.css'
+      - 'scripts/compact-draw-notice.test.cjs'
+      - '.github/workflows/draw-notice-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  draw-notice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm exec vitest run --config vitest.draw-reminders.config.ts
+      - name: Build production client
+        env:
+          GITHUB_ACTIONS: 'true'
+          VITE_CARD_DRAW_ENABLED: '1'
+          VITE_RULES_ASSESSMENT_ENABLED: '1'
+          VITE_ASSESSMENT_EMULATORS: '0'
+        run: pnpm build
+      - name: Install isolated UI test browser
+        run: |
+          npm install --prefix "$RUNNER_TEMP/draw-ui" --no-package-lock playwright@1.56.1
+          "$RUNNER_TEMP/draw-ui/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Start isolated in-memory application preview
+        run: |
+          GITHUB_ACTIONS='' pnpm exec vite --config vite.draw-preview.config.ts > "$RUNNER_TEMP/draw-vite.log" 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:4340/__draw-reminders-preview > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/draw-vite.log"
+          exit 1
+      - name: Verify fixed notice and unchanged layout timing
+        env:
+          DRAW_APP_PREVIEW_URL: http://127.0.0.1:4340/__draw-reminders-preview
+        run: PLAYWRIGHT_MODULE="$RUNNER_TEMP/draw-ui/node_modules/playwright" node scripts/compact-draw-notice.test.cjs
+      - name: Retain screenshots and timing results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: draw-notice-verification
+          path: tmp/compact-draw-notice
+          if-no-files-found: ignore
+          retention-days: 14

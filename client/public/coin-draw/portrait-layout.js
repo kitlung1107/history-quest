@@ -9,7 +9,7 @@ const PRESS_FOOT = .53682488;
 export function createPortraitLayout(canvas, ctx, art) {
   const $ = id => document.getElementById(id);
   const stage = $('stage'), title = $('portrait-title'), identity = $('portrait-identity'), bubble = $('portrait-reminder');
-  let enabled = false, compact = false, landscapeFit = false, height = 960, q = 1, x = 0, y = 0, safeTop = 0, safeBottom = 0, safeLeft = 0, safeRight = 0, currentPhase = 'loading';
+  let enabled = false, compact = false, landscapeFit = false, height = 960, q = 1, x = 0, y = 0, safeTop = 0, safeBottom = 0, safeLeft = 0, safeRight = 0, currentPhase = 'loading', reminderText = '', reminderType = '';
   const ready = () => COURTYARD_ART.every(name => art[name]);
   function update(on, smallLandscape = compact, fitLandscape = landscapeFit) {
     enabled = on; compact = smallLandscape && !on; landscapeFit = fitLandscape && !on && !compact;
@@ -17,7 +17,8 @@ export function createPortraitLayout(canvas, ctx, art) {
     if (price) { const source = compact || enabled ? './assets/compact-price.webp' : './assets/price-button-clean.png'; if (!price.src.endsWith(source.slice(1))) price.src = source; }
     document.documentElement.dataset.layout = enabled ? 'portrait' : compact ? 'compact' : landscapeFit ? 'landscape-fit' : 'landscape';
     title.hidden = !enabled && !compact;
-    if (!compact) { title.style.removeProperty('left'); title.style.removeProperty('width'); for (const property of ['left', 'right', 'top']) bubble.style.removeProperty(property); }
+    renderReminder();
+    if (!compact) { title.style.removeProperty('left'); title.style.removeProperty('width'); for (const property of ['left', 'right', 'top', 'width', 'height', '--compact-reminder-font']) bubble.style.removeProperty(property); }
     if (!compact) for (const property of ['left', 'top', 'right', 'width', 'height']) $('resume').style.removeProperty(property);
     if (!enabled && !compact && !landscapeFit) {
       for (const id of ['start', 'join']) for (const property of ['left', 'top', 'width', 'height']) $(id).style.removeProperty(property);
@@ -49,7 +50,7 @@ export function createPortraitLayout(canvas, ctx, art) {
   function phase(value, model) {
     currentPhase = value; stage.dataset.phase = value;
     identity.hidden = !(enabled || compact || landscapeFit) || value !== 'revealed';
-    bubble.hidden = !(enabled || compact) || value !== 'reminder';
+    bubble.hidden = !(enabled || compact) || !['reminder', 'reminder-fading'].includes(value);
     if (compact) placeCompactControls(value);
     if (enabled) {
       const progress = ['screenfade', 'cardfade', 'revealing', 'revealed'].includes(value) ? 1 : value === 'growing' ? smooth((model?.grow || 0) / .7) : 0;
@@ -77,7 +78,7 @@ export function createPortraitLayout(canvas, ctx, art) {
   function placeCompactControls(value) {
     const layout = compactLayout();
     const resultPhase = ['growing', 'screenfade', 'cardfade', 'revealing', 'revealed'].includes(value);
-    const header = resultPhase || ['reminder', 'reminder-loading'].includes(value);
+    const header = resultPhase;
     const t = { ...layout.title, y: header ? safeTop + 12 : layout.title.y };
     title.style.left = `${t.x + t.w / 2}px`; title.style.top = `${t.y}px`; title.style.width = `${t.w}px`;
     const apply = (element, r) => { for (const [key, v] of Object.entries({ left: r.x, top: r.y, width: r.w, height: r.h })) element.style[key] = `${v}px`; };
@@ -85,7 +86,26 @@ export function createPortraitLayout(canvas, ctx, art) {
     const joinHeight = Math.max(44, layout.action.w * 110 / 611);
     apply($('join'), { ...layout.action, y: safeTop + layout.usableHeight - joinHeight - 10, h: joinHeight });
     apply($('resume'), layout.action); $('resume').style.right = 'auto';
-    bubble.style.left = `${t.x}px`; bubble.style.right = `${layout.width - t.x - t.w}px`; bubble.style.top = `${t.y + t.h + 12}px`;
+    // Reserve one fixed notice slot around the action centre. Its dimensions
+    // never participate in the title or scene geometry, including while hidden.
+    const actionCenter = layout.action.x + layout.action.w / 2;
+    const noticeWidth = Math.min(layout.action.w * 1.07, 2 * (layout.width - safeRight - actionCenter - 4));
+    const font = Math.min(16, Math.max(8, (noticeWidth - 24) / 18));
+    const noticeHeight = Math.max(layout.action.h, font * 4.4 + 24);
+    apply(bubble, { x: layout.action.x + (layout.action.w - noticeWidth) / 2,
+      y: layout.action.y + (layout.action.h - noticeHeight) / 2,
+      w: noticeWidth, h: noticeHeight });
+    bubble.style.right = 'auto';
+    bubble.style.setProperty('--compact-reminder-font', `${font}px`);
+  }
+  function renderReminder() {
+    if (!compact) { bubble.textContent = reminderText; return; }
+    const lines = reminderType === 'insufficient'
+      ? ['探索幣仲差少少！', '完成小測或遊戲，儲夠再嚟啦！']
+      : ['恭喜你！目前可以抽到嘅卡片，', '你已經集齊晒！', '等新卡登場，再嚟探索啦！'];
+    bubble.replaceChildren(...lines.map(text => {
+      const line = document.createElement('span'); line.textContent = text; return line;
+    }));
   }
   function result(rect) {
     if (!enabled && !compact && !landscapeFit) return rect;
@@ -260,7 +280,7 @@ export function createPortraitLayout(canvas, ctx, art) {
     get enabled() { return enabled; }, get compact() { return compact; }, get landscapeFit() { return landscapeFit; }, get ready() { return ready(); },
     get size() { return { q, x, y, height }; },
     insets(top, bottom, left = 0, right = 0) { safeTop = Number.isFinite(top) ? Math.max(0, Math.min(200, top)) : 0; safeBottom = Number.isFinite(bottom) ? Math.max(0, Math.min(200, bottom)) : 0; safeLeft = Number.isFinite(left) ? Math.max(0, Math.min(200, left)) : 0; safeRight = Number.isFinite(right) ? Math.max(0, Math.min(200, right)) : 0; document.documentElement.style.setProperty('--portrait-safe-top', `${safeTop}px`); document.documentElement.style.setProperty('--portrait-safe-bottom', `${safeBottom}px`); },
-    reminder(text) { bubble.textContent = text; },
+    reminder(text, type) { reminderText = text; reminderType = type; renderReminder(); },
     identity(profile) { identity.replaceChildren(); for (const value of [profile.nickname || '未設定暱稱', `${profile.className} (${profile.studentNo}) ${profile.name}`]) { const span = document.createElement('span'); span.textContent = value; identity.append(span); } },
     restore() { if (landscapeFit) ctx.restore(); else if (!enabled && !compact) { for (const key of ['left', 'top', 'width']) $('result-card-host').style.removeProperty(key); } }
   };
