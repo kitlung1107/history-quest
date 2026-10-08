@@ -26,7 +26,12 @@ async function setup(width, height, insets = {}, layout = 'compact', reducedMoti
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
-  await page.route('**/*', route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+  await page.route('**/*', async route => {
+    const url=new URL(route.request().url());
+    if(url.origin!==origin)return route.abort();
+    if(/reminder-(complete|insufficient)\.png$/.test(url.pathname))await new Promise(resolve=>setTimeout(resolve,120));
+    return route.continue();
+  });
   await page.goto(origin);
   const frame = page.frames()[1];
   await frame.waitForFunction(() => window.coinDrawPresentation?.phase === 'idle');
@@ -50,7 +55,14 @@ async function snapshot(frame) {
 }
 async function trigger(page, frame, type) {
   await page.evaluate(type => window.notice=type, type);
+  const before=await snapshot(frame);
+  const firstNotice=!(await frame.locator('#draw-reminder').getAttribute('src'));
   await frame.locator('#start').click();
+  if(firstNotice)await frame.waitForFunction(() => window.coinDrawPresentation.phase === 'reminder-loading');
+  if(firstNotice&&await frame.evaluate(()=>window.coinDrawPresentation.layout==='compact')){
+    assert.deepEqual((await snapshot(frame)).title,before.title,'loading title stays fixed');
+    assert.equal((await snapshot(frame)).pixels,before.pixels,'loading scene stays fixed');
+  }
   await frame.waitForFunction(() => window.coinDrawPresentation.phase === 'reminder');
 }
 let origin;
@@ -58,7 +70,7 @@ let origin;
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   origin = `http://127.0.0.1:${server.address().port}`;
   browser = await chromium.launch({headless:true, executablePath:process.env.CHROMIUM_PATH || undefined, args:['--no-sandbox']});
-  for (const [width,height,insets] of [[844,388,{}],[667,375,{}],[568,320,{}],[932,430,{safeLeft:44,safeRight:44,safeBottom:21}],[844,260,{safeLeft:44,safeRight:44,safeBottom:21}]]) {
+  for (const [width,height,insets] of [[844,388,{}],[667,375,{}],[568,320,{}],[568,320,{safeLeft:44,safeRight:44,safeBottom:21}],[932,430,{safeLeft:44,safeRight:44,safeBottom:21}],[844,260,{safeLeft:44,safeRight:44,safeBottom:21}]]) {
     for (const type of ['insufficient','complete']) {
       const {context,page,frame,errors} = await setup(width,height,insets);
       const before = await snapshot(frame);
@@ -84,6 +96,11 @@ let origin;
       assert.equal(await page.evaluate(()=>attempts),1,'double taps cannot repeat request');
       await page.screenshot({path:path.join(output,`${width}x${height}-${type}.png`)});
       await frame.waitForFunction(()=>window.coinDrawPresentation.phase==='reminder-fading',{},{timeout:6000});
+      await page.waitForTimeout(80);
+      const opacity=await frame.locator('#portrait-reminder').evaluate(el=>Number(getComputedStyle(el).opacity));
+      assert(opacity>0&&opacity<1,'notice visibly fades through intermediate opacity');
+      assert.deepEqual((await snapshot(frame)).title,before.title,'fading title stays fixed');
+      assert.equal((await snapshot(frame)).pixels,before.pixels,'fading canvas stays fixed');
       await frame.waitForFunction(()=>window.coinDrawPresentation.phase==='idle');
       const times=await frame.evaluate(()=>times);
       const start=times.find(x=>x.phase==='reminder').time, fade=times.find(x=>x.phase==='reminder-fading').time, end=times.find(x=>x.phase==='idle').time;
@@ -132,7 +149,10 @@ let origin;
   {
     const {context,page,frame}=await setup(844,388,{},'compact','reduce');
     await trigger(page,frame,'insufficient');await frame.waitForFunction(()=>window.coinDrawPresentation.phase==='idle',{},{timeout:6000});
-    assert(!(await frame.evaluate(()=>times)).some(x=>x.phase==='reminder-fading'));
+    const reducedTimes=await frame.evaluate(()=>times);
+    assert(!reducedTimes.some(x=>x.phase==='reminder-fading'));
+    const reducedHold=reducedTimes.find(x=>x.phase==='idle').time-reducedTimes.find(x=>x.phase==='reminder').time;
+    assert(reducedHold>=3990&&reducedHold<4400);
     reports.push({reducedMotion:'four-second hold, no fade'});await context.close();
   }
   if(process.env.DRAW_APP_PREVIEW_URL){

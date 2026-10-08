@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'client/public/coin-draw/**'
+      - 'client/src/components/CoinDrawPanel.tsx'
+      - 'client/src/home.css'
+      - 'client/src/coin-draw.css'
       - 'scripts/compact-draw-notice.test.cjs'
       - '.github/workflows/draw-notice-check.yml'
 

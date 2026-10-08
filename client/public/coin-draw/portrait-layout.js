@@ -90,7 +90,7 @@ export function createPortraitLayout(canvas, ctx, art) {
     // never participate in the title or scene geometry, including while hidden.
     const actionCenter = layout.action.x + layout.action.w / 2;
     const noticeWidth = Math.min(layout.action.w * 1.07, 2 * (layout.width - safeRight - actionCenter - 4));
-    const font = Math.min(16, Math.max(10, (noticeWidth - 24) / 18));
+    const font = Math.min(16, Math.max(8, (noticeWidth - 24) / 18));
     const noticeHeight = Math.max(layout.action.h, font * 4.4 + 24);
     apply(bubble, { x: layout.action.x + (layout.action.w - noticeWidth) / 2,
       y: layout.action.y + (layout.action.h - noticeHeight) / 2,
