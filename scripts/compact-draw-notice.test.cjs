@@ -32,6 +32,7 @@ async function setup(width, height, insets = {}, layout = 'compact', reducedMoti
   await frame.waitForFunction(() => window.coinDrawPresentation?.phase === 'idle');
   await setLayout(page, layout, insets);
   await frame.waitForFunction(() => document.querySelector('#start').disabled === false);
+  await frame.evaluate(async () => { await Promise.all([...document.images].filter(img => img.getAttribute('src')).map(img => img.decode().catch(() => {}))); await document.fonts.ready; await new Promise(requestAnimationFrame); });
   await frame.evaluate(() => {
     window.times = [];
     new MutationObserver(() => { const phase = document.querySelector('#scene').dataset.phase; if (times.at(-1)?.phase !== phase) times.push({ phase, time:performance.now() }); }).observe(document.querySelector('#scene'), { attributes:true, attributeFilter:['data-phase'] });
@@ -69,6 +70,8 @@ let origin;
       const notice = await frame.locator('#portrait-reminder').evaluate(el => {
         const r=el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,opacity:getComputedStyle(el).opacity,lines:[...el.children].map(x=>x.textContent)};
       });
+      await page.screenshot({path:path.join(output,`${width}x${height}-${type}.png`)});
+      fs.writeFileSync(path.join(output,'latest-state.json'),JSON.stringify({width,height,type,notice,action:before.action},null,2));
       assert.equal(notice.opacity,'1');
       assert(notice.scrollWidth<=notice.clientWidth,'notice text fits width');
       assert(notice.scrollHeight<=notice.clientHeight,'notice text fits height');
@@ -132,6 +135,34 @@ let origin;
     assert(!(await frame.evaluate(()=>times)).some(x=>x.phase==='reminder-fading'));
     reports.push({reducedMotion:'four-second hold, no fade'});await context.close();
   }
+  if(process.env.DRAW_APP_PREVIEW_URL){
+    const app=process.env.DRAW_APP_PREVIEW_URL;
+    for(const scenario of ['poor','empty','both','backend-poor']){
+      const context=await browser.newContext({viewport:{width:844,height:388},serviceWorkers:'block'});
+      const blocked=[];
+      await context.route('**/*',route=>{const url=new URL(route.request().url());if(url.origin===new URL(app).origin)return route.continue();blocked.push(url.hostname);return route.abort();});
+      const page=await context.newPage();await page.goto(app+'?scenario='+scenario);
+      const frame=await (await page.waitForSelector('iframe.coin-draw-frame')).contentFrame();
+      await frame.waitForFunction(()=>window.coinDrawPresentation?.phase==='idle'&&!document.querySelector('#start').disabled);
+      await page.getByRole('button',{name:'關閉年級選單',exact:true}).click();
+      await page.waitForTimeout(400);
+      const before=await snapshot(frame), state=await page.evaluate(()=>window.drawReminderPreview.inspect());
+      await frame.locator('#start').click();await frame.waitForFunction(()=>window.coinDrawPresentation.phase==='reminder');
+      assert.deepEqual((await snapshot(frame)).title,before.title);
+      assert.equal((await snapshot(frame)).pixels,before.pixels);
+      await page.screenshot({path:path.join(output,'integrated-'+scenario+'.png')});
+      await frame.evaluate(()=>{for(let n=0;n<12;n++)parent.postMessage({kind:'coin-draw-request'},location.origin);});
+      await page.getByRole('button',{name:'開啟年級選單',exact:true}).click();
+      await page.waitForTimeout(400);
+      await page.getByRole('button',{name:'關閉年級選單',exact:true}).click();await page.waitForTimeout(400);
+      assert.deepEqual((await snapshot(frame)).title,before.title,'sidebar return restores notice/title slot');
+      await frame.waitForFunction(()=>window.coinDrawPresentation.phase==='idle',{},{timeout:6000});
+      const after=await page.evaluate(()=>window.drawReminderPreview.inspect());
+      assert.equal(after.attempts,1);assert.equal(after.purchases,0);assert.equal(after.balance,state.balance);assert.deepEqual(after.ownedCardIds,state.ownedCardIds);
+      assert(blocked.every(x=>['fonts.googleapis.com','fonts.gstatic.com'].includes(x)),'no account/Firebase requests');
+      reports.push({integration:scenario,sidebar:'open/close passed',attempts:after.attempts,purchases:after.purchases,balanceUnchanged:true});await context.close();
+    }
+  }
   fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(reports,null,2));
   console.log(`Passed ${reports.length} presentation scenarios. Results: ${output}`);
-} finally {await browser?.close();server.close();}})().catch(error=>{console.error(error);process.exitCode=1;});
+} finally {await browser?.close();server.close();}})().catch(error=>{fs.writeFileSync(path.join(output,'failure.json'),JSON.stringify({error:error.stack,reports},null,2));console.error(error);process.exitCode=1;});

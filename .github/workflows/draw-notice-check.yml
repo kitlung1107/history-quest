@@ -35,7 +35,18 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/draw-ui" --no-package-lock playwright@1.56.1
           "$RUNNER_TEMP/draw-ui/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Start isolated in-memory application preview
+        run: |
+          GITHUB_ACTIONS='' pnpm exec vite --config vite.draw-preview.config.ts > "$RUNNER_TEMP/draw-vite.log" 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:4340/__draw-reminders-preview > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/draw-vite.log"
+          exit 1
       - name: Verify fixed notice and unchanged layout timing
+        env:
+          DRAW_APP_PREVIEW_URL: http://127.0.0.1:4340/__draw-reminders-preview
         run: PLAYWRIGHT_MODULE="$RUNNER_TEMP/draw-ui/node_modules/playwright" node scripts/compact-draw-notice.test.cjs
       - name: Retain screenshots and timing results
         if: always()
