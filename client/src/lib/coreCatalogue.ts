@@ -151,6 +151,7 @@ export function planCoreCatalogue(
           title: game.title,
           taskId: task.id,
           questionCount: entries.length,
+          ...(game.rulesProtocol==='mummy-game/1'?{protocol:'mummy-game/1',answerKey:['1','2','3','4','5'].map(id=>game.questions[id].answer[0])}:{}),
         },
       });
     }

@@ -18,6 +18,7 @@ export function GameSyncProvider({ children }: { children: ReactNode }) {
   const [message, setMessage] = useState('正在核對遊戲紀錄授權…');
   const active = useRef(false), running = useRef(false);
   const persistenceFailed = useRef(false);
+  const mummyRetryAt=useRef(0);
   const prefix = `hq-events-v1:${encodeURIComponent(account.user.uid)}:${encodeURIComponent(account.studentId)}:`;
   const alive = useRef(true);
   function queued() {
@@ -30,7 +31,7 @@ export function GameSyncProvider({ children }: { children: ReactNode }) {
         rows.push({ key, item });
       }
     }
-    return rows.sort((a, b) => a.item.event.sessionId.localeCompare(b.item.event.sessionId) || a.item.event.sequence - b.item.event.sequence);
+    return rows.sort((a, b) => Number(a.item.event.type==='complete')-Number(b.item.event.type==='complete') || (a.item.event.type==='complete'&&b.item.event.type==='complete'?a.item.event.playedAt.localeCompare(b.item.event.playedAt):0) || a.item.event.sessionId.localeCompare(b.item.event.sessionId) || a.item.event.sequence - b.item.event.sequence);
   }
   async function flush() {
     if (running.current || !active.current || (localMockIdentity?localIdentity.uid:auth.currentUser?.uid) !== account.user.uid) return;
@@ -42,13 +43,16 @@ export function GameSyncProvider({ children }: { children: ReactNode }) {
       for (const { key, item } of rows) {
         if (!alive.current || !active.current || (localMockIdentity?localIdentity.uid:auth.currentUser?.uid) !== account.user.uid) break;
         if (blocked.has(item.event.sessionId)) continue;
+        if(item.event.type==='complete'&&Date.now()<mummyRetryAt.current)break;
         try {
           await submitGameEvent(item);
           localStorage.removeItem(key);
+          if(item.event.type==='complete')mummyRetryAt.current=0;
         } catch (error) {
           blocked.add(item.event.sessionId);
           const code = (error as { code?: string })?.code;
           failure = code === 'permission-denied' ? '授權或題庫核對失敗，請重新登入或聯絡老師' : '請檢查網絡後重試';
+          if(item.event.type==='complete'){mummyRetryAt.current=Date.now()+(code==='permission-denied'?300000:30000);break;}
         }
       }
       if (alive.current) {
@@ -88,5 +92,5 @@ export function GameSyncProvider({ children }: { children: ReactNode }) {
       setPending(queued().length); setMessage('待同步'); void flush(); return true;
     } catch { persistenceFailed.current = true; setMessage('無法保存待同步紀錄；請保持本頁開啟，允許瀏覽器儲存後重試'); return false; }
   }
-  return <Context.Provider value={{ authorized, pending, message, enqueue, retry: () => void flush() }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ authorized, pending, message, enqueue, retry: () => {mummyRetryAt.current=0;void flush();} }}>{children}</Context.Provider>;
 }

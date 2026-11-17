@@ -2,11 +2,14 @@ import { collection, doc, getDocFromServer, getDocsFromServer, limit, orderBy, q
 import { auth, db } from '../firebase';
 import { isCorrect, type Game, type GameEvent, type Question } from './model';
 import { collectPages, countWrongAnswers, mergeWrongQuestions, type WrongQuestion } from './records';
+import {submitMummyCompletion} from './mummy';
 import {submitRulesGameEvent} from './rulesGame';
 export type QueuedEvent = { uid: string; studentId: string; gameId: string; version: string; event: GameEvent };
 export type GameSession = { uid: string; studentId: string; gameId: string; version: string; status: 'open' | 'completed' | 'abandoned'; attempts: number; correct: number; lastEventId: string };
 export const versionRef = (game: Pick<Game, 'gameId' | 'version'>) => doc(db, 'gameCatalog', game.gameId, 'versions', game.version);
 export async function submitGameEvent(item: QueuedEvent) {
+  if(item.event.protocol==='mummy-game/1'){if(auth.currentUser?.uid!==item.uid)throw Error('身分不符');return submitMummyCompletion(db,item);}
+  if(item.event.type==='complete')throw Error('缺少木乃伊協定');
   if(item.event.protocol==='rules-game/1')return submitRulesGameEvent(item);
   if(item.event.type==='route')throw Error('移動紀錄缺少通關協定');
   if (auth.currentUser?.uid !== item.uid) throw new Error('身分不符');
@@ -74,13 +77,13 @@ export async function publishGame(game: Game) {
     await batch.commit();
   }
   const batch = writeBatch(db);
-  batch.set(versionRef(game), { enabled: true, title: game.title, taskId: game.taskId, questionCount: entries.length });
+  batch.set(versionRef(game), { enabled: true, title: game.title, taskId: game.taskId, questionCount: entries.length, ...(game.rulesProtocol==='mummy-game/1'?{protocol:'mummy-game/1',answerKey:['1','2','3','4','5'].map(id=>game.questions[id].answer[0])}:{}) });
   await batch.commit();
 }
 export async function loadGameSessions(studentId?: string, cursor?: DocumentSnapshot) {
   return getDocsFromServer(query(collection(db, 'gameSessions'), ...(studentId !== undefined ? [where('studentId', '==', studentId)] : []), where('status', '==', 'completed'), orderBy('createdAt', 'desc'), ...(cursor ? [startAfter(cursor)] : []), limit(30)));
 }
-export type SavedSession = GameSession & { id: string; createdAt?: { toDate(): Date } };
+export type SavedSession = GameSession & { protocol?:string;answers?:number[];correctByQuestion?:boolean[];score?:number;firstCompletion?:boolean;rewardAmount?:number;playedAt?:string; id: string; createdAt?: { toDate(): Date } };
 export async function loadAllGameSessions(studentId?: string): Promise<SavedSession[]> {
   return collectPages<SavedSession, DocumentSnapshot>(async cursor => {
     const result = await loadGameSessions(studentId, cursor);
@@ -89,8 +92,9 @@ export async function loadAllGameSessions(studentId?: string): Promise<SavedSess
 }
 type QuestionCache = Map<string, Promise<Question | null>>;
 export async function loadWrongQuestions(sessionId: string, gameId: string, version: string, cache: QuestionCache = new Map()): Promise<WrongQuestion[]> {
-  const answers = await getDocsFromServer(query(collection(db, 'gameSessions', sessionId, 'answers'), where('correct', '==', false)));
-  const counts = countWrongAnswers(answers.docs.map(d => d.data() as { questionId: string; correct: boolean }));
+  const mummy=gameId==='mummy-workshop'?(await getDocFromServer(doc(db,'gameSessions',sessionId))).data():null;
+  const raw=mummy?.protocol==='mummy-game/1'?mummy.correctByQuestion.map((correct:boolean,i:number)=>({questionId:String(i+1),correct})):(await getDocsFromServer(query(collection(db,'gameSessions',sessionId,'answers'),where('correct','==',false)))).docs.map(d=>d.data() as {questionId:string;correct:boolean});
+  const counts=countWrongAnswers(raw);
   const rows: WrongQuestion[] = [];
   for (const [id, count] of Array.from(counts)) {
     const key = JSON.stringify([gameId, version, id]);

@@ -19,6 +19,7 @@ export function gameRewardQuote(rule:CoinRule,correct:number,attempts:number){
 // The client calculates proposed state; it cannot invent geometry or certify itself.
 export async function submitRulesGameEvent(item:QueuedEvent){
   if(auth.currentUser?.uid!==item.uid)throw Error('登入身分已變更');
+  if(item.event.type==='complete')throw Error('木乃伊完成不能使用迷宮協定');
   const e=item.event,sessionRef=doc(db,'gameSessions',e.sessionId),runRef=doc(db,'gameRuns',e.sessionId);
   await runTransaction(db,async tx=>{
     if(auth.currentUser?.uid!==item.uid)throw Error('登入身分已變更');

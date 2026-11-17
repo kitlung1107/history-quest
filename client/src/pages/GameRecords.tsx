@@ -55,7 +55,8 @@ function SessionCard({ row, teacher = false }: { row: SavedSession; teacher?: bo
     <h3 className="display-title text-xl">{games[row.gameId]?.title || row.gameId}</h3>
     <p className="mt-2 text-sm break-all">{row.createdAt?.toDate().toLocaleString('zh-HK')} · 場次 {row.id}</p>
     <p className="my-3 font-bold">總作答 {row.attempts} 次 · 答對 {row.correct} 次 · 答錯 {row.attempts - row.correct} 次</p>
-    {games[row.gameId]?.taskId && <RewardStatus taskId={games[row.gameId].taskId} sourceId={row.id} kind="gameReward" studentId={teacher ? row.studentId : undefined} />}
+    {row.protocol==='mummy-game/1'&&<><p>分數：{row.score} / 100 · {row.firstCompletion?'首次完成':'重玩'} · 本局探索幣：{row.rewardAmount}</p><p>{row.correctByQuestion?.map((ok,i)=>`第 ${i+1} 題：${ok?'答對':'答錯'}`).join(' · ')}</p></>}
+    {row.protocol!=='mummy-game/1'&&games[row.gameId]?.taskId && <RewardStatus taskId={games[row.gameId].taskId} sourceId={row.id} kind="gameReward" studentId={teacher ? row.studentId : undefined} />}
     <WrongBank sessions={[row]} single />
   </article>;
 }

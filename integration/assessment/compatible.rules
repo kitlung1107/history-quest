@@ -360,7 +360,7 @@ service cloud.firestore {
     }
     match /gameCatalog/{game}/versions/{version} {
       allow read: if signed();
-      allow create: if teacher() && request.resource.data.keys().hasOnly(['enabled','title','taskId','questionCount'])
+      allow create: if teacher() && (request.resource.data.keys().hasOnly(['enabled','title','taskId','questionCount']) || (game=='mummy-workshop' && request.resource.data.keys().hasOnly(['enabled','title','taskId','questionCount','protocol','answerKey']) && request.resource.data.protocol=='mummy-game/1' && request.resource.data.taskId=='S1_Mummy_Workshop' && request.resource.data.questionCount==5 && mmAnswers(request.resource.data.answerKey)))
         && request.resource.data.enabled == true;
       allow update: if teacher() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['enabled'])
         && request.resource.data.enabled is bool;
@@ -373,10 +373,10 @@ service cloud.firestore {
       }
     }
     match /gameSessions/{session} {
-      allow create: if grSessionCreate(session);
+      allow create: if request.resource.data.get('protocol','')=='rules-game/1' && grSessionCreate(session);
       allow get: if teacher() || (resource == null && signed()) || owns(resource.data.studentId);
       allow list: if teacher() || owns(resource.data.studentId);
-      allow create: if session.matches('[a-zA-Z0-9-]{1,80}') && gameOwner(request.resource.data)
+      allow create: if request.resource.data.get('protocol','')=='' && request.resource.data.gameId!='mummy-workshop' && session.matches('[a-zA-Z0-9-]{1,80}') && gameOwner(request.resource.data)
         && gameVersion(request.resource.data)
         && (teacher() || exists(/databases/$(database)/documents/profiles/$(request.resource.data.studentId)))
         && request.resource.data.keys().hasOnly(['uid','studentId','gameId','version','status','attempts','correct','lastEventId','createdAt'])
@@ -532,8 +532,8 @@ service cloud.firestore {
       allow update, delete: if false;
     }
     match /coinAccounts/{sid}/entries/{entry} {
-      allow create: if request.resource.data.kind=='gameReward' && grRulesReward(sid,entry);
-      allow update: if request.resource.data.kind=='gameReward' && resource.data.amount==0 && grRulesReward(sid,entry);
+      allow create: if entry!='S1_Mummy_Workshop' && request.resource.data.kind=='gameReward' && grRulesReward(sid,entry);
+      allow update: if entry!='S1_Mummy_Workshop' && request.resource.data.kind=='gameReward' && resource.data.amount==0 && grRulesReward(sid,entry);
       allow read: if teacher() || owns(sid);
       function submissionEvidence(d) {
         let s = getAfter(/databases/$(database)/documents/submissions/$(d.attemptId)).data;
@@ -556,10 +556,10 @@ service cloud.firestore {
         && ((request.resource.data.kind == 'taskReward' && submissionEvidence(request.resource.data))
           || (request.resource.data.kind == 'gameReward' && gameEvidence(request.resource.data)));
       }
-      allow create: if request.resource.data.kind == 'cardDraw'
+      allow create: if entry!='S1_Mummy_Workshop' && (request.resource.data.kind == 'cardDraw'
         ? browserDrawDebit(sid, entry, request.resource.data)
-        : positiveReward();
-      allow update: if resource.data.amount == 0 && positiveReward();
+        : positiveReward());
+      allow update: if entry!='S1_Mummy_Workshop' && resource.data.amount == 0 && positiveReward();
       allow delete: if false;
           function rulesReward() {
         let d = request.resource.data;
@@ -574,8 +574,8 @@ service cloud.firestore {
           && d.createdAt == request.time && d.amount > 0 && d.rule == rrRule(entry)
           && d.tierIndex == s.grade.tierIndex;
       }
-      allow create: if request.resource.data.kind=='taskReward' && rulesReward();
-      allow update: if request.resource.data.kind=='taskReward' && resource.data.amount == 0 && rulesReward();
+      allow create: if entry!='S1_Mummy_Workshop' && request.resource.data.kind=='taskReward' && rulesReward();
+      allow update: if entry!='S1_Mummy_Workshop' && request.resource.data.kind=='taskReward' && resource.data.amount == 0 && rulesReward();
       allow delete: if false;
     }
     match /catalogue/{task} { allow read, write: if teacher(); }
@@ -1032,6 +1032,53 @@ service cloud.firestore {
       allow create: if quoteInit();
       allow update: if quoteInit() || quoteStep();
     }
+
+    // Mummy: five final choices, one atomic completion and first credit (including zero).
+    function mmTask() { return 'S1_Mummy_Workshop'; }
+    function mmEntry(sid) { return /databases/$(database)/documents/coinAccounts/$(sid)/entries/S1_Mummy_Workshop; }
+    function mmMeta(s) { return get(/databases/$(database)/documents/gameCatalog/mummy-workshop/versions/$(s.version)).data; }
+    function mmAnswers(a) { return a is list && a.size()==5 && a[0] is int && a[1] is int && a[2] is int && a[3] is int && a[4] is int && a.toSet().hasOnly([0,1,2]); }
+    function mmFlags(a,k) { return [a[0]==k[0],a[1]==k[1],a[2]==k[2],a[3]==k[3],a[4]==k[4]]; }
+    function mmCount(a) { return (a[0]?1:0)+(a[1]?1:0)+(a[2]?1:0)+(a[3]?1:0)+(a[4]?1:0); }
+    function mmRule(score) { return {'mode':'fixed','amount':score,'metric':'score','tiers':[]}; }
+    function mmOwner(s) {
+      let a=get(/databases/$(database)/documents/access/$(request.auth.token.email)).data;
+      let task=get(/databases/$(database)/documents/taskAccess/S1_Mummy_Workshop).data;
+      return signed() && request.auth.uid==s.uid && (teacher() || (a.enabled==true && a.studentId==s.studentId && task.enabled==true && task.grade==1 && (a.get('testing',false)==true || rosterGrade(s.studentId)==1)));
+    }
+    function mmActive(s) {
+      let m=mmMeta(s);
+      let policy=get(/databases/$(database)/documents/rewardPolicies/S1_Mummy_Workshop).data;
+      let automation=get(/databases/$(database)/documents/rewardAutomation/status).data;
+      return m.enabled==true && m.protocol=='mummy-game/1' && m.taskId==mmTask() && m.questionCount==5
+        && mmOwner(s)
+        && policy.enabled==true && policy.source=='game' && automation.enabled==true && s.createdAt>=automation.activatedAt;
+    }
+    function mmCompletion(session) {
+      let s=request.resource.data;
+      let m=mmMeta(s);
+      let claimed=exists(mmEntry(s.studentId));
+      let credit=getAfter(mmEntry(s.studentId)).data;
+      return session.matches('[a-zA-Z0-9-]{1,80}') && s.protocol=='mummy-game/1' && s.gameId=='mummy-workshop'
+        && s.keys().hasOnly(['protocol','uid','studentId','gameId','version','status','attempts','correct','score','answers','correctByQuestion','lastEventId','firstCompletion','rewardAmount','playedAt','createdAt','completedAt'])
+        && mmActive(s) && mmAnswers(s.answers) && s.correctByQuestion==mmFlags(s.answers,m.answerKey)
+        && s.correct==mmCount(s.correctByQuestion) && s.score==s.correct*20 && s.attempts==5 && s.status=='completed'
+        && s.lastEventId.matches('[a-zA-Z0-9-]{1,80}') && s.playedAt is string && s.playedAt.size()<=40
+        && s.createdAt==request.time && s.completedAt==request.time && s.firstCompletion==!claimed
+        && s.rewardAmount==(claimed?0:s.score)
+        && (claimed || (credit.attemptId==session && credit.amount==s.score && credit.createdAt==request.time));
+    }
+    function mmCredit(sid,entry) {
+      let d=request.resource.data;
+      let s=getAfter(/databases/$(database)/documents/gameSessions/$(d.attemptId)).data;
+      return entry==mmTask() && d.keys().hasOnly(['kind','taskId','attemptId','amount','score','progress','rule','createdAt'])
+        && s.protocol=='mummy-game/1' && s.gameId=='mummy-workshop' && s.studentId==sid && request.auth.uid==s.uid
+        && !exists(/databases/$(database)/documents/gameSessions/$(d.attemptId)) && s.firstCompletion==true && s.status=='completed'
+        && d.kind=='gameReward' && d.taskId==entry && d.amount==s.score && d.score==s.score && d.amount>=0 && d.amount<=100
+        && d.progress==100 && d.rule==mmRule(s.score) && d.createdAt==request.time && s.createdAt==request.time;
+    }
+    match /gameSessions/{session} { allow create: if request.resource.data.get('protocol','')=='mummy-game/1' && mmCompletion(session); }
+    match /coinAccounts/{sid}/entries/{entry} { allow create: if entry==mmTask() && mmCredit(sid,entry); }
 
   }
 }

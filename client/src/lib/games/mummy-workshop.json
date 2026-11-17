@@ -1,0 +1,105 @@
+{
+  "gameId": "mummy-workshop",
+  "version": "ba1a0e13cd180f71b579c960f1cb0655",
+  "rulesProtocol": "mummy-game/1",
+  "title": "木乃伊工房",
+  "taskId": "S1_Mummy_Workshop",
+  "url": "https://kitlung1107.github.io/mummy-workshop/",
+  "questions": {
+    "1": {
+      "title": "腦部",
+      "prompt": "你會怎樣處理腦部？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "經鼻腔取出腦部",
+        "保留腦部並塗香油",
+        "打開頭顱取出腦部"
+      ],
+      "items": [],
+      "maxIndex": [
+        2
+      ],
+      "distinct": false
+    },
+    "2": {
+      "title": "內臟",
+      "prompt": "你會怎樣處理胸腹內的器官？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "取出肝、肺、胃、腸，心臟留在體內",
+        "取出肝、肺、胃、腸和心臟",
+        "所有內臟留在體內"
+      ],
+      "items": [],
+      "maxIndex": [
+        2
+      ],
+      "distinct": false
+    },
+    "3": {
+      "title": "脫水",
+      "prompt": "你會用甚麼方法脫水？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "用天然鹼處理約 40 日",
+        "浸清水約 40 日",
+        "浸啤酒約 40 日"
+      ],
+      "items": [],
+      "maxIndex": [
+        2
+      ],
+      "distinct": false
+    },
+    "4": {
+      "title": "包裹",
+      "prompt": "你會怎樣填充及包裹身體？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "填充香料、木屑，塗樹脂和油，再包亞麻布",
+        "直接包亞麻布",
+        "填充並塗油後用紙草包裹"
+      ],
+      "items": [],
+      "maxIndex": [
+        2
+      ],
+      "distinct": false
+    },
+    "5": {
+      "title": "安葬",
+      "prompt": "最後，你會怎樣安葬這位法魯王？",
+      "type": "mc",
+      "validator": "index-array/1",
+      "answer": [
+        0
+      ],
+      "choices": [
+        "配金色面具並放入棺木",
+        "戴面具但放在棺旁",
+        "入棺但不戴面具"
+      ],
+      "items": [],
+      "maxIndex": [
+        2
+      ],
+      "distinct": false
+    }
+  }
+}

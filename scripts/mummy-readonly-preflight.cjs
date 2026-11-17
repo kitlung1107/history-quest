@@ -1,0 +1,14 @@
+const fs=require('node:fs'),crypto=require('node:crypto');
+const auth=require('firebase-tools/lib/auth'),{requireAuth}=require('firebase-tools/lib/requireAuth'),{Client}=require('firebase-tools/lib/apiv2');
+(async()=>{
+ const project='history-discovery-center',options={project,nonInteractive:true};const account=auth.getGlobalDefaultAccount();if(account)auth.setActiveAccount(options,account);await requireAuth(options);
+ const receipt={checkedAt:new Date().toISOString(),project,reads:[],writes:0};
+ const api=new Client({auth:true,apiVersion:'v1',urlPrefix:'https://firestore.googleapis.com'});
+ for(const path of ['rewardAutomation/status','rewardPolicies/S1_Mummy_Workshop','taskAccess/S1_Mummy_Workshop'])try{const d=(await api.get(`projects/${project}/databases/(default)/documents/${path}`,{skipLog:{resBody:true}})).body;receipt.reads.push({path,exists:true,fields:d.fields});}catch(e){receipt.reads.push({path,status:e.status,message:e.message});}
+ const rules=new Client({auth:true,apiVersion:'v1',urlPrefix:'https://firebaserules.googleapis.com'});
+ try{const release=(await rules.get(`projects/${project}/releases/cloud.firestore`,{skipLog:{resBody:true}})).body;const set=(await rules.get(release.rulesetName,{skipLog:{resBody:true}})).body;const text=set.source.files.find(f=>f.name.endsWith('.rules'))?.content??set.source.files[0].content;fs.mkdirSync('tmp/mummy',{recursive:true});fs.writeFileSync('tmp/mummy/live-baseline.rules',text);receipt.rules={release:release.rulesetName,sha256:crypto.createHash('sha256').update(text).digest('hex'),matchesLocal:crypto.createHash('sha256').update(text).digest('hex')===crypto.createHash('sha256').update(fs.readFileSync('integration/assessment/compatible.rules')).digest('hex')};}catch(e){receipt.rules={status:e.status,message:e.message};}
+ const monitoring=new Client({auth:true,apiVersion:'v3',urlPrefix:'https://monitoring.googleapis.com'});receipt.usage=[];
+ const end=new Date(),start=new Date(end.getTime()-86400000);
+ for(const type of ['read_count','write_count','delete_count'])try{const queryParams={filter:`metric.type="firestore.googleapis.com/document/${type}"`,'interval.startTime':start.toISOString(),'interval.endTime':end.toISOString(),'aggregation.alignmentPeriod':'86400s','aggregation.perSeriesAligner':'ALIGN_SUM','aggregation.crossSeriesReducer':'REDUCE_SUM',pageSize:'10'};const d=(await monitoring.get(`projects/${project}/timeSeries`,{queryParams,skipLog:{resBody:true}})).body;receipt.usage.push({type,start:start.toISOString(),end:end.toISOString(),points:d.timeSeries?.flatMap(s=>s.points),nextPage:!!d.nextPageToken});}catch(e){receipt.usage.push({type,status:e.status,message:e.message});}
+ fs.mkdirSync('tmp/mummy',{recursive:true});fs.writeFileSync('tmp/mummy/read-only-preflight.json',JSON.stringify(receipt,null,2));console.log(JSON.stringify(receipt,null,2));
+})().catch(e=>{console.error(e.message);process.exitCode=1;});
