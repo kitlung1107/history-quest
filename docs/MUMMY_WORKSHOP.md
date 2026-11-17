@@ -1,6 +1,6 @@
 # 木乃伊工房整合
 
-中一「人類的需要—古與今」，task `S1_Mummy_Workshop`、game `mummy-workshop`。保持遊戲 source repo 私有；公開的只有 Web 遊戲產物，直連正常流程返回探索館登入。不得把私有源碼 repo 改為 public。
+中一「人類的需要—古與今」，task `S1_Mummy_Workshop`、game `mummy-workshop`。2026-11-17 擁有人明確更改原先私人庫決定，授權把現有 `kitlung1107/mummy-workshop` 原始碼庫公開。遊戲檔案與原始碼公開；直連正常流程返回探索館登入，紀錄與派幣仍受 Firestore Rules 權限限制。
 
 ## 完成及派幣
 
@@ -16,7 +16,7 @@
 
 1. Firebase 已登入後先執行 `node scripts/mummy-readonly-preflight.cjs`：只讀規則、三個指定 metadata 及用量，不列舉學生資料。和目前正式 Rules 比對，保留其他同步發布；若與整合 baseline 不符，先合併並重跑 emulator。
 2. 發布測試通過的 `integration/assessment/compatible.rules`，絕不能直接以根目錄舊 firestore.rules 覆蓋。
-3. 建置私有遊戲 repo 的精確 commit；以公開 Pages 發布匯出產物，保持 source repo 私有。目前預定 URL 是 `https://kitlung1107.github.io/mummy-workshop/`，尚未有已確認的 Pages 設定／部署。若帳戶不支援私有來源 Pages，需另設只放編譯產物的公開發布目的地，並同步修改 manifest URL。不要公開 source repo。
+3. 建置已審查遊戲 repo 的精確 commit；以 Pages 發布匯出產物。URL 為 `https://kitlung1107.github.io/mummy-workshop/`，已配置 workflow Pages。部署工作需 `MUMMY_PAGES_ENABLED=true` 且位於 main，並在成功後核對公開 HTML、橋接程式及遊戲二進位檔。
 4. 探索館正常 main 發布流程原子同步新 game manifest、五題及 taskAccess，再發布頁面。此功能新增七個教材文件（五題、manifest、taskAccess），另更新既有固定索引。使用新 task ID，不恢復舊已刪除的 EgyptQuiz。
 5. 只為 `S1_Mummy_Workshop` 設 `rewardPolicies={source:'game',enabled:true}` 及 `coinRules={mode:'tiers',amount:0,metric:'score',tiers:[20,40,60,80,100].map(n=>({minimum:n,amount:n}))}`。不改全域 activation、其他遊戲、學生、帳本或計費。全域 automation 若未啟用，停止並回報，不擅自開啟。
 6. 以指定測試帳戶驗收後才視作已上線；不重設或操作真實學生獎勵作測試。
@@ -27,6 +27,6 @@
 
 2026-11-17 08:21 UTC 已完成 Firebase CLI 登入及唯讀核對，正式 Rules 正規化換行後與整合前 main 基線一致；全域 rewardAutomation 已啟用，新的木乃伊 policy/taskAccess 尚不存在。Cloud Monitoring 最近 24 小時回傳 document/read_count=25；write_count/delete_count 沒有 timeSeries，不得解讀為已證實零次，也不是剩餘 quota。預檢寫入數為 0。正式部署仍未執行。免費額度參考官方 https://firebase.google.com/docs/firestore/quotas ，不代表本專案剩餘額度。
 
-GitHub Pages 配置請求回傳 422：目前方案不支援此私人來源 repo 的 Pages；來源庫保持 private，沒有變更可見性或升級方案。公開遊戲須改用獨立編譯產物發布目的地，更新 manifest URL 並驗證後才可合併探索館 PR。遊戲 CI 已成功產生約 119 MB 的公開候選編譯 ZIP；尚未發布該 ZIP。
+原先私人來源 Pages 曾回傳方案限制 422；擁有人其後明確授權公開原始碼。公開前掃描 2 個分支及 PR 參照共 14 個可取得提交、771 個不同 blob，Gitleaks 8.30.1 未發現憑證；補充檢查沒有學生資料匯出／備份／服務帳戶檔，52 張 PNG 亦已作視覺審查。公開內容包括素材來源描述與 Git 提交作者資料。Repo 可見性已核實為 public，Pages workflow 設定成功，沒有升級方案。
 
 本機測試涵蓋零分、重玩、滿分、重送、跨分頁、錯年級、撤權、測試帳戶、偽造分數／金額、缺少原子帳本、舊協定繞過及教師舊派幣分支。另跑原冷戰和 assessment emulator suites。桌面瀏覽器已驗證匯出遊戲載入及登入遮罩，844×390 只屬尺寸模擬，不是手機／iPad 真機驗收；完整真人登入到派幣流程仍待正式部署及測試帳戶。
