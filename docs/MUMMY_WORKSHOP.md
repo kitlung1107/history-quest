@@ -25,6 +25,8 @@
 
 無競爭時每局 transaction 讀三份文件（場次、首次帳本、manifest）；首次寫兩份，包括首次零分，重玩只寫一份。Rules 的相依文件讀取、登入／目錄監聽、紀錄頁查詢及交易重試另計，不能把三讀當總計費。測試全部使用本機 demo 專案，不消耗正式 Firestore quota。
 
-2026-11-17 本機 Firebase CLI 未登入，正式 Rules、metadata 開關及最近 24 小時用量尚未讀回，正式部署未執行。免費額度參考官方 https://firebase.google.com/docs/firestore/quotas ，不代表本專案剩餘額度。
+2026-11-17 08:21 UTC 已完成 Firebase CLI 登入及唯讀核對，正式 Rules 正規化換行後與整合前 main 基線一致；全域 rewardAutomation 已啟用，新的木乃伊 policy/taskAccess 尚不存在。Cloud Monitoring 最近 24 小時回傳 document/read_count=25；write_count/delete_count 沒有 timeSeries，不得解讀為已證實零次，也不是剩餘 quota。預檢寫入數為 0。正式部署仍未執行。免費額度參考官方 https://firebase.google.com/docs/firestore/quotas ，不代表本專案剩餘額度。
+
+GitHub Pages 配置請求回傳 422：目前方案不支援此私人來源 repo 的 Pages；來源庫保持 private，沒有變更可見性或升級方案。公開遊戲須改用獨立編譯產物發布目的地，更新 manifest URL 並驗證後才可合併探索館 PR。遊戲 CI 已成功產生約 119 MB 的公開候選編譯 ZIP；尚未發布該 ZIP。
 
 本機測試涵蓋零分、重玩、滿分、重送、跨分頁、錯年級、撤權、測試帳戶、偽造分數／金額、缺少原子帳本、舊協定繞過及教師舊派幣分支。另跑原冷戰和 assessment emulator suites。桌面瀏覽器已驗證匯出遊戲載入及登入遮罩，844×390 只屬尺寸模擬，不是手機／iPad 真機驗收；完整真人登入到派幣流程仍待正式部署及測試帳戶。
