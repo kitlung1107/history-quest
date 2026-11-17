@@ -10,7 +10,7 @@
   "duration": 10,
   "difficulty": 2,
   "accent": "teal",
-  "image": "/history-quest/images/mummy-workshop-cover.png",
+  "image": "https://kitlung1107.github.io/history-quest/images/mummy-workshop-cover.png",
   "article": "## 木乃伊工房\n\n五題完成前可以返回修改答案，最後一次過查看結果及解說。首次完成每題答對可得 20 探索幣，最多 100 幣；首次 0 分也會計作已完成。之後可自由重玩，每局均保存紀錄，但不再派幣。\n\n手機及 iPad 請橫向遊玩。完成後請等候「同步成功」；暫時離線時請保留瀏覽器資料，連線後重試。",
   "gameUrl": "https://kitlung1107.github.io/mummy-workshop/",
   "questions": [],
