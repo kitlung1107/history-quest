@@ -1,0 +1,46 @@
+    // Mummy: five final choices, one atomic completion and first credit (including zero).
+    function mmTask() { return 'S1_Mummy_Workshop'; }
+    function mmEntry(sid) { return /databases/$(database)/documents/coinAccounts/$(sid)/entries/S1_Mummy_Workshop; }
+    function mmMeta(s) { return get(/databases/$(database)/documents/gameCatalog/mummy-workshop/versions/$(s.version)).data; }
+    function mmAnswers(a) { return a is list && a.size()==5 && a[0] is int && a[1] is int && a[2] is int && a[3] is int && a[4] is int && a.toSet().hasOnly([0,1,2]); }
+    function mmFlags(a,k) { return [a[0]==k[0],a[1]==k[1],a[2]==k[2],a[3]==k[3],a[4]==k[4]]; }
+    function mmCount(a) { return (a[0]?1:0)+(a[1]?1:0)+(a[2]?1:0)+(a[3]?1:0)+(a[4]?1:0); }
+    function mmRule(score) { return {'mode':'fixed','amount':score,'metric':'score','tiers':[]}; }
+    function mmOwner(s) {
+      let a=get(/databases/$(database)/documents/access/$(request.auth.token.email)).data;
+      let task=get(/databases/$(database)/documents/taskAccess/S1_Mummy_Workshop).data;
+      return signed() && request.auth.uid==s.uid && (teacher() || (a.enabled==true && a.studentId==s.studentId && task.enabled==true && task.grade==1 && (a.get('testing',false)==true || rosterGrade(s.studentId)==1)));
+    }
+    function mmActive(s) {
+      let m=mmMeta(s);
+      let policy=get(/databases/$(database)/documents/rewardPolicies/S1_Mummy_Workshop).data;
+      let automation=get(/databases/$(database)/documents/rewardAutomation/status).data;
+      return m.enabled==true && m.protocol=='mummy-game/1' && m.taskId==mmTask() && m.questionCount==5
+        && mmOwner(s)
+        && policy.enabled==true && policy.source=='game' && automation.enabled==true && s.createdAt>=automation.activatedAt;
+    }
+    function mmCompletion(session) {
+      let s=request.resource.data;
+      let m=mmMeta(s);
+      let claimed=exists(mmEntry(s.studentId));
+      let credit=getAfter(mmEntry(s.studentId)).data;
+      return session.matches('[a-zA-Z0-9-]{1,80}') && s.protocol=='mummy-game/1' && s.gameId=='mummy-workshop'
+        && s.keys().hasOnly(['protocol','uid','studentId','gameId','version','status','attempts','correct','score','answers','correctByQuestion','lastEventId','firstCompletion','rewardAmount','playedAt','createdAt','completedAt'])
+        && mmActive(s) && mmAnswers(s.answers) && s.correctByQuestion==mmFlags(s.answers,m.answerKey)
+        && s.correct==mmCount(s.correctByQuestion) && s.score==s.correct*20 && s.attempts==5 && s.status=='completed'
+        && s.lastEventId.matches('[a-zA-Z0-9-]{1,80}') && s.playedAt is string && s.playedAt.size()<=40
+        && s.createdAt==request.time && s.completedAt==request.time && s.firstCompletion==!claimed
+        && s.rewardAmount==(claimed?0:s.score)
+        && (claimed || (credit.attemptId==session && credit.amount==s.score && credit.createdAt==request.time));
+    }
+    function mmCredit(sid,entry) {
+      let d=request.resource.data;
+      let s=getAfter(/databases/$(database)/documents/gameSessions/$(d.attemptId)).data;
+      return entry==mmTask() && d.keys().hasOnly(['kind','taskId','attemptId','amount','score','progress','rule','createdAt'])
+        && s.protocol=='mummy-game/1' && s.gameId=='mummy-workshop' && s.studentId==sid && request.auth.uid==s.uid
+        && !exists(/databases/$(database)/documents/gameSessions/$(d.attemptId)) && s.firstCompletion==true && s.status=='completed'
+        && d.kind=='gameReward' && d.taskId==entry && d.amount==s.score && d.score==s.score && d.amount>=0 && d.amount<=100
+        && d.progress==100 && d.rule==mmRule(s.score) && d.createdAt==request.time && s.createdAt==request.time;
+    }
+    match /gameSessions/{session} { allow create: if request.resource.data.get('protocol','')=='mummy-game/1' && mmCompletion(session); }
+    match /coinAccounts/{sid}/entries/{entry} { allow create: if entry==mmTask() && mmCredit(sid,entry); }

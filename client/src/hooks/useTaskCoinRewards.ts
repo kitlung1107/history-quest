@@ -47,11 +47,12 @@ export function useTaskCoinRewards(
     rules: Record<string, CoinRule | undefined>;
     enabled: Record<string, boolean>;
     earned: Record<string, number>;
-  }>({ scope: "", ready: false, rules: {}, enabled: {}, earned: {} });
+    claimed: Record<string, boolean>;
+  }>({ scope: "", ready: false, rules: {}, enabled: {}, earned: {}, claimed: {} });
 
   useEffect(() => {
     if (preview || !account || !readable.length) return;
-    setState({ scope, ready: false, rules: {}, enabled: {}, earned: {} });
+    setState({ scope, ready: false, rules: {}, enabled: {}, earned: {}, claimed: {} });
     let active = true;
     const onSnapshot:typeof import('firebase/firestore').onSnapshot=((ref:any,_options:any,next:any,error:any)=>subscribeRewardDocument(ref,JSON.stringify([account.user.uid,account.studentId,account.profile?.className,account.testingAccount]),next,error)) as any;
     const update = (id: string, rule?: CoinRule) => {
@@ -132,6 +133,7 @@ export function useTaskCoinRewards(
                 previous.scope === scope
                   ? {
                       ...previous,
+                      claimed:{...previous.claimed,[id]:confirmed(snapshot)},
                       earned: {
                         ...previous.earned,
                         [id]: confirmed(snapshot)
@@ -147,6 +149,7 @@ export function useTaskCoinRewards(
               setState(previous => ({
                 ...previous,
                 earned: { ...previous.earned, [id]: 0 },
+                claimed: { ...previous.claimed, [id]: false },
               }));
           }
         )
@@ -167,6 +170,11 @@ export function useTaskCoinRewards(
     readable.map(task => {
       const earned =
         !preview && state.scope === scope ? state.earned[task.id] : 0;
+      if(task.id==='S1_Mummy_Workshop'){
+        const claimed=!preview&&state.scope===scope&&state.claimed[task.id];
+        const active=preview||state.scope===scope&&state.ready&&state.enabled[task.id];
+        return [task.id,claimed?{label:'首次完成：'+(earned||0)+' 探索幣',delivery:'可重玩並保存紀錄，不會再派幣',conditions:['首次 0 分也會計作已完成。'],tiers:[]}:active?{label:'首次完成最多 100 探索幣',delivery:'五題全部提交後，每題答對獲 20 幣',conditions:['只計第一次完成，包括 0 分。','每次重玩均保存紀錄，不追加或補派。'],tiers:[]}:null];
+      }
       if (earned > 0)
         return [
           task.id,

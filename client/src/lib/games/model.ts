@@ -1,8 +1,8 @@
 export type Question = { title: string; prompt: string; type: string; validator: string; answer: number[]; choices: string[]; items: string[]; maxIndex: number[]; distinct: boolean };
 export type Game = { gameId: string; title: string; taskId: string; url: string; version: string; rulesProtocol?:string; mazeVersion?:string; questions: Record<string, Question> };
 export type GameTarget={kind:'door'|'shortcut'|'chest'|'tower';cell:number};
-export type GameEvent = { eventId: string; sessionId: string; sequence: number; protocol?:'rules-game/1' } & (
-  { type: 'start';mapId?:string;mazeVersion?:string } | { type:'route';path:number[] } | { type: 'answer'; questionId: string; answer: number[];attempt?:number;target?:GameTarget } |
+export type GameEvent = { eventId: string; sessionId: string; sequence: number; protocol?:'rules-game/1'|'mummy-game/1' } & (
+  { type:'complete';answers:number[];playedAt:string } | { type: 'start';mapId?:string;mazeVersion?:string } | { type:'route';path:number[] } | { type: 'answer'; questionId: string; answer: number[];attempt?:number;target?:GameTarget } |
   { type: 'end'; outcome: 'completed' | 'abandoned'; attempts: number }
 );
 export const isId = (v: unknown): v is string => typeof v === 'string' && /^[a-zA-Z0-9-]{1,80}$/.test(v);
@@ -13,6 +13,7 @@ export function validAnswer(q: Question, answer: unknown): answer is number[] {
 }
 export function validEvent(e: any, game: Game): e is GameEvent {
   if (!e || !isId(e.eventId) || !isId(e.sessionId) || !Number.isSafeInteger(e.sequence) || e.sequence < 0) return false;
+  if(game.rulesProtocol==='mummy-game/1')return e.protocol==='mummy-game/1'&&e.type==='complete'&&e.sequence===1&&typeof e.playedAt==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(e.playedAt)&&e.playedAt.length<=40&&Array.isArray(e.answers)&&e.answers.length===5&&e.answers.every((n:unknown)=>Number.isInteger(n)&&Number(n)>=0&&Number(n)<=2);
   const rules=e.protocol==='rules-game/1';
   if(e.protocol!==undefined&&!rules)return false;
   if(rules&&game.rulesProtocol!=='rules-game/1')return false;

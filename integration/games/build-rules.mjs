@@ -8,4 +8,4 @@ export function addGameRules(input){
  output=output.replace('    match /coinAccounts/{sid}/entries/{entry} {','    match /coinAccounts/{sid}/entries/{entry} {\n      allow create: if request.resource.data.kind==\'gameReward\' && grRulesReward(sid,entry);\n      allow update: if request.resource.data.kind==\'gameReward\' && resource.data.amount==0 && grRulesReward(sid,entry);');
  return output.replace(/  }\s*}\s*$/,readFileSync('integration/games/protocol.rules','utf8')+'\n  }\n}\n');
 }
-if(process.argv.includes('--apply')){const file='integration/assessment/compatible.rules';writeFileSync(file,addGameRules(readFileSync(file,'utf8')));console.log('Added bounded Rules game protocol; existing permissions retained.');}
+if(process.argv.includes('--apply')){const file='integration/assessment/compatible.rules';if(readFileSync(file,'utf8').includes('// Mummy: five final choices'))throw Error('Use node integration/assessment/build-compatible-rules.mjs to preserve the Mummy protocol.');writeFileSync(file,addGameRules(readFileSync(file,'utf8')));console.log('Added bounded Rules game protocol; existing permissions retained.');}

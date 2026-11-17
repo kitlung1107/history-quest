@@ -1,3 +1,4 @@
+import {addMummyRules} from '../games/build-mummy-rules.mjs';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {addGameRules} from '../games/build-rules.mjs';
 const base=readFileSync('firestore.rules','utf8');
@@ -36,5 +37,5 @@ additions+=`\n    match /assessmentReviews/{attempt} {
       allow list, delete: if false;
     }\n`;
 output=output.replace(/  }\s*}\s*$/,additions+'  }\n}\n');
-writeFileSync('integration/assessment/compatible.rules',addGameRules(output));
+writeFileSync('integration/assessment/compatible.rules',addMummyRules(addGameRules(output)));
 console.log('Generated compatible rules; formal firestore.rules unchanged.');
