@@ -18,6 +18,7 @@ export default function ConnectedGame({ game, onExpandedChange }: { game: Game; 
   const [channel] = useState(() => crypto.randomUUID());
   const [published, setPublished] = useState(false);
   const [full, setFull] = useState(false);
+  const canShowFrame = Boolean(published && allowed && account && sync && (account.teacher || sync.authorized));
   const [notice, setNotice] = useState('正在核對題庫版本…');
   const live = useRef({ account, sync, published, allowed }); live.current = { account, sync, published, allowed };
   const url = new URL(game.url); url.searchParams.set('hqChannel', channel);
@@ -43,6 +44,9 @@ export default function ConnectedGame({ game, onExpandedChange }: { game: Game; 
     requestAnimationFrame(() => frame.current?.focus());
   }
   useEffect(() => {
+    if (!canShowFrame && expanded.current) returnToView();
+  }, [canShowFrame]);
+  useEffect(() => {
     if (!full) return;
     const bodyOverflow = document.body.style.overflow;
     const rootOverflow = document.documentElement.style.overflow;
@@ -62,6 +66,7 @@ export default function ConnectedGame({ game, onExpandedChange }: { game: Game; 
   }, [account?.user.uid, game.version]);
   useEffect(() => {
     let verified = false;
+    let workshopWindow: MessageEventSource | null = null;
     function post(data: object) { frame.current?.contentWindow?.postMessage({ protocol: 'history-game/1', channel, ...data }, origin); }
     function identify() {
       const { account: a, sync: s, published: p } = live.current;
@@ -73,7 +78,16 @@ export default function ConnectedGame({ game, onExpandedChange }: { game: Game; 
       const d = event.data;
       if (event.source !== frame.current?.contentWindow || event.origin !== origin || !d || d.protocol !== 'history-game/1' || d.channel !== channel || d.gameId !== game.gameId) return;
       if (d.version !== game.version) { verified = false; post({ type: 'locked' }); setNotice('遊戲與題庫版本不同，請重新載入；若仍失敗請聯絡老師。'); return; }
-      if (d.type === 'hello') { verified = true; identify(); }
+      if (d.type === 'hello') {
+        // Open the workshop at viewport size once per authenticated iframe session.
+        // Later heartbeats must leave the museum view selected by the player intact.
+        if (game.gameId === 'mummy-workshop' && workshopWindow !== event.source && live.current.published && live.current.allowed) {
+          workshopWindow = event.source;
+          changeExpansion(true);
+        }
+        verified = true;
+        identify();
+      }
       if (verified && d.type === 'fullscreen') expandGame();
       if (verified && d.type === 'return-to-view') returnToView();
       if (verified && d.type === 'event' && live.current.published && live.current.sync?.enqueue(game.gameId, game.version, d.event)) post({ type: 'accepted', eventId: d.event.eventId });
@@ -94,6 +108,6 @@ export default function ConnectedGame({ game, onExpandedChange }: { game: Game; 
     </div>
     {notice && <p role="alert" className="my-3">{notice}</p>}
     <p className="mb-2 text-sm">成功完成一局後保存摘要與該局曾答錯的題目。待同步時請保留瀏覽器資料；共用裝置用完請登出。</p>
-    {published && allowed && (account.teacher || sync.authorized) && <iframe ref={frame} src={url.href} title={game.title} className="w-full border-0"  allow="autoplay; fullscreen" allowFullScreen sandbox="allow-scripts allow-same-origin allow-pointer-lock" />}
+    {canShowFrame && <iframe ref={frame} src={url.href} title={game.title} className="w-full border-0"  allow="autoplay; fullscreen" allowFullScreen sandbox="allow-scripts allow-same-origin allow-pointer-lock" />}
   </section>;
 }
